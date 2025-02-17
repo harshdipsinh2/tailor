@@ -25,6 +25,9 @@ const CustomerRegistration = ({ setIsSubmitted }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true);
+    console.log(formData, '??');
+    localStorage.setItem('formData', JSON.stringify(formData))
+    
     setTimeout(() => {
       navigate("/customers");
     }, 500);
@@ -52,6 +55,8 @@ const CustomerRegistration = ({ setIsSubmitted }) => {
         <h2 className="title">Customer Registration</h2>
       </div>
       <form onSubmit={handleSubmit} className="form">
+
+        {/* Personal Details Section */}
         <div className="left-section">
           <h3 className="subtitle">Personal Details</h3>
           <input type="text" name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required />
@@ -66,8 +71,15 @@ const CustomerRegistration = ({ setIsSubmitted }) => {
               <input type="radio" name="gender" value="female" checked={formData.gender === "female"} onChange={handleChange} /> Female
             </label>
           </div>
+
+          {/* Save & Cancel Buttons Below Personal Details */}
+          <div className="button-group">
+            <button type="submit" onSubmit={handleSubmit}>Save</button>
+            <button type="button" onClick={handleCancel} className="cancel-button">Cancel</button>
+          </div>
         </div>
 
+        {/* Measurements Section */}
         <div className="right-section">
           <h3 className="subtitle">Measurements</h3>
           <input type="number" name="chest" placeholder="Chest (inches)" value={formData.chest} onChange={handleChange} required />
@@ -76,11 +88,6 @@ const CustomerRegistration = ({ setIsSubmitted }) => {
           <input type="number" name="shoulder" placeholder="Shoulder (inches)" value={formData.shoulder} onChange={handleChange} required />
           <input type="number" name="sleeveLength" placeholder="Sleeve Length (inches)" value={formData.sleeveLength} onChange={handleChange} required />
           <input type="number" name="trouserLength" placeholder="Trouser Length (inches)" value={formData.trouserLength} onChange={handleChange} required />
-        </div>
-
-        <div className="button-group">
-          <button type="submit" onClick={handleSubmit}>Save</button>
-          <button type="button" onClick={handleCancel} className="cancel-button">Cancel</button>
         </div>
       </form>
     </div>

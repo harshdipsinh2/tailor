@@ -3,99 +3,93 @@ import "./Customers.css";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage menu visibility
+  const [columns, setColumns] = useState([
+    "name",
+    "phone",
+    "email",
+    "address",
+    "gender",
+    
+    // "chest",
+    // "waist",
+    // "hips",
+    // "shoulder",
+    // "sleeveLength",
+    // "trouserLength",
+  ]);
 
- 
+  // Fetch customers from API
+  useEffect(() => {
+    // fetch("https://yourapi.com/customers")
+    //   .then((response) => response.json())
+    //   .then((data) => setCustomers(data))
+    //   .catch((error) => console.error("Error fetching customers:", error));
 
-  // Handle Update
-  const handleUpdate = () => {
-    if (selectedCustomer) {
-      alert(`Update customer with ID: ${selectedCustomer.id}`);
-      // Add your update logic here
-    } else {
-      alert("Please select a customer to update.");
+      const dd = localStorage.getItem('formData');
+      console.log(JSON.parse(dd), 'dd');
+      const data = JSON.parse(dd)
+      
+      setCustomers(data);
+      console.log(customers, 'constomer data', data);
+      
+  }, []);
+
+  // Handle Actions
+  const handleAction = (customer, action) => {
+    switch (action) {
+      case "select":
+        alert(`Selected customer: ${customer.name}`);
+        break;
+      case "update":
+        alert(`Update customer with ID: ${customer.id}`);
+        break;
+      case "delete":
+        alert(`Delete customer with ID: ${customer.id}`);
+        break;
+      default:
+        break;
     }
-    setIsMenuOpen(false); // Close the menu after action
-  };
-
-  // Handle Select
-  const handleSelect = (customer) => {
-    setSelectedCustomer(customer);
-    alert(`Selected customer: ${customer.name}`);
-    setIsMenuOpen(false); // Close the menu after action
-  };
-
-  // Handle Delete
-  const handleDelete = () => {
-    if (selectedCustomer) {
-      alert(`Delete customer with ID: ${selectedCustomer.id}`);
-      // Add your delete logic here
-    } else {
-      alert("Please select a customer to delete.");
-    }
-    setIsMenuOpen(false); // Close the menu after action
   };
 
   return (
     <div className="customers-container">
-      <h2>
-        Customer List
-        {/* Three-dots menu */}
-        <div className="menu-container">
-          <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            &#8942; {/* Three dots icon */}
-          </button>
-          {isMenuOpen && (
-            <div className="menu-dropdown">
-              <button onClick={handleUpdate}>Update</button>
-              <button onClick={() => selectedCustomer && handleSelect(selectedCustomer)}>
-                Select
-              </button>
-              <button onClick={handleDelete}>Delete</button>
-            </div>
-          )}
-        </div>
-      </h2>
-
+      <h2>Customer List</h2>
       <table className="customers-table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Address</th>
-            <th>Gender</th>
-            <th>Chest</th>
-            <th>Waist</th>
-            <th>Hips</th>
-            <th>Shoulder</th>
-            <th>Sleeve Length</th>
-            <th>Trouser Length</th>
+            {columns.map((col) => (
+              <th key={col}>{col.replace(/([A-Z])/g, " $1").toUpperCase()}</th>
+            ))}
+            <th>ACTIONS</th>
           </tr>
         </thead>
         <tbody>
           {customers.length > 0 ? (
             customers.map((customer) => (
-              <tr
-                key={customer.id}
-                className={selectedCustomer?.id === customer.id ? "selected" : ""}
-                onClick={() => handleSelect(customer)}
-              >
+              // <tr key={customer.id}>
+              //   {columns.map((col) => (
+              //     <td key={col}>{customer[col]}</td>
+              //   ))}
+              //   <td>
+              //     <select
+              //       className="select-action"
+              //       onChange={(e) => handleAction(customer, e.target.value)}
+              //     >
+              //       <option value="">Select</option>
+              //       <option value="select">View</option>
+              //       <option value="update">Update</option>
+              //       <option value="delete">Delete</option>
+              //     </select>
+              //   </td>
+              // </tr>
+              <tr>
                 <td>{customer.name}</td>
-                <td>{customer.phone}</td>
-                <td>{customer.address}</td>
-                <td>{customer.gender}</td>
-                <td>{customer.chest}</td>
-                <td>{customer.waist}</td>
-                <td>{customer.hips}</td>
-                <td>{customer.shoulder}</td>
-                <td>{customer.sleeveLength}</td>
-                <td>{customer.trouserLength}</td>
               </tr>
+              
             ))
           ) : (
             <tr>
-              <td colSpan="10" className="no-data">
+              <td colSpan={columns.length + 1} className="no-data">
                 No customers found
               </td>
             </tr>

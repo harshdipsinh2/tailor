@@ -1,10 +1,10 @@
 .container {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 30px auto;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
@@ -13,24 +13,28 @@
 }
 
 .title {
-  font-size: 24px;
-  color: #333;
+  font-size: 28px;
+  font-weight: bold;
+  color: #2c3e50;
 }
 
 .form {
   display: flex;
-  gap: 20px;
+  gap: 30px;
+  flex-wrap: wrap;
 }
 
 .left-section,
 .right-section {
   flex: 1;
+  min-width: 300px;
 }
 
 .subtitle {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #555;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #34495e;
 }
 
 input,
@@ -43,27 +47,51 @@ textarea {
   font-size: 14px;
 }
 
+textarea {
+  height: 80px;
+  resize: none;
+}
+
 .radio-group {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .button-group {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: flex-start; /* Align buttons to left */
+  gap: 15px;
+  margin-top: 20px;
 }
 
 button {
-  padding: 10px 20px;
+  padding: 10px 25px;
+  font-size: 14px;
+  font-weight: bold;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
-  color: white;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-button.cancel-button {
+button:hover {
+  opacity: 0.9;
+}
+
+button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+}
+
+.cancel-button {
   background-color: #dc3545;
+  color: white;
 }
