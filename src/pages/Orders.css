@@ -1,62 +1,105 @@
+/* Container Styling */
 .orders-container {
-    max-width: 900px;
-    margin: 20px auto;
-    text-align: center;
-    padding: 20px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Header */
+h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* Table Styling */
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.orders-table th,
+.orders-table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.orders-table th {
+  background-color: #f0f0f0;
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.orders-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.orders-table tr:hover {
+  background-color: #f1f1f1;
+  transition: 0.3s;
+}
+
+/* Status Badges */
+.status {
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 12px;
+  color: white;
+  text-transform: capitalize;
+}
+
+.status.completed {
+  background-color: #4caf50;
+}
+
+.status.pending {
+  background-color: #ff9800;
+}
+
+.status.cancelled {
+  background-color: #f44336;
+}
+
+/* Select Dropdown Styling */
+.select-action {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  transition: 0.3s;
+}
+
+.select-action:hover {
+  background-color: #e0e0e0;
+}
+
+.select-action:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0px 0px 5px rgba(33, 150, 243, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .orders-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+    font-size: 12px;
   }
-  
-  .orders-table th,
-  .orders-table td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
+
+  .orders-table th, .orders-table td {
+    padding: 8px;
   }
-  
-  .orders-table th {
-    background: #f4f4f4;
+
+  .select-action {
+    font-size: 10px;
+    padding: 4px 8px;
   }
-  
-  .status {
-    font-weight: bold;
-    text-transform: capitalize;
-  }
-  
-  .status.pending {
-    color: #ffc107; /* Yellow for pending status */
-  }
-  
-  .status.completed {
-    color: #28a745; /* Green for completed status */
-  }
-  
-  .status.cancelled {
-    color: #dc3545; /* Red for cancelled status */
-  }
-  
-  .view-btn {
-    background: #007bff;
-    color: white;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 5px;
-  }
-  
-  .delete-btn {
-    background: #dc3545;
-    color: white;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+}

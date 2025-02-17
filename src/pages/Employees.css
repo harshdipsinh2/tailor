@@ -1,68 +1,87 @@
+/* Container */
 .employees-container {
-  width: 90%;
-  margin: 20px auto;
-  text-align: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-/* Align header and dropdown menu */
-.header-container {
-  display: flex;
-  align-items: center;
-  justify-content: start;
-  gap: 10px;
+h2 {
+  font-size: 24px;
+  color: #333;
+  font-weight: bold;
 }
 
+/* Table */
 .employees-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
-.employees-table th, .employees-table td {
+.employees-table th,
+.employees-table td {
+  padding: 12px;
   border: 1px solid #ddd;
-  padding: 10px;
+  text-align: center;
+  font-size: 14px;
 }
 
 .employees-table th {
-  background: #f4f4f4;
-  /* color: white; */
+  background-color: #f5f5f5;
+  font-weight: bold;
 }
 
-.selected {
-  background-color: #d0e8ff; /* Light blue for selected row */
+.employees-table tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
-/* Dropdown menu placed right after heading */
-.menu-container {
-  position: relative;
+.employees-table tr:hover {
+  background-color: #e0f7fa;
 }
 
-.menu-button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.menu-dropdown {
-  position: absolute;
-  top: 25px;
-  left: 0;
-  background: white;
+/* Select Dropdown */
+.select-action {
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 5px;
   border: 1px solid #ccc;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  width: 120px;
-}
-
-.menu-dropdown button {
-  display: block;
-  width: 100%;
-  padding: 8px;
-  border: none;
-  background: none;
+  background-color: #fff;
   cursor: pointer;
 }
 
-.menu-dropdown button:hover {
-  background: #f0f0f0;
+.select-action:hover {
+  border-color: #007bff;
+}
+
+/* Status Styling */
+.status {
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+.status.active {
+  background-color: #28a745;
+}
+
+.status.inactive {
+  background-color: #dc3545;
+}
+
+.status.pending {
+  background-color: #ffc107;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .employees-table {
+    font-size: 12px;
+  }
+
+  .employees-table th,
+  .employees-table td {
+    padding: 8px;
+  }
 }

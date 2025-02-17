@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from "react";
-import "./Orders.css";
+import "./Measurements.css";
 
-const Orders = () => {
-  const [orders, setOrders] = useState([]);
+const Measurements = () => {
+  const [measurements, setMeasurements] = useState([]);
   const [columns, setColumns] = useState([
     "id",
     "customerId",
-    "orderDate",
-    "deliveryDate",
-    "status",
-    "price",
+    "chest",
+    "waist",
+    "hips",
+    "shoulder",
+    "sleeveLength",
+    "trouserLength",
   ]);
 
   useEffect(() => {
-    // Fetch orders from API (replace with your API URL)
-    fetch("https://yourapi.com/orders")
+    // Fetch measurements from API (replace with your API URL)
+    fetch("https://yourapi.com/measurements")
       .then((response) => response.json())
       .then((data) => {
-        setOrders(data);
+        setMeasurements(data);
       })
-      .catch((error) => console.error("Error fetching orders:", error));
+      .catch((error) => console.error("Error fetching measurements:", error));
+
+      const dd = localStorage.getItem('formData');
+
+      console.log();
+      
   }, []);
 
   return (
-    <div className="orders-container">
-      <h2>Orders</h2>
-      <table className="orders-table">
+    <div className="measurements-container">
+      <h2>Measurements</h2>
+      <table className="measurements-table">
         <thead>
           <tr>
             {columns.map((col) => (
@@ -35,19 +42,11 @@ const Orders = () => {
           </tr>
         </thead>
         <tbody>
-          {orders.length > 0 ? (
-            orders.map((order) => (
-              <tr key={order.id}>
+          {measurements.length > 0 ? (
+            measurements.map((measurement) => (
+              <tr key={measurement.id}>
                 {columns.map((col) => (
-                  <td key={col}>
-                    {col === "status" ? (
-                      <span className={`status ${order[col]?.toLowerCase()}`}>
-                        {order[col]}
-                      </span>
-                    ) : (
-                      order[col]
-                    )}
-                  </td>
+                  <td key={col}>{measurement[col]}</td>
                 ))}
                 <td>
                   <select className="select-action">
@@ -61,7 +60,7 @@ const Orders = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={columns.length + 1}>No orders found.</td>
+              <td colSpan={columns.length + 1}>No measurements found.</td>
             </tr>
           )}
         </tbody>
@@ -70,4 +69,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default Measurements;
