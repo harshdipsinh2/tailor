@@ -10,6 +10,8 @@
 .logo {
   font-size: 22px;
   font-weight: bold;
+  display: flex;
+  align-items: center;
 }
 
 .nav-links {
@@ -37,4 +39,9 @@
 
 .nav-links a:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+img{
+  border-radius: 15px;
+  margin-right: 12px;
 }
