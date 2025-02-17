@@ -5,25 +5,27 @@ import Navbar from "./pages/Navbar";
 import Customers from "./pages/Customers";
 import Employees from "./pages/Employees";
 import Orders from "./pages/Orders";
+// import Products from "./pages/Products";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 const App = () => {
-  const [isSubmitted, setIsSubmitted] = useState(false); // Track if user submitted form
+  const [isSubmitted, setIsSubmitted] = useState(false); 
 
   return (
     <Router>
       <Routes>
-        {/* First Page: Customer Registration */}
+        {/*Customer Registration */}
         <Route path="/" element={<CustomerRegistration setIsSubmitted={setIsSubmitted} />} />
 
-        {/* Pages with Navbar */}
+        {/*Navbar */}
         <Route
           path="/*"
           element={
             <>
               <Navbar />
               <Routes>
+                {/* <Route path="/products" element={<Products />} /> */}
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/employees" element={<Employees />} />
                 <Route path="/orders" element={<Orders />} />

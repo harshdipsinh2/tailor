@@ -4,7 +4,7 @@ import "./Customers.css";
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage menu visibility
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for menu visibility
 
  
 
@@ -12,7 +12,7 @@ const Customers = () => {
   const handleUpdate = () => {
     if (selectedCustomer) {
       alert(`Update customer with ID: ${selectedCustomer.id}`);
-      // Add your update logic here
+   
     } else {
       alert("Please select a customer to update.");
     }
