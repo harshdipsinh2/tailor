@@ -15,13 +15,8 @@ const Measurements = () => {
   ]);
 
   useEffect(() => {
-    // Fetch measurements from API (replace with your API URL)
-    fetch("https://yourapi.com/measurements")
-      .then((response) => response.json())
-      .then((data) => {
-        setMeasurements(data);
-      })
-      .catch((error) => console.error("Error fetching measurements:", error));
+  
+
 
       const dd = localStorage.getItem('formData');
 

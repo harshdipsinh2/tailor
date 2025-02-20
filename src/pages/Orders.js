@@ -12,15 +12,7 @@ const Orders = () => {
     "price",
   ]);
 
-  useEffect(() => {
-    // Fetch orders from API (replace with your API URL)
-    fetch("https://yourapi.com/orders")
-      .then((response) => response.json())
-      .then((data) => {
-        setOrders(data);
-      })
-      .catch((error) => console.error("Error fetching orders:", error));
-  }, []);
+
 
   return (
     <div className="orders-container">
@@ -28,7 +20,7 @@ const Orders = () => {
       <table className="orders-table">
         <thead>
           <tr>
-            {columns.map((col) => (
+            {columns.map((col) => ( // loop for columns for order object //
               <th key={col}>{col.replace(/([A-Z])/g, " $1").toUpperCase()}</th>
             ))}
             <th>ACTIONS</th>

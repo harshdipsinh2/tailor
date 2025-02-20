@@ -16,11 +16,11 @@ const Products = () => {
       {products.map((product) => (
         <div className="product-box" key={product.id}>
           <div className="product-image">
-            {product.image ? (
+            {/* {product.image ? (
               <img src={product.image} alt={product.name} />
             ) : (
               <div className="no-image">Image not added</div>
-            )}
+            )} */}
           </div>
           <div className="product-details">
             <h3 className="product-name">{product.name}</h3>

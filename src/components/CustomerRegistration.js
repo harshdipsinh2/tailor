@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CustomerRegistration.css";
+import image from "../asset/maschine.jpeg";
+
+
 
 const CustomerRegistration = ({ setIsSubmitted }) => {
   const navigate = useNavigate();
@@ -51,6 +54,7 @@ const CustomerRegistration = ({ setIsSubmitted }) => {
 
   return (
     <div className="container">
+      {/* <div className="logo"><img src={image} height={50} width={50} alt="logo" /></div> */}
       <div className="form-header">
         <h2 className="title">Customer Registration</h2>
       </div>
@@ -72,14 +76,14 @@ const CustomerRegistration = ({ setIsSubmitted }) => {
             </label>
           </div>
 
-          {/* Save & Cancel Buttons Below Personal Details */}
+          {/* Save & Cancel Buttons  */}
           <div className="button-group">
             <button type="submit" onSubmit={handleSubmit}>Save</button>
             <button type="button" onClick={handleCancel} className="cancel-button">Cancel</button>
           </div>
         </div>
 
-        {/* Measurements Section */}
+        {/* Measurements*/}
         <div className="right-section">
           <h3 className="subtitle">Measurements</h3>
           <input type="number" name="chest" placeholder="Chest (inches)" value={formData.chest} onChange={handleChange} required />

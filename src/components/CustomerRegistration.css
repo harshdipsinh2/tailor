@@ -2,8 +2,10 @@
   max-width: 800px;
   margin: 30px auto;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+  /* background-color: #f9f9f9; */
+  background-color: #8b798b21;
+
+  border-radius: 50px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
@@ -32,14 +34,14 @@
 
 .subtitle {
   font-size: 20px;
-  font-weight: 600;
+  /* font-weight: 600; */
   margin-bottom: 15px;
-  color: #34495e;
+  /* color: #34495e; */
 }
 
 input,
 textarea {
-  width: 100%;
+  width: 80%;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
@@ -61,7 +63,8 @@ textarea {
 
 .radio-group label {
   display: flex;
-  align-items: center;
+  font-weight:650;
+  /* align-items: center; */
   gap: 5px;
 }
 
@@ -87,11 +90,21 @@ button:hover {
 }
 
 button[type="submit"] {
-  background-color: #28a745;
+  background-color: #20d44a;
   color: white;
 }
 
 .cancel-button {
-  background-color: #dc3545;
+  background-color: #cf1124;
   color: white;
+}
+
+input,
+ .right-section textarea {
+  width: 80%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
 }

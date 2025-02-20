@@ -114,3 +114,62 @@ tailor-management/
 │── .gitignore
 │── package.json
 │── README.md
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/tailor
+├── /public
+│   ├── index.html
+│   ├── manifest.json
+│   └── /asset
+│       ├── favicon.ico
+│       ├── maschine.jpeg
+│       └── shirt.jpg
+│
+├── /src
+│   ├── /assets
+│   │   ├── images
+│   │   └── styles
+│   │       ├── index.css
+│   │       └── App.css
+│   │
+│   ├── /components
+│   │   ├── CustomerRegistration.js
+│   │   └── CustomerRegistration.css
+│   │
+│   ├── /pages
+│   │   ├── Customers.js
+│   │   ├── Employees.js
+│   │   ├── Orders.js
+│   │   ├── Products.js
+│   │   ├── Measurements.js
+│   │   ├── Dropdown.js
+│   │   └── Navbar.js
+│   │
+│   ├── /styles
+│   │   ├── Customers.css
+│   │   ├── Employees.css
+│   │   ├── Orders.css
+│   │   ├── Products.css
+│   │   ├── Measurements.css
+│   │   └── Navbar.css
+│   │
+│   ├── App.js
+│   ├── index.js
+│   ├── reportWebVitals.js
+│   └── setupTests.js
+│
+├── .gitignore
+├── package.json
+└── README.md

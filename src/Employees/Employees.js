@@ -12,15 +12,7 @@ const Employees = () => {
     "status",
   ]);
 
-  // Fetch employees from API
-  useEffect(() => {
-    fetch("https://yourapi.com/employees")
-      .then((response) => response.json())
-      .then((data) => {
-        setEmployees(data);
-      })
-      .catch((error) => console.error("Error fetching employees:", error));
-  }, []);
+
 
   return (
     <div className="employees-container">
@@ -49,7 +41,7 @@ const Employees = () => {
                     )}
                   </td>
                 ))}
-                {/* Actions Dropdown */}
+                 {/* Actions Dropdown  */}
                 <td>
                   <select className="select-action">
                     <option value="">Select</option>
