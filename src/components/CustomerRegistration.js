@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CustomerRegistration.css";
 import image from "../asset/maschine.jpeg";
+import image from "../asset/user1.png";
 
 
 

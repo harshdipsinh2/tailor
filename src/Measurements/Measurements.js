@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import "./Measurements.css";
 
 const Measurements = () => {
-  const [measurements, setMeasurements] = useState([]);
-  const [columns, setColumns] = useState([
+  const [measurements, setMeasurements] = useState([]); // State to store measurements
+
+  const [columns] = useState([
     "id",
     "customerId",
     "chest",
@@ -14,15 +15,39 @@ const Measurements = () => {
     "trouserLength",
   ]);
 
+  // Load measurements from localStorage on component mount
   useEffect(() => {
-  
-
-
-      const dd = localStorage.getItem('formData');
-
-      console.log();
-      
+    try {
+      const savedData = localStorage.getItem("measurementsData");
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setMeasurements(parsedData);
+        console.log("Loaded Measurements:", parsedData); // Debugging line
+      }
+    } catch (error) {
+      console.error("Error loading measurements:", error);
+    }
   }, []);
+
+  // Function to handle actions (View, Update, Delete)
+  const handleAction = (measurement, action) => {
+    switch (action) {
+      case "select":
+        alert(`Selected Measurement ID: ${measurement.id}`);
+        break;
+      case "update":
+        alert(`Update Measurement with ID: ${measurement.id}`);
+        break;
+      case "delete":
+        const updatedMeasurements = measurements.filter(m => m.id !== measurement.id);
+        setMeasurements(updatedMeasurements);
+        localStorage.setItem("measurementsData", JSON.stringify(updatedMeasurements));
+        alert(`Deleted Measurement with ID: ${measurement.id}`);
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="measurements-container">
@@ -33,7 +58,7 @@ const Measurements = () => {
             {columns.map((col) => (
               <th key={col}>{col.replace(/([A-Z])/g, " $1").toUpperCase()}</th>
             ))}
-            <th>ACTIONS</th>
+            <th>ACTIONS</th> {/* New actions column */}
           </tr>
         </thead>
         <tbody>
@@ -44,10 +69,13 @@ const Measurements = () => {
                   <td key={col}>{measurement[col]}</td>
                 ))}
                 <td>
-                  <select className="select-action">
+                  <select
+                    className="select-action"
+                    onChange={(e) => handleAction(measurement, e.target.value)}
+                  >
                     <option value="">Select</option>
-                    <option value="view">View</option>
-                    <option value="edit">Edit</option>
+                    <option value="select">View</option>
+                    <option value="update">Update</option>
                     <option value="delete">Delete</option>
                   </select>
                 </td>
@@ -55,7 +83,9 @@ const Measurements = () => {
             ))
           ) : (
             <tr>
-              <td colSpan={columns.length + 1}>No measurements found.</td>
+              <td colSpan={columns.length + 1} className="no-data">
+                No measurements found.
+              </td>
             </tr>
           )}
         </tbody>

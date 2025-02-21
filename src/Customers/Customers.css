@@ -108,3 +108,9 @@ button.menu-button{
     padding: 8px;
   }
 }
+.select-action {
+  padding: 5px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
