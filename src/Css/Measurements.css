@@ -1,0 +1,119 @@
+/* Measurements Container */
+.measurements-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.menu-container {
+  position: relative;
+}
+
+button.menu-button {
+  color: black;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.menu-dropdown button {
+  display: block;
+  color: #888;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.menu-dropdown button:hover {
+  background-color: #f1f1f1;
+}
+
+.measurements-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.measurements-table th,
+.measurements-table td {
+  padding: 12px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-size: 14px;
+}
+
+.measurements-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+  color: #444;
+}
+
+.measurements-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.measurements-table tr:hover {
+  background-color: #e6f7ff;
+}
+
+/* No Data Styling */
+.no-data {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+}
+
+/* Select Dropdown */
+.select-action {
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.select-action:hover {
+  border-color: #007bff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .measurements-table {
+    font-size: 12px;
+  }
+
+  .measurements-table th,
+  .measurements-table td {
+    padding: 8px;
+  }
+}
+
+.select-action {
+  padding: 5px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}

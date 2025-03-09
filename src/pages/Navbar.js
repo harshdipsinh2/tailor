@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import "./Navbar.css";
+import "../Css/Navbar.css";
 import image from "../asset/maschine.jpeg";
 
 const Navbar = () => {
@@ -21,6 +21,9 @@ const Navbar = () => {
         <li className={location.pathname === "/" ? "active" : ""}>
           <Link to="/">Home</Link>
         </li>
+        <li className={location.pathname === "/orders" ? "active" : ""}>
+          <Link to="/customer-registration">Registration</Link>
+        </li>
         <li className={location.pathname === "/customers" ? "active" : ""}>
           <Link to="/customers">Customers</Link>
         </li>
@@ -30,12 +33,11 @@ const Navbar = () => {
         <li className={location.pathname === "/products" ? "active" : ""}>
           <Link to="/products">Products</Link>
         </li>
-        <li className={location.pathname === "/employees" ? "active" : ""}>
-          <Link to="/employees">Employees</Link>
-        </li>
+        
         <li className={location.pathname === "/orders" ? "active" : ""}>
           <Link to="/orders">Orders</Link>
         </li>
+      
        
       </ul>
     </nav>
