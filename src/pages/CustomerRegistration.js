@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Css/CustomerRegistration.css";
+import { Form, Input, Radio, Button, Card, message } from "antd";
 import { addCustomer } from "../api/customerapi";
 
 const CustomerRegistration = () => {
@@ -10,66 +10,58 @@ const CustomerRegistration = () => {
     phoneNumber: "",
     email: "",
     address: "",
-    gender: "male",
-    chest: "",
-    waist: "",
-    hip: "",
-    shoulder: "",
-    sleeveLength: "",
-    trouserLength: "",
-    inseam: "",
-    thigh: "",
-    neck: "",
-    sleeve: "",
-    arms: "",
+    gender: "",
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-   // api call 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    addCustomer(formData);
-    navigate("/customers");
+
+  const handleSubmit = async () => {
+    try {
+      await addCustomer(formData);
+      message.success("Customer added successfully!");
+      navigate("/customers");
+    } catch (error) {
+      message.error("Failed to add customer. Please try again.");
+    }
   };
 
   return (
-    <div className="container">
-      <h2>Customer Registration</h2>
-      <form onSubmit={handleSubmit} className="form">
-        {/* Personal Details */}
-        <div className="section">
-          {/* <h3>Personal Details</h3> */}
-          <label>Full Name</label>
-          <input type="text" name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} required />
-          <label>Phone Number</label>
-          <input type="tel" name="phoneNumber" placeholder="Phone Number" value={formData.phoneNumber} onChange={handleChange} required />
-          <label>Email Address</label>
-          <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required />
-          <label>Address</label>
-          <textarea name="address" placeholder="Address" value={formData.address} onChange={handleChange} required></textarea>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+      <Card className="w-full max-w-md shadow-lg rounded-2xl p-6">
+        <h2 className="text-2xl font-bold text-center mb-6">Customer Registration</h2>
+        <Form layout="vertical" onFinish={handleSubmit}>
+          <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: "Please enter full name" }]}> 
+            <Input name="fullName" placeholder="Full Name" value={formData.fullName} onChange={handleChange} />
+          </Form.Item>
 
-          <div className="radio-group">
-            <label>
-              <input type="radio" name="gender" value="male" checked={formData.gender === "male"} onChange={handleChange} /> Male
-            </label>
-            <label>
-              <input type="radio" name="gender" value="female" checked={formData.gender === "female"} onChange={handleChange} /> Female
-            </label>
-          </div>
-        </div>
+          <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true, message: "Please enter phone number" }]}> 
+            <Input name="phoneNumber" placeholder="Phone Number" value={formData.phoneNumber} onChange={handleChange} />
+          </Form.Item>
 
-        {/* Measurements */}
-        {/* <div className="section">
-          <h3>Measurements</h3>
-          {["chest", "waist", "hip", "shoulder", "sleeveLength", "trouserLength", "inseam", "thigh", "neck", "sleeve", "arms"].map((field) => (
-            <input key={field} type="number" name={field} placeholder={field} value={formData[field]} onChange={handleChange} required />
-          ))}
-        </div> */}
+          <Form.Item label="Email Address" name="email" rules={[{ required: true, type: "email", message: "Please enter a valid email address" }]}> 
+            <Input name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
+          </Form.Item>
 
-        <button type="submit">Save</button>
-      </form>
+          <Form.Item label="Address" name="address" rules={[{ required: true, message: "Please enter address" }]}> 
+            <Input.TextArea name="address" placeholder="Address" value={formData.address} onChange={handleChange} />
+          </Form.Item>
+
+          <Form.Item label="Gender" name="gender" rules={[{ required: true, message: "Please select gender" }]}> 
+            <Radio.Group name="gender" value={formData.gender} onChange={handleChange}>
+              <Radio value="Male">Male</Radio>
+              <Radio value="Female">Female</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Save
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

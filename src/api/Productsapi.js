@@ -2,14 +2,18 @@ const API_BASE_URL = "https://localhost:7252/api/product";
 
 export const addProduct = async (productData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/add-product`, {
+    const queryParams = new URLSearchParams(productData).toString();
+    const response = await fetch(`${API_BASE_URL}/add-product?${queryParams}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(productData),
     });
-    if (!response.ok) throw new Error("Failed to add product");
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error adding product:", errorData);
+      throw new Error("Failed to add product");
+    }
     return await response.json();
   } catch (error) {
     console.error("Error adding product:", error.message);

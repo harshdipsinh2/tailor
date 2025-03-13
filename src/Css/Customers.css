@@ -97,20 +97,7 @@ button.menu-button{
   border-color: #007bff;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .customers-table {
-    font-size: 12px;
-  }
-
-  .customers-table th,
-  .customers-table td {
-    padding: 8px;
-  }
-}
-.select-action {
-  padding: 5px;
-  border: 1px solid #ccc;
-  background: white;
-  cursor: pointer;
+.table-container {
+  max-height: 400px; /* Adjust the height as needed */
+  overflow-y: auto;
 }

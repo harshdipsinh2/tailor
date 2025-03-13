@@ -41,7 +41,7 @@ export const addCustomer = async (customerData) => {
 
 export const updateCustomer = async (customerId, customerData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}?customerId=${customerId}`, {
+    const response = await fetch(`${API_BASE_URL}/Edit?customerId=${customerId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

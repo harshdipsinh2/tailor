@@ -58,9 +58,14 @@ const Products = () => {
   };
 
   const handleAddSubmit = async () => {
-    await addProduct(newProductData);
-    setProducts([...products, newProductData]);
-    setShowAddModal(false);
+    try {
+      console.log("Adding new product with data:", newProductData); // Add logging
+      await addProduct(newProductData);
+      setProducts([...products, newProductData]);
+      setShowAddModal(false);
+    } catch (error) {
+      console.error("Error adding product:", error.message);
+    }
   };
 
   const handleChange = (e) => {
@@ -184,7 +189,6 @@ const Products = () => {
           </form>
         </Modal.Body>
         <Modal.Footer>
-          
           <Button variant="secondary" onClick={handleCloseAddModal}>Cancel</Button>
           <Button variant="primary" onClick={handleAddSubmit}>Add Product</Button>
         </Modal.Footer>

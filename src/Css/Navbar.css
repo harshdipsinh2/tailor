@@ -1,90 +1,96 @@
+/* Navbar Container */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  background-color: #007bff;
-  color: white;
+  background-color: #E3EAFD; /* Soft Navy Blue */
+  padding: 12px 25px;
+  border-bottom: 3px solid #DDE7F9; /* Subtle Border */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  color: #23395B;  /* Deep Navy */
+  font-family: 'Poppins', sans-serif;
 }
 
+/* Logo Section */
 .logo {
-  font-size: 30px;
-  font-weight: bold;
   display: flex;
   align-items: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  gap: 12px;
+  color: #4A90E2; /* Royal Blue */
 }
 
+/* Navigation Links */
 .nav-links {
-  list-style: none;
   display: flex;
-  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  margin-left: auto;
 }
 
 .nav-links li {
-  display: inline;
+  margin-right: 15px;
+  position: relative;
 }
 
+/* Link Styling */
 .nav-links a {
   text-decoration: none;
-  color: white;
-  font-size: 18px;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background 0.3s ease-in-out;
+  color: #23395B; /* Deep Navy */
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-links .active a {
-  background: rgba(255, 255, 255, 0.3);
-}
-
+/* Hover Effect */
 .nav-links a:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background-color: #AFCBFF; /* Sky Blue */
+  color: #23395B; /* Deep Navy */
 }
 
-img {
-  border-radius: 30px;
-  margin-right: 20px;
+/* Active Link */
+.nav-links .active a {
+  background-color: #4A90E2; /* Royal Blue */
+  color: #FFFFFF;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
-.dropdown-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  font-size: 18px;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease-in-out;
-}
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .navbar {
+      flex-direction: column;
+      align-items: flex-start;
+  }
 
-.dropdown-btn:hover {
-  background-color: #0056b3;
-}
+  .nav-links {
+      flex-direction: column;
+      width: 100%;
+      align-items: flex-end;
+  }
 
-.dropdown-menu {
-  display: block;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background-color: #444;
-  list-style-type: none;
-  padding: 10px 0;
-  margin: 0;
-}
+  .nav-links li {
+      width: 100%;
+      text-align: right;
+      margin: 5px 0;
+  }
 
-.dropdown-menu li {
-  padding: 10px 20px;
-}
+  .nav-links a {
+      width: 100%;
+      padding: 10px 16px;
+  }
 
-.dropdown-menu li a {
-  color: white;
-  text-decoration: none;
-}
-
-.dropdown-menu li a:hover {
-  background-color: #555;
-}
-
-.fa-caret-down {
-  font-size: 20px;
+  .logo {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 10px;
+  }
 }

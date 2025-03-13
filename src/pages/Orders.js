@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from "react";
 import "../Css/Orders.css";
+import { getAllOrders } from "../api/Orderapi";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [columns, setColumns] = useState([
-    "id",
-    "customerId",
+    
+    "customerName",
+    "productName",
+    "quantity",
+    "totalPrice",
+    "orderStatus",
+    "paymentStatus",
     "orderDate",
-    "deliveryDate",
-    "status",
-    "price",
+    "completionDate",
   ]);
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const data = await getAllOrders();
+        setOrders(data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
 
+    fetchOrders();
+  }, []);
 
   return (
     <div className="orders-container">
@@ -20,10 +35,10 @@ const Orders = () => {
       <table className="orders-table">
         <thead>
           <tr>
-            {columns.map((col) => ( // loop for columns for order object //
+            {columns.map((col) => (
               <th key={col}>{col.replace(/([A-Z])/g, " $1").toUpperCase()}</th>
             ))}
-            <th>ACTIONS</th>
+            {/* <th>ACTIONS</th> */}
           </tr>
         </thead>
         <tbody>
@@ -32,7 +47,7 @@ const Orders = () => {
               <tr key={order.id}>
                 {columns.map((col) => (
                   <td key={col}>
-                    {col === "status" ? (
+                    {col === "orderStatus" || col === "paymentStatus" ? (
                       <span className={`status ${order[col]?.toLowerCase()}`}>
                         {order[col]}
                       </span>
@@ -41,14 +56,13 @@ const Orders = () => {
                     )}
                   </td>
                 ))}
-                <td>
+                {/* <td>
                   <select className="select-action">
                     <option value="">Select</option>
-                    <option value="view">View</option>
                     <option value="edit">Edit</option>
                     <option value="delete">Delete</option>
                   </select>
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (
