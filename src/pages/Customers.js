@@ -1,43 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Radio, Space, message } from 'antd';
+import { Table, Button, Modal, Form, Row, Col, Input, Radio, message } from "antd";
+import { useNavigate } from "react-router-dom"; // For navigation
 import { updateCustomer, getAllCustomers } from "../api/customerapi";
-import '../Css/Customers.css';
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
-  const [customerId, setCustomerID] = useState('');
+  const [customerId, setCustomerID] = useState("");
   const [show, setShow] = useState(false);
   const [showMeasurement, setShowMeasurement] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    email: "",
-    address: "",
-    gender: "Male"
-  });
+  const [form] = Form.useForm(); // Ant Design Form instance
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllCustomers()
       .then((data) => setCustomers(data))
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
   const handleEditCustomer = (customerId) => {
     setCustomerID(customerId);
     setShowMeasurement(false);
-    const customer = customers.find((customer) => customer.customerId === customerId);
-    if (customer) {
-      setFormData({
-        fullName: customer.fullName,
-        phoneNumber: customer.phoneNumber,
-        email: customer.email,
-        address: customer.address,
-        gender: customer.gender,
-      });
-      setShow(true);
-    } else {
-      console.error("Customer not found");
-    }
+
+    const singleCustomer = customers.find((customer) => customer.customerId === customerId);
+
+    // Set form values correctly
+    form.setFieldsValue(singleCustomer);
+
+    setShow(true);
   };
 
   const handleAddMeasurements = (customerId) => {
@@ -48,91 +37,111 @@ const Customers = () => {
 
   const handleClose = () => setShow(false);
 
-  const handleEditSubmit = (event) => {
-    event.preventDefault();
-    if (showMeasurement) {
-      message.success("Measurement added successfully");
-      setShow(false);
-    } else {
-      updateCustomer(customerId, formData)
-        .then(() => {
-          message.success("Customer updated successfully");
-          setShow(false);
-        })
-        .catch((error) => {
-          console.error("Error updating customer:", error);
-        });
+  const handleEditSubmit = async (values) => {
+    try {
+      console.log("Updating customer with ID:", customerId, "and data:", values);
+      const response = await updateCustomer(customerId, values);
+
+      message.success("Customer updated successfully!");
+    } catch (error) {
+      message.error("Failed to update customer: " + error.message);
     }
+    setShow(false);
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const columns = [
-    { title: "Name", dataIndex: "fullName", key: "fullName" },
-    { title: "Phone", dataIndex: "phoneNumber", key: "phoneNumber" },
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Address", dataIndex: "address", key: "address" },
-    { title: "Gender", dataIndex: "gender", key: "gender" },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, customer) => (
-        <Space size="middle">
-          <Button type="primary" onClick={() => handleEditCustomer(customer.customerId)}>Edit</Button>
-          <Button danger onClick={() => console.log("Delete clicked")}>Delete</Button>
-          <Button type="dashed" onClick={() => handleAddMeasurements(customer.customerId)}>Add Measurement</Button>
-        </Space>
-      ),
-    },
+  const measurementFields = [
+    "chest", "waist", "hip", "shoulder", "sleeveLength",
+    "trouserLength", "inseam", "thigh", "neck", "sleeve",
+    "arms", "bicep", "forearm", "wrist", "ankle", "calf"
   ];
 
   return (
-    <div className="customers-container">
+    <div className="customers-container" style={{ textAlign: "center" }}>
       <h2>Customer List</h2>
+
+      {/* Add Customer Button in Top-Right Corner */}
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "10px" }}>
+<Button type="primary" onClick={() => navigate("/customer-registration")}>
+
+          Add Customer
+        </Button>
+      </div>
+
       <Table
         dataSource={customers}
-        columns={columns}
         rowKey="customerId"
+        bordered
         pagination={{ pageSize: 5 }}
-      />
+        scroll={{ x: "max-content" }}
+      >
+        <Table.Column title="Name" dataIndex="fullName" key="fullName" />
+        <Table.Column title="Phone" dataIndex="phoneNumber" key="phoneNumber" />
+        <Table.Column title="Email" dataIndex="email" key="email" />
+        <Table.Column title="Address" dataIndex="address" key="address" />
+        <Table.Column title="Gender" dataIndex="gender" key="gender" />
+        <Table.Column
+          title="Actions"
+          key="actions"
+          render={(customer) => (
+            <>
+              <Button type="primary" onClick={() => handleEditCustomer(customer.customerId)}>Edit</Button>{" "}
+              <Button danger>Delete</Button>{" "}
+              <Button onClick={() => handleAddMeasurements(customer.customerId)}>Add Measurement</Button>
+            </>
+          )}
+        />
+      </Table>
 
+      {/* Modal for Edit / Add Measurements */}
       <Modal
         title={showMeasurement ? "Add Measurements" : "Update Customer Details"}
         visible={show}
         onCancel={handleClose}
-        onOk={handleEditSubmit}
+        footer={null}
       >
-        <Form layout="vertical">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleEditSubmit}
+        >
           {showMeasurement ? (
-            ["chest", "waist", "hip", "shoulder", "sleeveLength", "trouserLength", "inseam", "thigh", "neck", "sleeve", "arms"].map((field) => (
-              <Form.Item key={field} label={field}>
-                <Input type="number" name={field} value={formData[field]} onChange={handleChange} required />
-              </Form.Item>
-            ))
+            <Row gutter={16}>
+              {measurementFields.map((field) => (
+                <Col xs={24} sm={12} md={8} key={field}>
+                  <Form.Item
+                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                    name={field}
+                  >
+                    <Input type="number" />
+                  </Form.Item>
+                </Col>
+              ))}
+            </Row>
           ) : (
             <>
-              <Form.Item label="Full Name">
-                <Input name="fullName" value={formData.fullName} onChange={handleChange} required />
+              <Form.Item label="Full Name" name="fullName" rules={[{ required: true }]}>
+                <Input />
               </Form.Item>
-              <Form.Item label="Phone Number">
-                <Input name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
+              <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true }]}>
+                <Input />
               </Form.Item>
-              <Form.Item label="Email">
-                <Input name="email" value={formData.email} onChange={handleChange} required />
+              <Form.Item label="Email Address" name="email" rules={[{ required: true }]}>
+                <Input />
               </Form.Item>
-              <Form.Item label="Address">
-                <Input.TextArea name="address" value={formData.address} onChange={handleChange} required />
+              <Form.Item label="Address" name="address" rules={[{ required: true }]}>
+                <Input.TextArea />
               </Form.Item>
-              <Form.Item label="Gender">
-                <Radio.Group name="gender" value={formData.gender} onChange={handleChange}>
-                  <Radio value="Male">Male</Radio>
-                  <Radio value="Female">Female</Radio>
+              <Form.Item label="Gender" name="gender">
+                <Radio.Group>
+                  <Radio value="male">Male</Radio>
+                  <Radio value="female">Female</Radio>
                 </Radio.Group>
               </Form.Item>
             </>
           )}
+
+          <Button type="primary" htmlType="submit">Update Changes</Button>{" "}
+          <Button onClick={handleClose}>Cancel</Button>
         </Form>
       </Modal>
     </div>

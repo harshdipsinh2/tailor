@@ -1,96 +1,63 @@
-/* Navbar Container */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #E3EAFD; /* Soft Navy Blue */
+  background-color: #4A90E2;
+  color: #FFFFFF;
   padding: 12px 25px;
-  border-bottom: 3px solid #DDE7F9; /* Subtle Border */
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  color: #23395B;  /* Deep Navy */
-  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Logo Section */
 .logo {
   display: flex;
   align-items: center;
   font-size: 1.5rem;
   font-weight: 600;
   gap: 12px;
-  color: #4A90E2; /* Royal Blue */
 }
 
-/* Navigation Links */
-.nav-links {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  margin-left: auto;
+.sidebar-toggle {
+  background-color: #FFFFFF;
+  color: #4A90E2;
+  border: none;
+  font-size: 1.5rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.nav-links li {
-  margin-right: 15px;
-  position: relative;
-}
 
-/* Link Styling */
-.nav-links a {
+
+.nav-link {
+  padding: 10px 0;
+  color: #23395B;
   text-decoration: none;
-  color: #23395B; /* Deep Navy */
-  font-size: 1rem;
   font-weight: 500;
-  padding: 8px 16px;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #4A90E2;
+  background-color: #DDE7F9;
   border-radius: 6px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  padding-left: 10px;
+}
+.sidebar .offcanvas-end {
+  background-color: #E3EAFD;
+  width: 180px; /* Reduced from 260px */
+  padding: 10px; /* Less padding for a tighter look */
 }
 
-/* Hover Effect */
-.nav-links a:hover {
-  background-color: #AFCBFF; /* Sky Blue */
-  color: #23395B; /* Deep Navy */
+.offcanvas-title {
+  font-size: 1rem; /* Slightly smaller title */
 }
 
-/* Active Link */
-.nav-links .active a {
-  background-color: #4A90E2; /* Royal Blue */
-  color: #FFFFFF;
-  border-radius: 6px;
-  font-weight: 600;
+.nav-link {
+  font-size: 0.9rem; /* Reduce text size */
+  padding: 6px 0; /* Adjusted spacing for compact layout */
 }
 
-/* Mobile Responsive Design */
-@media (max-width: 768px) {
-  .navbar {
-      flex-direction: column;
-      align-items: flex-start;
-  }
-
-  .nav-links {
-      flex-direction: column;
-      width: 100%;
-      align-items: flex-end;
-  }
-
-  .nav-links li {
-      width: 100%;
-      text-align: right;
-      margin: 5px 0;
-  }
-
-  .nav-links a {
-      width: 100%;
-      padding: 10px 16px;
-  }
-
-  .logo {
-      width: 100%;
-      justify-content: center;
-      margin-bottom: 10px;
-  }
+.nav-link i {
+  margin-right: 6px; /* Less gap between icons and text */
 }

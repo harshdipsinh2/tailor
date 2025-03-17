@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Offcanvas, Button, Nav } from "react-bootstrap";
 import "../Css/Navbar.css";
 import image from "../asset/maschine.jpeg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,68 +11,137 @@ import {
   faRuler,
   faBox,
   faClipboardList,
+  faBars,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = () => {
   const location = useLocation();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  const handleClose = () => setShowSidebar(false);
+  const handleShow = () => setShowSidebar(true);
 
   return (
-    <nav className="navbar">
-      <div className="logo">
-        <img src={image} height={60} width={60} alt="logo" />
-        Tailor Management 
-        System
-      </div>
-      <ul className="nav-links">
-        <li className={location.pathname === "/" ? "active" : ""}>
-          <Link to="/">
-            <FontAwesomeIcon icon={faHome} style={{ marginRight: "8px" }} />
-           Dashboard
-          </Link>
-        </li>
-        <li
-          className={
-            location.pathname === "/customer-registration" ? "active" : ""
-          }
+    <>
+      {/* Top Navbar */}
+      <nav className="navbar">
+        <div className="logo">
+          <img src={image} height={60} width={60} alt="logo" />
+          Tailor Management System
+        </div>
+
+        {/* Sidebar Toggle Button on Right Side */}
+        <Button
+          variant="primary"
+          className="sidebar-toggle"
+          onClick={handleShow}
         >
-          <Link to="/customer-registration">
-            <FontAwesomeIcon icon={faUserPlus} style={{ marginRight: "8px" }} />
-            Registration
-          </Link>
-        </li>
-        <li className={location.pathname === "/customers" ? "active" : ""}>
-          <Link to="/customers">
-            <FontAwesomeIcon icon={faUsers} style={{ marginRight: "8px" }} />
-            Customers
-          </Link>
-        </li>
-        <li className={location.pathname === "/measurements" ? "active" : ""}>
-          <Link to="/measurements">
-            <FontAwesomeIcon icon={faRuler} style={{ marginRight: "8px" }} />
-            Measurements
-          </Link>
-        </li>
-        <li className={location.pathname === "/products" ? "active" : ""}>
-          <Link to="/products">
-            <FontAwesomeIcon icon={faBox} style={{ marginRight: "8px" }} />
-            Cloth Type          </Link>
-        </li>
-        <li className={location.pathname === "/orders" ? "active" : ""}>
-          <Link to="/orders">
-            <FontAwesomeIcon
-              icon={faClipboardList}
-              style={{ marginRight: "8px" }}
-            />
-            Orders
-          </Link>
-        </li>
-      </ul>
-    </nav>
+          <FontAwesomeIcon icon={faBars} />
+        </Button>
+      </nav>
+
+      {/* Sidebar Component - Opens from Right Side */}
+      <Offcanvas
+        show={showSidebar}
+        onHide={handleClose}
+        placement="end"  
+        className="sidebar"
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Menu</Offcanvas.Title>
+        </Offcanvas.Header>
+
+        <Offcanvas.Body>
+          <Nav className="flex-column">
+            <Nav.Item>
+              <Link
+                to="/"
+                className={`nav-link ${
+                  location.pathname === "/" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faHome} style={{ marginRight: "8px" }} />
+                Dashboard
+              </Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Link
+                to="/customer-registration"
+                className={`nav-link ${
+                  location.pathname === "/customer-registration"
+                    ? "active"
+                    : ""
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faUserPlus}
+                  style={{ marginRight: "8px" }}
+                />
+                Registration
+              </Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Link
+                to="/customers"
+                className={`nav-link ${
+                  location.pathname === "/customers" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faUsers}
+                  style={{ marginRight: "8px" }}
+                />
+                Customers
+              </Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Link
+                to="/measurements"
+                className={`nav-link ${
+                  location.pathname === "/measurements" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faRuler}
+                  style={{ marginRight: "8px" }}
+                />
+                Measurements
+              </Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Link
+                to="/products"
+                className={`nav-link ${
+                  location.pathname === "/products" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faBox} style={{ marginRight: "8px" }} />
+                Cloth Type
+              </Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Link
+                to="/orders"
+                className={`nav-link ${
+                  location.pathname === "/orders" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon
+                  icon={faClipboardList}
+                  style={{ marginRight: "8px" }}
+                />
+                Orders
+              </Link>
+            </Nav.Item>
+          </Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
+    </>
   );
 };
 

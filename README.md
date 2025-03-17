@@ -71,105 +71,146 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 
 
-tailor-management/
-│── public/                  # Static assets (if needed)
-│── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── CustomerRegistration.js
-│   │   ├── Navbar.js
-│   │   ├── Footer.js
-│   │   ├── Sidebar.js (if needed)
-│   │   ├── CustomerList.js (if needed)
-│   │   ├── OrderList.js (if needed)
-│   │   ├── Inventory.js (if needed)
-│   │   └── Reports.js (if needed)
-│   ├── dashboard/           # Dashboard Layout & Pages
-│   │   ├── Dashboard.js
-│   │   ├── Customers.js
-│   │   ├── Orders.js
-│   │   ├── Inventory.js
-│   │   └── Reports.js
-│   ├── styles/              # CSS styles
-│   │   ├── App.css
-│   │   ├── CustomerRegistration.css
-│   │   ├── Navbar.css
-│   │   ├── Dashboard.css
-│   │   ├── Forms.css
-│   │   └── Buttons.css
-│   ├── services/            # API calls (if needed)
-│   │   ├── api.js
-│   │   ├── customerService.js
-│   │   ├── orderService.js
-│   │   ├── inventoryService.js
-│   │   └── reportService.js
-│   ├── App.js               # Main React component
-│   ├── index.js             # Entry point of React
-│   ├── routes.js            # React Router setup (optional)
-│   ├── constants.js         # Constants for the app
-│   ├── utils/               # Helper functions (if needed)
-│   │   ├── validation.js
-│   │   └── format.js
-│   ├── assets/              # Images, icons, and static files
-│   └── config/              # Configuration files (if needed)
-│── .gitignore
-│── package.json
-│── README.md
+tailor-management   
 
 
+import React, { useEffect, useState } from "react";
+import { Table, Button, Modal, Form, Row, Col, InputGroup, FormControl } from 'react-bootstrap';
+import { updateCustomer, getAllCustomers } from "../api/customerapi";
 
+const Customers = () => {
+  const [customers, setCustomers] = useState([]);
+  const [customerId, setCustomerID] = useState('');
+  const [show, setShow] = useState(false);
+  const [showMeasurement, setShowMeasurement] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phoneNumber: "",
+    email: "",
+    address: "",
+    gender: "male"
+  });
 
+  useEffect(() => {
+    getAllCustomers()
+      .then((data) => setCustomers(data))
+      .catch((error) => console.error('Error fetching data:', error));
+  }, []);
 
+  const handleEditCustomer = (customerId) => {
+    setCustomerID(customerId);
+    setShowMeasurement(false);
+    const singleCustomer = customers.find((customer) => customer.customerId === customerId);
+    setFormData({ ...singleCustomer });
+    setShow(true);
+  };
 
+  const handleAddMeasurements = (customerId) => {
+    setShowMeasurement(true);
+    setShow(true);
+  };
 
+  const handleClose = () => setShow(false);
 
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await updateCustomer(customerId, formData);
+      alert("Customer updated successfully!");
+    } catch (error) {
+      alert("Failed to update customer: " + error.message);
+    }
+    setShow(false);
+  };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
+  return (
+    <div className="customers-container">
+      <h2>Customer List</h2>
+      <Table striped bordered hover responsive>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Gender</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((customer) => (
+            <tr key={customer.customerId}>
+              <td>{customer.fullName}</td>
+              <td>{customer.phoneNumber}</td>
+              <td>{customer.email}</td>
+              <td>{customer.address}</td>
+              <td>{customer.gender}</td>
+              <td>
+                <Button variant="primary" onClick={() => handleEditCustomer(customer.customerId)}>Edit</Button>{' '}
+                <Button variant="danger">Delete</Button>{' '}
+                <Button onClick={() => handleAddMeasurements(customer.customerId)}>Add Measurement</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>{showMeasurement ? 'Add Measurements' : 'Update Customer Details'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleEditSubmit}>
+            {showMeasurement ? (
+              <Row>
+                {["chest", "waist", "hip", "shoulder", "sleeveLength", "trouserLength", "inseam", "thigh", "neck", "sleeve", "arms"].map((field) => (
+                  <Col md={6} key={field} className="mb-3">
+                    <Form.Group>
+                      <Form.Label>{field.charAt(0).toUpperCase() + field.slice(1)}</Form.Label>
+                      <Form.Control type="number" name={field} value={formData[field]} onChange={handleChange} required />
+                    </Form.Group>
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <>
+                <Form.Group className="mb-3">
+                  <Form.Label>Full Name</Form.Label>
+                  <Form.Control name="fullName" value={formData.fullName} onChange={handleChange} required />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Phone Number</Form.Label>
+                  <Form.Control name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Email Address</Form.Label>
+                  <Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control as="textarea" name="address" value={formData.address} onChange={handleChange} required />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Gender</Form.Label>
+                  <InputGroup>
+                    <Form.Check inline label="Male" type="radio" name="gender" value="male" checked={formData.gender === "male"} onChange={handleChange} />
+                    <Form.Check inline label="Female" type="radio" name="gender" value="female" checked={formData.gender === "female"} onChange={handleChange} />
+                  </InputGroup>
+                </Form.Group>
+              </>
+            )}
 
+            <Button type="submit" variant="primary">Update Changes</Button>{' '}
+            <Button variant="secondary" onClick={handleClose}>Cancel</Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </div>
+  );
+};
 
-
-/tailor
-├── /public
-│   ├── index.html
-│   ├── manifest.json
-│   └── /asset
-│       ├── favicon.ico
-│       ├── maschine.jpeg
-│       └── shirt.jpg
-│
-├── /src
-│   ├── /assets
-│   │   ├── images
-│   │   └── styles
-│   │       ├── index.css
-│   │       └── App.css
-│   │
-│   ├── /components
-│   │   ├── CustomerRegistration.js
-│   │   └── CustomerRegistration.css
-│   │
-│   ├── /pages
-│   │   ├── Customers.js
-│   │   ├── Employees.js
-│   │   ├── Orders.js
-│   │   ├── Products.js
-│   │   ├── Measurements.js
-│   │   ├── Dropdown.js
-│   │   └── Navbar.js
-│   │
-│   ├── /styles
-│   │   ├── Customers.css
-│   │   ├── Employees.css
-│   │   ├── Orders.css
-│   │   ├── Products.css
-│   │   ├── Measurements.css
-│   │   └── Navbar.css
-│   │
-│   ├── App.js
-│   ├── index.js
-│   ├── reportWebVitals.js
-│   └── setupTests.js
-│
-├── .gitignore
-├── package.json
-└── README.md
+export default Customers;
