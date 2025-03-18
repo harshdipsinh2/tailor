@@ -214,3 +214,10 @@ const Customers = () => {
 };
 
 export default Customers;
+Search and Filter for products
+Sort Functionality for columns
+Enhanced Form Validation for better data accuracy
+Image Upload Feature for product images
+Detailed Product Description Field
+Category Management for better organization
+Bulk Actions (e.g., bulk delete or bulk update)

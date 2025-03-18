@@ -1,63 +1,89 @@
+/* Navbar Styling */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #4A90E2;
-  color: #FFFFFF;
-  padding: 12px 25px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px;
+  background: #1e3c72; /* Dark blue */
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
   display: flex;
   align-items: center;
+  gap: 10px;
   font-size: 1.5rem;
-  font-weight: 600;
-  gap: 12px;
+  font-weight: bold;
+}
+
+.logo img {
+  width: 50px; /* Square logo */
+  height: 50px; /* Square logo */
+  border-radius: 50px; /* Slightly rounded corners */
+}
+
+.logo-text {
+  font-family: "Poppins", sans-serif;
 }
 
 .sidebar-toggle {
-  background-color: #FFFFFF;
-  color: #4A90E2;
+  background: transparent;
   border: none;
   font-size: 1.5rem;
-  padding: 8px 12px;
-  border-radius: 6px;
+  color: white;
   cursor: pointer;
 }
 
+.sidebar-toggle:hover {
+  color: #ffdd57; /* Yellow hover effect */
+}
 
+/* Sidebar Styling */
+.sidebar {
+  background: #2a5298; /* Lighter blue */
+  color: white; /* White text for contrast */
+  width: 250px;
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  padding: 15px;
+}
 
 .nav-link {
-  padding: 10px 0;
-  color: #23395B;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  color: white; /* White text for contrast */
   text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  transition: background 0.3s ease;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1); /* Light hover effect */
+  border-radius: 5px;
+}
+
 .nav-link.active {
-  color: #4A90E2;
-  background-color: #DDE7F9;
-  border-radius: 6px;
-  padding-left: 10px;
-}
-.sidebar .offcanvas-end {
-  background-color: #E3EAFD;
-  width: 180px; /* Reduced from 260px */
-  padding: 10px; /* Less padding for a tighter look */
+  background: rgba(255, 255, 255, 0.2); /* Slightly darker for active state */
+  border-radius: 5px;
 }
 
-.offcanvas-title {
-  font-size: 1rem; /* Slightly smaller title */
+.nav-icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
 }
 
-.nav-link {
-  font-size: 0.9rem; /* Reduce text size */
-  padding: 6px 0; /* Adjusted spacing for compact layout */
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo-text {
+    display: none;
+  }
 
-.nav-link i {
-  margin-right: 6px; /* Less gap between icons and text */
+  .sidebar {
+    width: 100%; /* Full width on mobile */
+  }
 }

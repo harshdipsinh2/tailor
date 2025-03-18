@@ -1,22 +1,52 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Popconfirm, message } from "antd";
-import { getAllMeasurement, deleteMeasurement } from "../api/Meausementapi";
+import { Table, Button, Popconfirm, message, Card, Spin, Space, Input } from "antd";
+import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { getAllMeasurement, deleteMeasurement } from "../api/measurementapi";
+import { getCustomer } from "../api/customerapi";
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
+  const [filteredMeasurements, setFilteredMeasurements] = useState([]); // Filtered data for search
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchMeasurements();
   }, []);
 
   const fetchMeasurements = async () => {
+    setLoading(true);
     try {
-      const data = await getAllMeasurement();
-      setMeasurements(data);
+      const measurementsData = await getAllMeasurement();
+      const measurementsWithCustomerNames = await Promise.all(
+        measurementsData.map(async (measurement) => {
+          const customer = await getCustomer(measurement.customerId);
+          return {
+            ...measurement,
+            customerName: customer.fullName,
+          };
+        })
+      );
+      setMeasurements(measurementsWithCustomerNames);
+      setFilteredMeasurements(measurementsWithCustomerNames); // Initialize filtered data
     } catch (error) {
       console.error("Error fetching measurements:", error.message);
+      message.error("Failed to fetch measurements");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Filter measurements based on search term
+  useEffect(() => {
+    const filteredData = measurements.filter((measurement) =>
+      measurement.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      Object.values(measurement).some(value =>
+        typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setFilteredMeasurements(filteredData);
+  }, [searchTerm, measurements]);
 
   const handleDeleteMeasurement = async (measurementId) => {
     try {
@@ -50,29 +80,49 @@ const Measurements = () => {
     {
       title: "Actions",
       key: "actions",
-      render: (_, record) => (
+      render: (measurement) => (
         <Popconfirm
-          title="Are you sure to delete this measurement?"
-          onConfirm={() => handleDeleteMeasurement(record.measurementID)}
+          title="Are you sure you want to delete this measurement?"
+          onConfirm={() => handleDeleteMeasurement(measurement.measurementID)}
           okText="Yes"
           cancelText="No"
         >
-          <Button type="primary" danger>Delete</Button>
+          <Button danger icon={<DeleteOutlined />}>
+            Delete
+          </Button>
         </Popconfirm>
       ),
     },
   ];
 
   return (
-    <div className="measurements-container">
-      <h2>Measurement Records</h2>
-      <Table
-        dataSource={measurements}
-        columns={columns}
-        rowKey="measurementID"
-        pagination={{ pageSize: 10 }}
-        scroll={{ x: true }}
-      />
+    <div className="measurements-container" style={{ padding: "20px" }}>
+      <Card
+        title={<h2 style={{ margin: 0 }}>Measurement Records</h2>}
+        extra={
+          <Space>
+            <Input
+              placeholder="Search by Name or Measurement"
+              prefix={<SearchOutlined />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              allowClear
+              style={{ width: "300px" }}
+            />
+          </Space>
+        }
+      >
+        <Spin spinning={loading}>
+          <Table
+            dataSource={filteredMeasurements} // Display filtered data
+            columns={columns}
+            rowKey="measurementID"
+            bordered
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
+          />
+        </Spin>
+      </Card>
     </div>
   );
 };

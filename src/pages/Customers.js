@@ -1,21 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Row, Col, Input, Radio, message } from "antd";
-import { useNavigate } from "react-router-dom"; // For navigation
-import { updateCustomer, getAllCustomers } from "../api/customerapi";
+import { Table, Button, Modal, Form, Row, Col, Input, Radio, message, Card, Space, Spin } from "antd";
+import { useNavigate } from "react-router-dom";
+import { updateCustomer, getAllCustomers, deleteCustomer } from "../api/customerapi";
+import { addMeasurement } from "../api/measurementapi";
+import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]); // For search filtering
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
   const [customerId, setCustomerID] = useState("");
   const [show, setShow] = useState(false);
   const [showMeasurement, setShowMeasurement] = useState(false);
-  const [form] = Form.useForm(); // Ant Design Form instance
+  const [loading, setLoading] = useState(false); // Loading state for table
+  const [form] = Form.useForm();
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     getAllCustomers()
-      .then((data) => setCustomers(data))
-      .catch((error) => console.error("Error fetching data:", error));
+      .then((data) => {
+        setCustomers(data);
+        setFilteredCustomers(data); // Initialize filtered data
+      })
+      .catch((error) => console.error("Error fetching data:", error))
+      .finally(() => setLoading(false));
   }, []);
+
+  // Filter customers based on search term
+  useEffect(() => {
+    const filteredData = customers.filter((customer) =>
+      customer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.phoneNumber.includes(searchTerm)
+    );
+    setFilteredCustomers(filteredData);
+  }, [searchTerm, customers]);
 
   const handleEditCustomer = (customerId) => {
     setCustomerID(customerId);
@@ -23,10 +42,12 @@ const Customers = () => {
 
     const singleCustomer = customers.find((customer) => customer.customerId === customerId);
 
-    // Set form values correctly
-    form.setFieldsValue(singleCustomer);
-
-    setShow(true);
+    if (singleCustomer) {
+      form.setFieldsValue(singleCustomer);
+      setShow(true);
+    } else {
+      message.error("Customer not found.");
+    }
   };
 
   const handleAddMeasurements = (customerId) => {
@@ -37,14 +58,32 @@ const Customers = () => {
 
   const handleClose = () => setShow(false);
 
+  const handleDeleteCustomer = async (customerId) => {
+    try {
+      await deleteCustomer(customerId);
+      message.success("Customer deleted successfully!");
+      setCustomers(customers.filter(customer => customer.customerId !== customerId));
+    } catch (error) {
+      message.error("Failed to delete customer: " + error.message);
+    }
+  };
+
   const handleEditSubmit = async (values) => {
     try {
-      console.log("Updating customer with ID:", customerId, "and data:", values);
-      const response = await updateCustomer(customerId, values);
-
-      message.success("Customer updated successfully!");
+      if (showMeasurement) {
+        await addMeasurement(customerId, values);
+        message.success("Measurement added successfully!");
+      } else {
+        await updateCustomer(customerId, values);
+        message.success("Customer updated successfully!");
+      }
+      setCustomers(prevCustomers =>
+        prevCustomers.map(customer =>
+          customer.customerId === customerId ? { ...customer, ...values } : customer
+        )
+      );
     } catch (error) {
-      message.error("Failed to update customer: " + error.message);
+      message.error((showMeasurement ? "Failed to add measurement: " : "Failed to update customer: ") + error.message);
     }
     setShow(false);
   };
@@ -56,48 +95,80 @@ const Customers = () => {
   ];
 
   return (
-    <div className="customers-container" style={{ textAlign: "center" }}>
-      <h2>Customer List</h2>
-
-      {/* Add Customer Button in Top-Right Corner */}
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "10px" }}>
-<Button type="primary" onClick={() => navigate("/customer-registration")}>
-
-          Add Customer
-        </Button>
-      </div>
-
-      <Table
-        dataSource={customers}
-        rowKey="customerId"
-        bordered
-        pagination={{ pageSize: 5 }}
-        scroll={{ x: "max-content" }}
+    <div className="customers-container" style={{ padding: "20px" }}>
+      <Card
+        title={<h2 style={{ margin: 0 }}>Customer Records</h2>}
+        extra={
+          <Space>
+            <Input
+              placeholder="Search by Name or Mobile"
+              prefix={<SearchOutlined />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              allowClear
+              style={{ width: "250px" }}
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => navigate("/customer-registration")}
+            >
+              Add Customer
+            </Button>
+          </Space>
+        }
       >
-        <Table.Column title="Name" dataIndex="fullName" key="fullName" />
-        <Table.Column title="Phone" dataIndex="phoneNumber" key="phoneNumber" />
-        <Table.Column title="Email" dataIndex="email" key="email" />
-        <Table.Column title="Address" dataIndex="address" key="address" />
-        <Table.Column title="Gender" dataIndex="gender" key="gender" />
-        <Table.Column
-          title="Actions"
-          key="actions"
-          render={(customer) => (
-            <>
-              <Button type="primary" onClick={() => handleEditCustomer(customer.customerId)}>Edit</Button>{" "}
-              <Button danger>Delete</Button>{" "}
-              <Button onClick={() => handleAddMeasurements(customer.customerId)}>Add Measurement</Button>
-            </>
-          )}
-        />
-      </Table>
+        <Spin spinning={loading}>
+          <Table
+            dataSource={filteredCustomers} // Filtered data for display
+            rowKey="customerId"
+            bordered
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
+          >
+            <Table.Column title="Name" dataIndex="fullName" key="fullName" />
+            <Table.Column title="Phone" dataIndex="phoneNumber" key="phoneNumber" />
+            <Table.Column title="Email" dataIndex="email" key="email" />
+            <Table.Column title="Address" dataIndex="address" key="address" />
+            <Table.Column title="Gender" dataIndex="gender" key="gender" />
+            <Table.Column
+              title="Actions"
+              key="actions"
+              render={(customer) => (
+                <Space>
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => handleEditCustomer(customer.customerId)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleDeleteCustomer(customer.customerId)}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    icon={<PlusOutlined />}
+                    onClick={() => handleAddMeasurements(customer.customerId)}
+                  >
+                    Add Measurement
+                  </Button>
+                </Space>
+              )}
+            />
+          </Table>
+        </Spin>
+      </Card>
 
-      {/* Modal for Edit / Add Measurements */}
       <Modal
         title={showMeasurement ? "Add Measurements" : "Update Customer Details"}
         visible={show}
         onCancel={handleClose}
         footer={null}
+        width={800} // Adjust modal width
       >
         <Form
           form={form}
@@ -140,8 +211,10 @@ const Customers = () => {
             </>
           )}
 
-          <Button type="primary" htmlType="submit">Update Changes</Button>{" "}
-          <Button onClick={handleClose}>Cancel</Button>
+          <Space>
+            <Button type="primary" htmlType="submit">Submit</Button>
+            <Button onClick={handleClose}>Cancel</Button>
+          </Space>
         </Form>
       </Modal>
     </div>

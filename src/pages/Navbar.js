@@ -12,6 +12,7 @@ import {
   faBox,
   faClipboardList,
   faBars,
+  faShirt,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Navbar = () => {
@@ -27,7 +28,7 @@ const Navbar = () => {
       <nav className="navbar">
         <div className="logo">
           <img src={image} height={60} width={60} alt="logo" />
-          Tailor Management System
+          <span className="logo-text">Tailor Management System</span>
         </div>
 
         {/* Sidebar Toggle Button on Right Side */}
@@ -35,6 +36,7 @@ const Navbar = () => {
           variant="primary"
           className="sidebar-toggle"
           onClick={handleShow}
+          aria-label="Toggle Sidebar"
         >
           <FontAwesomeIcon icon={faBars} />
         </Button>
@@ -44,11 +46,11 @@ const Navbar = () => {
       <Offcanvas
         show={showSidebar}
         onHide={handleClose}
-        placement="end"  
+        placement="end"
         className="sidebar"
       >
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Menu</Offcanvas.Title>
+          <Offcanvas.Title className="sidebar-title">Menu</Offcanvas.Title>
         </Offcanvas.Header>
 
         <Offcanvas.Body>
@@ -60,7 +62,7 @@ const Navbar = () => {
                   location.pathname === "/" ? "active" : ""
                 }`}
               >
-                <FontAwesomeIcon icon={faHome} style={{ marginRight: "8px" }} />
+                <FontAwesomeIcon icon={faHome} className="nav-icon" />
                 Dashboard
               </Link>
             </Nav.Item>
@@ -69,15 +71,10 @@ const Navbar = () => {
               <Link
                 to="/customer-registration"
                 className={`nav-link ${
-                  location.pathname === "/customer-registration"
-                    ? "active"
-                    : ""
+                  location.pathname === "/customer-registration" ? "active" : ""
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faUserPlus}
-                  style={{ marginRight: "8px" }}
-                />
+                <FontAwesomeIcon icon={faUserPlus} className="nav-icon" />
                 Registration
               </Link>
             </Nav.Item>
@@ -89,10 +86,7 @@ const Navbar = () => {
                   location.pathname === "/customers" ? "active" : ""
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faUsers}
-                  style={{ marginRight: "8px" }}
-                />
+                <FontAwesomeIcon icon={faUsers} className="nav-icon" />
                 Customers
               </Link>
             </Nav.Item>
@@ -104,10 +98,7 @@ const Navbar = () => {
                   location.pathname === "/measurements" ? "active" : ""
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faRuler}
-                  style={{ marginRight: "8px" }}
-                />
+                <FontAwesomeIcon icon={faRuler} className="nav-icon" />
                 Measurements
               </Link>
             </Nav.Item>
@@ -119,8 +110,20 @@ const Navbar = () => {
                   location.pathname === "/products" ? "active" : ""
                 }`}
               >
-                <FontAwesomeIcon icon={faBox} style={{ marginRight: "8px" }} />
+                <FontAwesomeIcon icon={faBox} className="nav-icon" />
                 Cloth Type
+              </Link>
+            </Nav.Item>
+
+            <Nav.Item>
+              <Link
+                to="/fabrics"
+                className={`nav-link ${
+                  location.pathname === "/fabrics" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faShirt} className="nav-icon" />
+                Fabrics
               </Link>
             </Nav.Item>
 
@@ -131,10 +134,7 @@ const Navbar = () => {
                   location.pathname === "/orders" ? "active" : ""
                 }`}
               >
-                <FontAwesomeIcon
-                  icon={faClipboardList}
-                  style={{ marginRight: "8px" }}
-                />
+                <FontAwesomeIcon icon={faClipboardList} className="nav-icon" />
                 Orders
               </Link>
             </Nav.Item>
