@@ -44,6 +44,8 @@
   background: #2a5298; /* Lighter blue */
   color: white; /* White text for contrast */
   width: 250px;
+  padding-right: 30px;
+  
 }
 
 .sidebar-title {

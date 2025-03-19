@@ -3,6 +3,7 @@ import { Table, Button, Popconfirm, message, Card, Spin, Space, Input } from "an
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { getAllMeasurement, deleteMeasurement } from "../api/measurementapi";
 import { getCustomer } from "../api/customerapi";
+import {getAllFabrics} from "../api/fabricapi";
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -14,7 +15,7 @@ const Measurements = () => {
     fetchMeasurements();
   }, []);
 
-  const fetchMeasurements = async () => {
+  const fetchMeasurements = async () => { 
     setLoading(true);
     try {
       const measurementsData = await getAllMeasurement();

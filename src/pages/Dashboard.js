@@ -1,31 +1,43 @@
 import React from "react";
-import { FaUsers, FaTshirt, FaWallet, FaCreditCard } from "react-icons/fa";
+import {
+  FaUsers,
+  FaTshirt,
+  FaBoxes,
+  FaClipboardList,
+  FaUserTie,
+} from "react-icons/fa"; // Imported necessary icons
 import "../Css/Dashboard.css"; // Import your CSS file
 
 const Dashboard = () => {
   const data = [
     {
-      title: "Total Customer",
+      title: "Total Customers",
       value: "--",
       icon: <FaUsers className="dashboard-icon text-blue-500" />,
       bgColor: "bg-blue-light",
     },
     {
-      title: "Products",
+      title: "Total Products",
       value: "--",
       icon: <FaTshirt className="dashboard-icon text-yellow-500" />,
       bgColor: "bg-yellow-light",
     },
     {
-      title: "Revenue",
+      title: "Total Fabrics",
       value: "--",
-      icon: <FaWallet className="dashboard-icon text-gray-500" />,
-      bgColor: "bg-gray-light",
+      icon: <FaBoxes className="dashboard-icon text-green-500" />, // Changed to Fabric Icon
+      bgColor: "bg-green-light",
     },
     {
-      title: "Total Expense",
+      title: "Total Orders",
       value: "--",
-      icon: <FaCreditCard className="dashboard-icon text-red-500" />,
+      icon: <FaClipboardList className="dashboard-icon text-purple-500" />, // Changed to Order Icon
+      bgColor: "bg-purple-light",
+    },
+    {
+      title: "Total Employees",
+      value: "--",
+      icon: <FaUserTie className="dashboard-icon text-red-500" />, // Changed to Employee Icon
       bgColor: "bg-red-light",
     },
   ];

@@ -58,7 +58,8 @@
 }
 
 /* Custom background colors */
-.bg-blue-light { background-color: #e6f7ff; }
-.bg-yellow-light { background-color: #fff9e6; }
-.bg-gray-light { background-color: #f0f2f5; }
-.bg-red-light { background-color: #ffe6e6; }
+.bg-blue-light { background-color: #e6f7ff; }      /* Total Customers */
+.bg-yellow-light { background-color: #fff9e6; }    /* Total Products */
+.bg-green-light { background-color: #e6ffe6; }      /* Total Fabrics */
+.bg-purple-light { background-color: #f3e6ff; }     /* Total Orders */
+.bg-red-light { background-color: #ffe6e6; }        /* Total Employees */

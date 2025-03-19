@@ -138,6 +138,18 @@ const Navbar = () => {
                 Orders
               </Link>
             </Nav.Item>
+            <Nav.Item>
+              <Link
+                to="/employees"
+                className={`nav-link ${
+                  location.pathname === "/employees" ? "active" : ""
+                }`}
+              >
+                <FontAwesomeIcon icon={faUsers} className="nav-icon" />{" "}
+                {/* Use appropriate icon */}
+                Employees
+              </Link>
+            </Nav.Item>
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>

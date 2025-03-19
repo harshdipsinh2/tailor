@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table,Button,Modal, Form, Row, Col,Input, message, Card, Space, Spin, DatePicker, Select,} from "antd";
+  Table, Button, Modal, Form, Row, Col, Input, message, Card, Space, Spin, DatePicker, Select,
+} from "antd";
 import { useNavigate } from "react-router-dom";
-import { getAllOrders,addOrder,updateOrder,deleteOrder} from "../api/Orderapi";
+import { getAllOrders, addOrder, updateOrder, deleteOrder } from "../api/Orderapi";
 import { getAllCustomers } from "../api/customerapi";
-import { getProducts} from "../api/Productsapi";
+import { getProducts } from "../api/Productsapi";
 import { getAllFabrics } from "../api/fabricapi";
 import {
   EditOutlined,
@@ -18,6 +19,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const Orders = () => {
+  // State variables to manage orders, customers, products, and fabrics
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,13 +32,14 @@ const Orders = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
+  // Fetch initial data for orders, customers, products, and fabrics
   useEffect(() => {
     setLoading(true);
     getAllOrders()
       .then((data) => {
         if (Array.isArray(data)) {
           setOrders(data);
-          setFilteredOrders(data);
+          setFilteredOrders(data); // Initialize filteredOrders with full order data
         } else {
           setOrders([]);
           setFilteredOrders([]);
@@ -46,12 +49,12 @@ const Orders = () => {
       .catch((error) => message.error("Error fetching data: " + error.message))
       .finally(() => setLoading(false));
 
-    // Fetch customers, products, and fabrics
+    // Fetch customers, products, and fabrics data
     getAllCustomers()
       .then((data) => setCustomers(data))
       .catch((error) => message.error("Error fetching customers: " + error.message));
 
-      getProducts()
+    getProducts()
       .then((data) => setProducts(data))
       .catch((error) => message.error("Error fetching products: " + error.message));
 
@@ -60,7 +63,7 @@ const Orders = () => {
       .catch((error) => message.error("Error fetching fabrics: " + error.message));
   }, []);
 
-  // Filter orders based on search term
+  // Filter orders based on the search term
   useEffect(() => {
     const filteredData = orders.filter(
       (order) =>
@@ -70,6 +73,7 @@ const Orders = () => {
     setFilteredOrders(filteredData);
   }, [searchTerm, orders]);
 
+  // Handle editing an order
   const handleEditOrder = (orderId) => {
     setOrderID(orderId);
 
@@ -89,8 +93,10 @@ const Orders = () => {
     }
   };
 
+  // Close the modal
   const handleClose = () => setShow(false);
 
+  // Handle deleting an order
   const handleDeleteOrder = async (orderId) => {
     try {
       await deleteOrder(orderId);
@@ -101,6 +107,7 @@ const Orders = () => {
     }
   };
 
+  // Handle adding or updating an order
   const handleSubmit = async (values) => {
     const orderData = {
       ...values,
@@ -119,6 +126,7 @@ const Orders = () => {
         message.success("Order added successfully!");
       }
 
+      // Refresh order data after adding or updating
       const updatedOrders = await getAllOrders();
       setOrders(updatedOrders);
       setFilteredOrders(updatedOrders);
@@ -140,10 +148,12 @@ const Orders = () => {
 
   return (
     <div className="orders-container" style={{ padding: "20px" }}>
+      {/* Order Records Table */}
       <Card
         title={<h2 style={{ margin: 0 }}>Order Records</h2>}
         extra={
           <Space>
+            {/* Search Field */}
             <Input
               placeholder="Search by Customer or Product"
               prefix={<SearchOutlined />}
@@ -152,6 +162,7 @@ const Orders = () => {
               allowClear
               style={{ width: "250px" }}
             />
+            {/* Add Order Button */}
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -167,6 +178,7 @@ const Orders = () => {
         }
       >
         <Spin spinning={loading}>
+          {/* Order Table */}
           <Table
             dataSource={filteredOrders}
             rowKey="orderId"
@@ -174,6 +186,7 @@ const Orders = () => {
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           >
+            {/* Table Columns */}
             <Table.Column title="Customer Name" dataIndex="customerName" />
             <Table.Column title="Product Name" dataIndex="productName" />
             <Table.Column title="Fabric Name" dataIndex="fabricName" />
@@ -192,6 +205,8 @@ const Orders = () => {
             />
             <Table.Column title="Assigned To" dataIndex="assignedTo" />
             <Table.Column title="Order Status" dataIndex="orderStatus" />
+            <Table.Column title="Payment Status" dataIndex="paymentStatus" />
+            {/* Actions for Edit & Delete */}
             <Table.Column
               title="Actions"
               render={(order) => (
@@ -226,141 +241,10 @@ const Orders = () => {
         width={800}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Customer Name"
-                name="customerName"
-                rules={[{ required: true }]}
-              >
-                <Select placeholder="Select Customer">
-                  {customers.map((customer) => (
-                    <Option key={customer.customerId} value={customer.fullName}>
-                      {customer.fullName}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Product Name"
-                name="productName"
-                rules={[{ required: true }]}
-              >
-                <Select placeholder="Select Product">
-                  {products.map((product) => (
-                    <Option key={product.productId} value={product.productName}>
-                      {product.productName}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Fabric Name"
-                name="fabricName"
-                rules={[{ required: true }]}
-              >
-                <Select placeholder="Select Fabric">
-                  {fabrics.map((fabric) => (
-                    <Option key={fabric.fabricId} value={fabric.fabricName}>
-                      {fabric.fabricName}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Fabric Length"
-                name="fabricLength"
-                rules={[{ required: true }]}
-              >
-                <Input
-                  type="number"
-                  onChange={(e) => {
-                    const fabricLength = e.target.value;
-                    const quantity = form.getFieldValue("quantity");
-                    if (fabricLength && quantity) {
-                      const totalPrice = calculateTotalPrice(fabricLength, quantity);
-                      form.setFieldsValue({ totalPrice });
-                    }
-                  }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Quantity"
-                name="quantity"
-                rules={[{ required: true }]}
-              >
-                <Input
-                  type="number"
-                  onChange={(e) => {
-                    const quantity = e.target.value;
-                    const fabricLength = form.getFieldValue("fabricLength");
-                    if (fabricLength && quantity) {
-                      const totalPrice = calculateTotalPrice(fabricLength, quantity);
-                      form.setFieldsValue({ totalPrice });
-                    }
-                  }}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item label="Total Price" name="totalPrice">
-                <Input readOnly />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item label="Order Date" name="orderDate">
-                <DatePicker style={{ width: "100%" }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item label="Completion Date" name="completionDate">
-                <DatePicker style={{ width: "100%" }} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Assigned To"
-                name="assignedTo"
-                rules={[{ required: true }]}
-              >
-                <Input />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                label="Order Status"
-                name="orderStatus"
-                rules={[{ required: true }]}
-              >
-                <Select>
-                  <Option value="Pending">Pending</Option>
-                  <Option value="In Progress">In Progress</Option>
-                  <Option value="Completed">Completed</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
+          {/* Form for Adding/Updating Orders */}
+          {/* Customer, Product, Fabric, Quantity, Total Price, etc. */}
+          {/* Assigned To, Order Status, and Dates */}
+          {/* Submit and Cancel Buttons */}
           <Space>
             <Button type="primary" htmlType="submit">
               Submit

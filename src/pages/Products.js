@@ -123,9 +123,7 @@ const Products = () => {
         footer={null}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item label="Product ID" name="productID" rules={[{ required: true }]}>
-            <Input disabled={isEditing} />
-          </Form.Item>
+ 
           <Form.Item label="Product Name" name="productName" rules={[{ required: true }]}>
             <Input />
           </Form.Item>

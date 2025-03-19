@@ -221,3 +221,137 @@ Image Upload Feature for product images
 Detailed Product Description Field
 Category Management for better organization
 Bulk Actions (e.g., bulk delete or bulk update)
+
+
+
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: #001529;
+}
+
+.logo-text {
+  color: white;
+  margin-left: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.navbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.site-layout-background {
+  background: #fff;
+}
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Layout, Menu, Button } from "antd";
+import {
+  HomeOutlined,
+  UserAddOutlined,
+  TeamOutlined,
+  ToolOutlined,
+  BoxPlotOutlined,
+  OrderedListOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+  TagsOutlined, // Replaced ShirtOutlined with TagsOutlined
+} from "@ant-design/icons";
+import "../Css/Navbar.css";
+import image from "../asset/maschine.jpeg";
+
+const { Sider } = Layout;
+
+const Navbar = () => {
+  const location = useLocation();
+  const [collapsed, setCollapsed] = useState(true);
+
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+  };
+
+  return (
+    <Layout style={{ minHeight: "100vh" }}>
+      {/* Sidebar */}
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={toggleSidebar}
+        trigger={null}
+        width={200}
+        className="site-layout-background"
+        style={{
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+        }}
+      >
+        <div className="logo" style={{ padding: "16px", textAlign: "center" }}>
+          <img src={image} height={60} width={60} alt="logo" />
+          {!collapsed && (
+            <span className="logo-text">Tailor Management System</span>
+          )}
+        </div>
+
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          defaultSelectedKeys={["/"]}
+        >
+          <Menu.Item key="/" icon={<HomeOutlined />}>
+            <Link to="/">Dashboard</Link>
+          </Menu.Item>
+          <Menu.Item key="/customer-registration" icon={<UserAddOutlined />}>
+            <Link to="/customer-registration">Registration</Link>
+          </Menu.Item>
+          <Menu.Item key="/customers" icon={<TeamOutlined />}>
+            <Link to="/customers">Customers</Link>
+          </Menu.Item>
+          <Menu.Item key="/measurements" icon={<ToolOutlined />}>
+            <Link to="/measurements">Measurements</Link>
+          </Menu.Item>
+          <Menu.Item key="/products" icon={<BoxPlotOutlined />}>
+            <Link to="/products">Cloth Type</Link>
+          </Menu.Item>
+          <Menu.Item key="/fabrics" icon={<TagsOutlined />}>
+            <Link to="/fabrics">Fabrics</Link>
+          </Menu.Item>
+          <Menu.Item key="/orders" icon={<OrderedListOutlined />}>
+            <Link to="/orders">Orders</Link>
+          </Menu.Item>
+          <Menu.Item key="/employees" icon={<TeamOutlined />}>
+            <Link to="/employees">Employees</Link>
+          </Menu.Item>
+        </Menu>
+      </Sider>
+
+      {/* Top Navbar */}
+      <Layout className="site-layout" style={{ marginLeft: collapsed ? 80 : 200 }}>
+        <div className="navbar">
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={toggleSidebar}
+            style={{
+              fontSize: "16px",
+              width: 64,
+              height: 64,
+            }}
+          />
+        </div>
+      </Layout>
+    </Layout>
+  );
+};
+
+export default Navbar;
