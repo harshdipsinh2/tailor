@@ -1,12 +1,30 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table, Button, Modal, Form, Row, Col, Input, message, Card, Space, Spin, DatePicker, Select,
+  Table,
+  Button,
+  Modal,
+  Form,
+  Row,
+  Col,
+  Input,
+  message,
+  Card,
+  Space,
+  Spin,
+  DatePicker,
+  Select,
 } from "antd";
 import { useNavigate } from "react-router-dom";
-import { getAllOrders, addOrder, updateOrder, deleteOrder } from "../api/Orderapi";
+import {
+  getAllOrders,
+  addOrder,
+  updateOrder,
+  deleteOrder,
+} from "../api/Orderapi";
 import { getAllCustomers } from "../api/customerapi";
 import { getProducts } from "../api/Productsapi";
 import { getAllFabrics } from "../api/fabricapi";
+import { getAllEmployees } from "../api/Employeesapi";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -16,10 +34,9 @@ import {
 import dayjs from "dayjs";
 
 const { Option } = Select;
-const { TextArea } = Input;
 
 const Orders = () => {
-  // State variables to manage orders, customers, products, and fabrics
+  // State variables
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,17 +46,18 @@ const Orders = () => {
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [fabrics, setFabrics] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  // Fetch initial data for orders, customers, products, and fabrics
+  // Fetch initial data
   useEffect(() => {
     setLoading(true);
     getAllOrders()
       .then((data) => {
         if (Array.isArray(data)) {
           setOrders(data);
-          setFilteredOrders(data); // Initialize filteredOrders with full order data
+          setFilteredOrders(data);
         } else {
           setOrders([]);
           setFilteredOrders([]);
@@ -49,21 +67,34 @@ const Orders = () => {
       .catch((error) => message.error("Error fetching data: " + error.message))
       .finally(() => setLoading(false));
 
-    // Fetch customers, products, and fabrics data
+    // Fetch customers, products, and fabrics
     getAllCustomers()
       .then((data) => setCustomers(data))
-      .catch((error) => message.error("Error fetching customers: " + error.message));
+      .catch((error) =>
+        message.error("Error fetching customers: " + error.message)
+      );
 
     getProducts()
       .then((data) => setProducts(data))
-      .catch((error) => message.error("Error fetching products: " + error.message));
+      .catch((error) =>
+        message.error("Error fetching products: " + error.message)
+      );
 
     getAllFabrics()
       .then((data) => setFabrics(data))
-      .catch((error) => message.error("Error fetching fabrics: " + error.message));
+      .catch((error) =>
+        message.error("Error fetching fabrics: " + error.message)
+      );
+    // Fetch employees
+    getAllEmployees()
+      .then((data) => setEmployees(data))
+      .catch((error) =>
+        message.error("Error fetching employees: " + error.message)
+      );
   }, []);
 
-  // Filter orders based on the search term
+
+  // Filter orders based on search term
   useEffect(() => {
     const filteredData = orders.filter(
       (order) =>
@@ -111,7 +142,9 @@ const Orders = () => {
   const handleSubmit = async (values) => {
     const orderData = {
       ...values,
-      orderDate: values.orderDate ? values.orderDate.format("YYYY-MM-DD") : null,
+      orderDate: values.orderDate
+        ? values.orderDate.format("YYYY-MM-DD")
+        : null,
       completionDate: values.completionDate
         ? values.completionDate.format("YYYY-MM-DD")
         : null,
@@ -126,7 +159,7 @@ const Orders = () => {
         message.success("Order added successfully!");
       }
 
-      // Refresh order data after adding or updating
+      // Refresh order data
       const updatedOrders = await getAllOrders();
       setOrders(updatedOrders);
       setFilteredOrders(updatedOrders);
@@ -138,12 +171,6 @@ const Orders = () => {
     }
 
     setShow(false);
-  };
-
-  // Calculate total price based on fabric length and quantity
-  const calculateTotalPrice = (fabricLength, quantity) => {
-    const pricePerUnit = 10; // Replace with actual price per unit from fabric data
-    return fabricLength * quantity * pricePerUnit;
   };
 
   return (
@@ -203,7 +230,7 @@ const Orders = () => {
               dataIndex="completionDate"
               render={(date) => (date ? dayjs(date).format("DD/MM/YYYY") : "-")}
             />
-            <Table.Column title="Assigned To" dataIndex="assignedTo" />
+            <Table.Column title="Assigned To" dataIndex="assignedToName" />
             <Table.Column title="Order Status" dataIndex="orderStatus" />
             <Table.Column title="Payment Status" dataIndex="paymentStatus" />
             {/* Actions for Edit & Delete */}
@@ -241,16 +268,143 @@ const Orders = () => {
         width={800}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          {/* Form for Adding/Updating Orders */}
-          {/* Customer, Product, Fabric, Quantity, Total Price, etc. */}
-          {/* Assigned To, Order Status, and Dates */}
+          {/* Customer Dropdown */}
+          <Form.Item
+            label="Customer"
+            name="customerId"
+            rules={[{ required: true, message: "Please select a customer!" }]}
+          >
+            <Select placeholder="Select Customer">
+              {customers.map((customer) => (
+                <Option key={customer.customerId} value={customer.customerId}>
+                  {customer.fullName}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Product Dropdown */}
+          <Form.Item
+            label="Product"
+            name="productId"
+            rules={[{ required: true, message: "Please select a product!" }]}
+          >
+            <Select placeholder="Select Product">
+              {products.map((product) => (
+                <Option key={product.productId} value={product.productId}>
+                  {product.productName}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Fabric Dropdown */}
+          <Form.Item
+            label="Fabric"
+            name="fabricId"
+            rules={[{ required: true, message: "Please select a fabric!" }]}
+          >
+            <Select placeholder="Select Fabric">
+              {fabrics.map((fabric) => (
+                <Option key={fabric.fabricId} value={fabric.fabricId}>
+                  {fabric.fabricName}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Assigned To Name */}
+          <Form.Item
+            label="Assigned To"
+            name="assignedToName"
+            rules={[
+              { required: true, message: "Please enter assigned to name!" },
+            ]}
+          >
+            <Select placeholder="Select Employee">
+              {employees.map((employee) => (
+                <Option key={employee.employeeId} value={employee.employeeId}>
+                  {employee.fullName}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          {/* Fabric Length */}
+          <Form.Item
+            label="Fabric Length"
+            name="fabricLength"
+            rules={[{ required: true, message: "Please enter fabric length!" }]}
+          >
+            <Input type="number" />
+          </Form.Item>
+
+          {/* Quantity */}
+          <Form.Item
+            label="Quantity"
+            name="quantity"
+            rules={[{ required: true, message: "Please enter quantity!" }]}
+          >
+            <Input type="number" />
+          </Form.Item>
+
+          {/* Completion Date */}
+          <Form.Item
+            label="Completion Date"
+            name="completionDate"
+            rules={[
+              { required: true, message: "Please select a completion date!" },
+            ]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+
+          {/* Assigned To Name */}
+          <Form.Item
+            label="Assigned To"
+            name="assignedToName"
+            rules={[
+              { required: true, message: "Please enter assigned to name!" },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          {/* Order Status */}
+          <Form.Item
+            label="Order Status"
+            name="orderStatus"
+            rules={[{ required: true, message: "Please select order status!" }]}
+          >
+            <Select placeholder="Select Order Status">
+              <Option value="Pending">Pending</Option>
+              <Option value="Completed">Completed</Option>
+            </Select>
+          </Form.Item>
+
+          {/* Payment Status */}
+          <Form.Item
+            label="Payment Status"
+            name="paymentStatus"
+            rules={[
+              { required: true, message: "Please select payment status!" },
+            ]}
+          >
+            <Select placeholder="Select Payment Status">
+              <Option value="Pending">Pending</Option>
+              <Option value="Completed">Completed</Option>
+            </Select>
+          </Form.Item>
+
           {/* Submit and Cancel Buttons */}
-          <Space>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-            <Button onClick={handleClose}>Cancel</Button>
-          </Space>
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+              <Button onClick={handleClose}>Cancel</Button>
+            </Space>
+          </Form.Item>
         </Form>
       </Modal>
     </div>

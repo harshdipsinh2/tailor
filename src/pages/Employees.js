@@ -140,19 +140,7 @@ const Employees = () => {
             <Table.Column title="Mobile" dataIndex="mobileNo" key="mobileNo" />
             <Table.Column title="Address" dataIndex="address" key="address" />
             <Table.Column title="Role" dataIndex="roleName" key="roleName" />
-            <Table.Column
-  title="Status"
-  key="userStatus"
-  render={(employee) => (
-    <Select
-      defaultValue={employee.userStatus}
-      onChange={(value) => handleStatusChange(employee.id, value)}
-    >
-      <Select.Option value="Available">Available</Select.Option>
-      <Select.Option value="Busy">Busy</Select.Option>
-    </Select>
-  )}
-/>
+            <Table.Column title="Status" dataIndex="userStatus" key="userStatus"/>
 
             <Table.Column
               title="Actions"
