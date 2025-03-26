@@ -40,6 +40,12 @@ const Dashboard = () => {
       icon: <FaUserTie className="dashboard-icon text-red-500" />, // Changed to Employee Icon
       bgColor: "bg-red-light",
     },
+    {
+      title: "Pending Orders",
+      value: "--",
+      icon: <FaClipboardList className="dashboard-icon text-red-500" />, // Changed to Employee Icon
+      bgColor: "bg-brown-light",
+    }
   ];
 
   return (

@@ -8,7 +8,7 @@ import Measurements from "../pages/Measurements";
 import Dashboard from "../pages/Dashboard";
 import Fabrics from "../pages/Fabrics";
 import Employees from "../pages/Employees"; // Import Employees
-
+import CompletedOrders from "../pages/CompletedOrders"; // Import CompletedOrders
 
 const AppRoutes = () => {
   return (
@@ -21,6 +21,7 @@ const AppRoutes = () => {
       <Route path="/customer-registration" element={<CustomerRegistration />} /> {/* Add route for CustomerRegistration */}
       <Route path="/fabrics" element={<Fabrics />} />
       <Route path="/employees" element={<Employees />} /> {/* Add Employees Route */}
+      <Route path="/completed-orders" element={<CompletedOrders />} /> {/* Add CompletedOrders Route */}
 
     </Routes>
   );

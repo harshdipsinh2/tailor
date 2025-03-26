@@ -126,7 +126,12 @@ const Navbar = () => {
                 <FontAwesomeIcon icon={faClipboardList} className="nav-icon" />
                 Orders
               </NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/completed-orders">
+                <FontAwesomeIcon icon={faClipboardList} className="nav-icon" />
+                Completed Orders
+              </NavDropdown.Item>
             </NavDropdown>
+            
 
             <Nav.Item>
               <Link
@@ -143,5 +148,4 @@ const Navbar = () => {
     </>
   );
 };
-
-export default Navbar;
+export default Navbar; 

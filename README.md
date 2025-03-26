@@ -355,3 +355,20 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+
+CREATE PROCEDURE sp_GetTotalCounts1
+AS
+BEGIN
+    SELECT 
+        (SELECT COUNT(*) FROM Customers WHERE IsDeleted = 0) AS TotalCustomers,
+        (SELECT COUNT(*) FROM Orders WHERE IsDeleted = 0) AS TotalOrders,
+		(SELECT COUNT(*) FROM Fabrics WHERE IsDeleted = 0) AS TotalFabrics,
+		(SELECT COUNT (*) FROM Products WHERE IsDeleted = 0) AS TotalProducts,
+		(SELECT SUM(TotalPrice) AS TotalRevenue
+         FROM Orders
+        WHERE IsDeleted = 0),
+		(SELECT COUNT(*) FROM Users WHERE IsDeleted = 0) AS TotalUsers
+
+END
