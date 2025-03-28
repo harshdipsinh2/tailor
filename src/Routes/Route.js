@@ -9,11 +9,13 @@ import Dashboard from "../pages/Dashboard";
 import Fabrics from "../pages/Fabrics";
 import Employees from "../pages/Employees"; // Import Employees
 import CompletedOrders from "../pages/CompletedOrders"; // Import CompletedOrders
+import HomePage from "../pages/HomePage";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} /> {/* Set Dashboard as the default route */}
+      <Route path="/" element={<HomePage />} /> {/* Home Page Route */}
+      <Route path="/dashboard" element={<Dashboard />} /> {/* Set Dashboard as the default route */}
       <Route path="/customers" element={<Customers />} />
       <Route path="/orders" element={<Orders />} />
       <Route path="/products" element={<Products />} />

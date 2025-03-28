@@ -58,7 +58,9 @@ const Navbar = () => {
             <Nav.Item>
               <Link
                 to="/"
-                className={`nav-link ${location.pathname === "/" ? "active" : ""}`}
+                className={`nav-link ${
+                  location.pathname === "/" ? "active" : ""
+                }`}
               >
                 <FontAwesomeIcon icon={faHome} className="nav-icon" />
                 Dashboard
@@ -115,7 +117,10 @@ const Navbar = () => {
             <NavDropdown
               title={
                 <span>
-                  <FontAwesomeIcon icon={faClipboardList} className="nav-icon" />
+                  <FontAwesomeIcon
+                    icon={faClipboardList}
+                    className="nav-icon"
+                  />
                   Order Management
                 </span>
               }
@@ -131,12 +136,13 @@ const Navbar = () => {
                 Completed Orders
               </NavDropdown.Item>
             </NavDropdown>
-            
 
             <Nav.Item>
               <Link
                 to="/employees"
-                className={`nav-link ${location.pathname === "/employees" ? "active" : ""}`}
+                className={`nav-link ${
+                  location.pathname === "/employees" ? "active" : ""
+                }`}
               >
                 <FontAwesomeIcon icon={faUsers} className="nav-icon" />
                 Employees
@@ -148,4 +154,4 @@ const Navbar = () => {
     </>
   );
 };
-export default Navbar; 
+export default Navbar;
