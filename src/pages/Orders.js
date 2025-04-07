@@ -21,6 +21,8 @@ import {
   updateOrder,
   deleteOrder,
 } from "../api/Orderapi";
+// import {getAllCustomers,addCustomer,editCustomer,deleteCustomer,addMeasurement} from "../api/AdminApi";
+
 import { getAllCustomers } from "../api/customerapi";
 import { getProducts } from "../api/Productsapi";
 import { getAllFabrics } from "../api/fabricapi";

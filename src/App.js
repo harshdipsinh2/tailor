@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import Navbar from "./pages/Navbar";
+import MainLayout from "./pages/MainLayot"; // Import the MainLayout component
 import AppRoutes from "./Routes/Route"; // Import the routes
 import "antd/es/style/reset.css";
 
@@ -9,7 +9,6 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar />
       <AppRoutes /> {/* Use the AppRoutes component */}
     </Router>
   );

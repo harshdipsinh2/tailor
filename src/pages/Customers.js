@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { updateCustomer, getAllCustomers, deleteCustomer } from "../api/customerapi";
 import { addMeasurement } from "../api/measurementapi";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+// import {getAllCustomers,addCustomer,editCustomer,deleteCustomer,addMeasurement} from "../api/AdminApi";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);

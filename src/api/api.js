@@ -1,18 +1,16 @@
 import axios from "axios";
-import store from "../store"; 
 
 const api = axios.create({
   baseURL: "https://localhost:7252/api",
   headers: { "Content-Type": "application/json" },
 });
 
+// Add token from localStorage to request headers
 api.interceptors.request.use(
   (config) => {
-    const state = store.getState(); 
-    const token = state.auth.token; 
-    
-    // Add token if available and endpoint requires it
-    if (token && !config.url.includes("/users/register")) {
+    const token = localStorage.getItem("token"); // ✅ Direct from localStorage
+
+    if (token && !config.url.includes("/auth/register")) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 
@@ -21,13 +19,14 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Handle token expiry or unauthorized access
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      alert("Failed to fetch user details. Please log in again.");
-      store.dispatch({ type: "auth/logout" }); // Dispatch logout action
-      window.location.href = "/login"; // Redirect to login page
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("token"); 
+      window.location.href = "/login"; 
     }
     return Promise.reject(error);
   }
