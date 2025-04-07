@@ -20,6 +20,8 @@ const Login = () => {
       const response = await login(values.email, values.password);
       // Save token 
       localStorage.setItem('token', response.token);
+      localStorage.setItem('role', response.role); // Save user role
+
       message.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {

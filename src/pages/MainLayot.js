@@ -92,6 +92,7 @@ const MainLayout = () => {
         <Header
           style={{
             padding: 0,
+            color:"blue",
             background: colorBgContainer,
             display: "flex",
             justifyContent: "space-between",
@@ -100,6 +101,7 @@ const MainLayout = () => {
         >
           <span
             style={{ paddingLeft: 20, fontSize: 18, fontWeight: "bold" }}
+            
           >
             Tailor Management System
           </span>

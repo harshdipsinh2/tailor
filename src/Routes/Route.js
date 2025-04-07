@@ -1,6 +1,5 @@
-// src/routes/AppRoutes.jsx
 import React from "react";
-import { Route, Routes, Navigate , BrowserRouter} from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import CustomerRegistration from "../pages/CustomerRegistration";
 import Customers from "../pages/Customers";
 import Orders from "../pages/Orders";
@@ -12,27 +11,106 @@ import Employees from "../pages/Employees";
 import CompletedOrders from "../pages/CompletedOrders";
 import Login from "../pages/Login";
 import HomePage from "../pages/HomePage";
-import MainLayout from "../pages/MainLayot";
+import MainLayout from "../pages/MainLayot"; // make sure file name is correct
+import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Show login first on app start */}
+      {/* Default route redirects to login */}
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
 
-      {/* Main layout pages */}
-      <Route path="/" element={<MainLayout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="customers" element={<Customers />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="products" element={<Products />} />
-        <Route path="measurements" element={<Measurements />} />
-        <Route path="customer-registration" element={<CustomerRegistration />} />
-        <Route path="fabrics" element={<Fabrics />} />
-        <Route path="employees" element={<Employees />} />
-        <Route path="completed-orders" element={<CompletedOrders />} />
-        <Route path="homepage" element={<HomePage />} />
+      {/* Protected Layout */}
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute allowedRoles={["Admin", "Manager", "Tailor"]}>
+            <MainLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["Admin", "Manager", "Tailor"]}>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="customers"
+          element={
+            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+              <Customers />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <Products />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="measurements"
+          element={
+            <ProtectedRoute allowedRoles={["Tailor", "Admin"]}>
+              <Measurements />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="customer-registration"
+          element={
+            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+              <CustomerRegistration />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="fabrics"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <Fabrics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="employees"
+          element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <Employees />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="completed-orders"
+          element={
+            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+              <CompletedOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="homepage"
+          element={
+            <ProtectedRoute allowedRoles={["Admin", "Manager", "Tailor"]}>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
     </Routes>
   );

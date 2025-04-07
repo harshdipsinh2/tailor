@@ -9,6 +9,7 @@ const App = () => {
 
   return (
     <Router>
+      
       <AppRoutes /> {/* Use the AppRoutes component */}
     </Router>
   );
