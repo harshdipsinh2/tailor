@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Card, Form, Input, Layout, Typography, message, theme } from 'antd';
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  Layout,
+  Typography,
+  message,
+  theme,
+} from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../api/AuthApi'; 
+import { login } from '../api/AuthApi'; // Make sure this sets token and role in localStorage
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -10,22 +19,30 @@ const { Content } = Layout;
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const roleRedirectMap = {
+    Admin: "/dashboard",
+    Manager: "/dashboard",
+    Tailor: "/measurements",
+  };
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
       const response = await login(values.email, values.password);
-      // Save token 
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('role', response.role); // Save user role
 
-      message.success('Login successful!');
-      navigate('/dashboard');
+      const role = localStorage.getItem("role");
+
+      message.success("Login successful!");
+
+      const redirectPath = roleRedirectMap[role] || "/unauthorized";
+      navigate(redirectPath);
     } catch (error) {
-      message.error('Login failed: Invalid credentials');
+      message.error("Login failed: Invalid credentials");
     } finally {
       setLoading(false);
     }

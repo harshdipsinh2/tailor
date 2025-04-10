@@ -9,6 +9,11 @@ import {
 import "../Css/Dashboard.css"; // Import your CSS file
 
 const Dashboard = () => {
+  const role = localStorage.getItem("role"); // Get the role from local storage
+  const token = localStorage.getItem("token"); // Get the token from local storage    
+  
+
+  
   const data = [
     {
       title: "Total Customers",
@@ -50,6 +55,12 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
+      <div style={{ textAlign: "center", marginBottom: "16px" }}>
+        {role === "Admin" && <h2>Welcome, Admin</h2>}
+        {role === "Manager" && <h2>Welcome, Manager</h2>}
+        {role === "Tailor" && <h2>Welcome, Tailor</h2>}
+      </div>
+      
       <div className="dashboard-cards">
         {data.map((item, index) => (
           <div key={index} className={`dashboard-card ${item.bgColor}`}>
@@ -63,6 +74,5 @@ const Dashboard = () => {
       </div>
     </div>
   );
-};
-
+}
 export default Dashboard;
