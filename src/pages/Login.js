@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../api/AuthApi'; // Make sure this sets token and role in localStorage
+import { login } from '../api/AuthApi';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -24,30 +24,21 @@ const Login = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const roleRedirectMap = {
-    Admin: "/dashboard",
-    Manager: "/dashboard",
-    Tailor: "/measurements",
-  };
-
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const response = await login(values.email, values.password);
-
-      const role = localStorage.getItem("role");
-
-      message.success("Login successful!");
-
-      const redirectPath = roleRedirectMap[role] || "/unauthorized";
-      navigate(redirectPath);
+      const { role } = await login(values.email, values.password);
+  
+      message.success('Login successful!');
+  
+      navigate('/dashboard'); // 🔁 Unconditionally navigate
     } catch (error) {
-      message.error("Login failed: Invalid credentials");
+      message.error(error.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <Layout style={{ minHeight: '100vh', background: colorBgContainer }}>
       <Content
@@ -68,20 +59,15 @@ const Login = () => {
         >
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <Title level={3}>Tailor Management System</Title>
-            <p>Sign in to your account</p>
+            <p>Sign in to continue</p>
           </div>
 
-          <Form
-            name="login"
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            layout="vertical"
-          >
+          <Form name="login" onFinish={onFinish} layout="vertical">
             <Form.Item
               name="email"
               rules={[
-                { required: true, message: 'Please input your email!' },
-                { type: 'email', message: 'Please enter a valid email!' },
+                { required: true, message: 'Please enter your email!' },
+                { type: 'email', message: 'Enter a valid email!' },
               ]}
             >
               <Input
@@ -94,8 +80,8 @@ const Login = () => {
             <Form.Item
               name="password"
               rules={[
-                { required: true, message: 'Please input your password!' },
-                { min: 6, message: 'Password must be at least 6 characters!' },
+                { required: true, message: 'Please enter your password!' },
+                { min: 6, message: 'Password must be at least 6 characters' },
               ]}
             >
               <Input.Password

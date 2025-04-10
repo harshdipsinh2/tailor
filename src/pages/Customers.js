@@ -1,31 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Row,
-  Col,
-  Input,
-  Radio,
-  message,
-  Card,
-  Space,
-  Spin,
-} from "antd";
+import {Table, Button ,Modal, Form,Row,Col,Input,Radio,message,Card,Space,Spin,} from "antd";
 import { useNavigate } from "react-router-dom";
-import {
-  updateCustomer,
-  getAllCustomers,
-  deleteCustomer,
-} from "../api/customerapi";
+import {updateCustomer,getAllCustomers,deleteCustomer,} from "../api/customerapi";
 import { addMeasurement } from "../api/measurementapi";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined,SearchOutlined,} from "@ant-design/icons";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);

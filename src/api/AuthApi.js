@@ -11,12 +11,13 @@ export const login = async (email, password) => {
     const token = response.data.token;
 
     localStorage.setItem("token", token);
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    // 🔍 Decode role from token (optional)
     const decoded = jwtDecode(token);
-    localStorage.setItem("role", decoded?.role); // store decoded role if needed
+    const role = decoded?.role || response.data?.role;
+    localStorage.setItem("role", role);
 
-    return response.data;
+    return { ...response.data, role, token }; // include token in return value
   } catch (error) {
     throw new Error('Error logging in: ' + (error.response?.data?.message || error.message));
   }

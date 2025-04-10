@@ -1,4 +1,5 @@
 import api from './api';
+import axios from 'axios';
 
 const API_BASE_URL = '/api/Manager';
 
@@ -171,7 +172,7 @@ export const getAllFabricTypes = async () => {
 
 export const getFabricTypeById = async (id) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/GetFabricTypeById`, { params: { id } });
+        const response = await api.get(`${API_BASE_URL}/GetFabricTypeById`, { params: { id } });
         return response.data;
     } catch (error) {
         throw new Error('Error fetching fabric type by ID: ' + error.message);

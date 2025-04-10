@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-
+import PrivateRoute from "../Routes/ProtectedRoute"; // Import your PrivateRoute component
 import Customers from "../pages/Customers";
 import Dashboard from "../pages/Dashboard";
 import Orders from "../pages/Orders";
@@ -12,35 +12,95 @@ import Employees from "../pages/Employees";
 import CompletedOrders from "../pages/CompletedOrders";
 import Login from "../pages/Login";
 import HomePage from "../pages/HomePage";
-
 import MainLayout from "../pages/MainLayot";
-import ProtectedRoute from "./ProtectedRoute";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
+      {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute allowedRoles={["Admin", "Manager", "Tailor"]}>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="customers" element={<Customers />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="products" element={<Products />} />
-        <Route path="measurements" element={<Measurements />} />
-        <Route path="customer-registration" element={<CustomerRegistration />} />
-        <Route path="fabrics" element={<Fabrics />} />
-        <Route path="employees" element={<Employees />} />
-        <Route path="completed-orders" element={<CompletedOrders />} />
-        <Route path="homepage" element={<HomePage />} />
+      <Route path="/" element={<MainLayout />}>
+        <Route
+          path="dashboard"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager", "Tailor"]}>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="customers"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager"]}>
+              <Customers />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager"]}>
+              <Orders />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager"]}>
+              <Products />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="measurements"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Tailor", "Manager"]}>
+              <Measurements />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="customer-registration"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager"]}>
+              <CustomerRegistration />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="fabrics"
+          element={
+            <PrivateRoute allowedRoles={["Admin"]}>
+              <Fabrics />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="employees"
+          element={
+            <PrivateRoute allowedRoles={["Admin"]}>
+              <Employees />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="completed-orders"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager"]}>
+              <CompletedOrders />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="homepage"
+          element={
+            <PrivateRoute allowedRoles={["Admin", "Manager", "Tailor"]}>
+              <HomePage />
+            </PrivateRoute>
+          }
+        />
       </Route>
     </Routes>
   );
