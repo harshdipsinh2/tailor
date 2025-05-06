@@ -1,49 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { updateEmployee, getAllEmployees, deleteEmployee, registerEmployee } from "../api/Employeesapi";
 
 const Employees = () => {
-  const [employees, setEmployees] = useState([]);
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeId, setEmployeeID] = useState("");
   const [show, setShow] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  // Move fetchEmployees outside of useEffect
-  const fetchEmployees = async () => {
-    setLoading(true);
-    try {
-      const data = await getAllEmployees();
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid data format");
-      }
-      setEmployees(data);
-      setFilteredEmployees(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("Failed to fetch employees.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Fetch employees on component mount
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
-  // Filter employees based on search term
-  useEffect(() => {
-    const filteredData = employees.filter((employee) =>
-      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.mobileNo.includes(searchTerm)
-    );
-    setFilteredEmployees(filteredData);
-  }, [searchTerm, employees]);
+  // Dummy placeholder employee list (optional)
+  const [employees, setEmployees] = useState([]);
+  const filteredEmployees = employees.filter((employee) =>
+    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.mobileNo.includes(searchTerm)
+  );
 
   const handleEditEmployee = (employeeId) => {
     setEmployeeID(employeeId);
@@ -56,47 +27,28 @@ const Employees = () => {
     }
   };
 
-  const handleDeleteEmployee = async (employeeId) => {
-    try {
-      await deleteEmployee(employeeId);
-      message.success("Employee deleted successfully!");
-      setEmployees(employees.filter(employee => employee.id !== employeeId));
-    } catch (error) {
-      message.error("Failed to delete employee: " + error.message);
-    }
+  const handleDeleteEmployee = (employeeId) => {
+    setEmployees(employees.filter((employee) => employee.id !== employeeId));
+    message.success("Employee deleted successfully!");
   };
 
-  const handleEditSubmit = async (values) => {
-    try {
-      await updateEmployee(employeeId, values);
-      message.success("Employee updated successfully!");
-      fetchEmployees(); // Refresh the employee list
-      setShow(false);
-    } catch (error) {
-      message.error("Failed to update employee: " + error.message);
-    }
+  const handleEditSubmit = (values) => {
+    setEmployees((prev) =>
+      prev.map((emp) => (emp.id === employeeId ? { ...emp, ...values } : emp))
+    );
+    message.success("Employee updated successfully!");
+    setShow(false);
   };
 
-  const handleAddSubmit = async (values) => {
-    try {
-      await registerEmployee(values);
-      message.success("Employee added successfully!");
-      fetchEmployees(); // Refresh the employee list
-      setIsAddModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-      message.error("Failed to add employee: " + error.message);
-    }
-  };
-
-  const handleStatusChange = async (employeeId, newStatus) => {
-    try {
-      await updateEmployee(employeeId, { userStatus: newStatus });
-      message.success("Status updated successfully!");
-      fetchEmployees(); // Refresh the employee list
-    } catch (error) {
-      message.error("Failed to update status: " + error.message);
-    }
+  const handleAddSubmit = (values) => {
+    const newEmployee = {
+      ...values,
+      id: Date.now().toString(), // simple unique ID
+    };
+    setEmployees([...employees, newEmployee]);
+    message.success("Employee added successfully!");
+    setIsAddModalVisible(false);
+    form.resetFields();
   };
 
   return (
@@ -127,7 +79,7 @@ const Employees = () => {
           </Space>
         }
       >
-        <Spin spinning={loading}>
+        <Spin spinning={false}>
           <Table
             dataSource={filteredEmployees}
             rowKey="id"
@@ -140,7 +92,7 @@ const Employees = () => {
             <Table.Column title="Mobile" dataIndex="mobileNo" key="mobileNo" />
             <Table.Column title="Address" dataIndex="address" key="address" />
             <Table.Column title="Role" dataIndex="roleName" key="roleName" />
-            <Table.Column title="Status" dataIndex="userStatus" key="userStatus"/>
+            <Table.Column title="Status" dataIndex="userStatus" key="userStatus" />
 
             <Table.Column
               title="Actions"
@@ -170,7 +122,7 @@ const Employees = () => {
 
       <Modal
         title={employeeId ? "Update Employee Details" : "Add Employee"}
-        visible={show || isAddModalVisible}
+        open={show || isAddModalVisible}
         onCancel={() => {
           setShow(false);
           setIsAddModalVisible(false);

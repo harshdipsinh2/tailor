@@ -1,8 +1,8 @@
-import api from './api'; 
+import api from './api';
 
 const API_BASE_URL = '/api/Admin';
 
-// ------------------------------------------Summary
+// Summary
 export const getSummary = async () => {
     try {
         const response = await api.get(`${API_BASE_URL}/summary`);
@@ -12,13 +12,13 @@ export const getSummary = async () => {
     }
 };
 
-// ----------------------------------------Customers
+// Customers
 export const getAllCustomers = async () => {
     try {
         const response = await api.get(`${API_BASE_URL}/GetAllCustomers`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all customers: ' + error.message);
+        throw new Error('Error fetching customers: ' + error.message);
     }
 };
 
@@ -42,8 +42,7 @@ export const addCustomer = async (customerData) => {
 
 export const editCustomer = async (customerId, customerData) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/EditCustomer`, customerData, { params: { customerId } });
-        return response.data;
+        await api.put(`${API_BASE_URL}/EditCustomer`, customerData, { params: { customerId } });
     } catch (error) {
         throw new Error('Error editing customer: ' + error.message);
     }
@@ -51,18 +50,16 @@ export const editCustomer = async (customerId, customerData) => {
 
 export const deleteCustomer = async (customerId) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/DeleteCustomer`, { params: { customerId } });
-        return response.data;
+        await api.delete(`${API_BASE_URL}/DeleteCustomer`, { params: { customerId } });
     } catch (error) {
         throw new Error('Error deleting customer: ' + error.message);
     }
 };
 
-// ---------------------------------Measurements
+// Measurements
 export const addMeasurement = async (customerId, measurementData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/AddMeasurement`, measurementData, { params: { customerId } });
-        return response.data;
+        await api.post(`${API_BASE_URL}/AddMeasurement`, measurementData, { params: { customerId } });
     } catch (error) {
         throw new Error('Error adding measurement: ' + error.message);
     }
@@ -79,8 +76,7 @@ export const getMeasurement = async (customerId) => {
 
 export const deleteMeasurement = async (measurementId) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/DeleteMeasurement`, { params: { measurementId } });
-        return response.data;
+        await api.delete(`${API_BASE_URL}/DeleteMeasurement`, { params: { measurementId } });
     } catch (error) {
         throw new Error('Error deleting measurement: ' + error.message);
     }
@@ -91,15 +87,14 @@ export const getAllMeasurements = async () => {
         const response = await api.get(`${API_BASE_URL}/GetAllMeasurements`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all measurements: ' + error.message);
+        throw new Error('Error fetching measurements: ' + error.message);
     }
 };
 
-// ------------------------------Products
+// Products
 export const addProduct = async (productData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/AddProduct`, productData);
-        return response.data;
+        await api.post(`${API_BASE_URL}/AddProduct`, productData);
     } catch (error) {
         throw new Error('Error adding product: ' + error.message);
     }
@@ -107,8 +102,7 @@ export const addProduct = async (productData) => {
 
 export const updateProduct = async (id, productData) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/UpdateProduct/${id}`, productData);
-        return response.data;
+        await api.put(`${API_BASE_URL}/UpdateProduct/${id}`, productData);
     } catch (error) {
         throw new Error('Error updating product: ' + error.message);
     }
@@ -116,8 +110,7 @@ export const updateProduct = async (id, productData) => {
 
 export const deleteProduct = async (id) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/DeleteProduct/${id}`);
-        return response.data;
+        await api.delete(`${API_BASE_URL}/DeleteProduct/${id}`);
     } catch (error) {
         throw new Error('Error deleting product: ' + error.message);
     }
@@ -137,15 +130,14 @@ export const getAllProducts = async () => {
         const response = await api.get(`${API_BASE_URL}/GetAllProducts`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all products: ' + error.message);
+        throw new Error('Error fetching products: ' + error.message);
     }
 };
 
-// ---------------------------------Fabric Types
+// Fabric Types
 export const addFabricType = async (fabricTypeData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/AddFabricType`, fabricTypeData);
-        return response.data;
+        await api.post(`${API_BASE_URL}/AddFabricType`, fabricTypeData);
     } catch (error) {
         throw new Error('Error adding fabric type: ' + error.message);
     }
@@ -153,8 +145,7 @@ export const addFabricType = async (fabricTypeData) => {
 
 export const updateFabricPrice = async (id, newPrice) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/UpdateFabricPrice`, null, { params: { id, newPrice } });
-        return response.data;
+        await api.put(`${API_BASE_URL}/UpdateFabricPrice`, null, { params: { id, newPrice } });
     } catch (error) {
         throw new Error('Error updating fabric price: ' + error.message);
     }
@@ -165,7 +156,7 @@ export const getAllFabricTypes = async () => {
         const response = await api.get(`${API_BASE_URL}/GetAllFabricTypes`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all fabric types: ' + error.message);
+        throw new Error('Error fetching fabric types: ' + error.message);
     }
 };
 
@@ -174,24 +165,22 @@ export const getFabricTypeById = async (id) => {
         const response = await api.get(`${API_BASE_URL}/GetFabricTypeById`, { params: { id } });
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching fabric type by ID: ' + error.message);
+        throw new Error('Error fetching fabric type: ' + error.message);
     }
 };
 
 export const softDeleteFabricType = async (id) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/SoftDeleteFabricType`, { params: { id } });
-        return response.data;
+        await api.delete(`${API_BASE_URL}/SoftDeleteFabricType`, { params: { id } });
     } catch (error) {
-        throw new Error('Error soft deleting fabric type: ' + error.message);
+        throw new Error('Error deleting fabric type: ' + error.message);
     }
 };
 
-// ----------------------------------Fabric Stocks
+// Fabric Stocks
 export const addFabricStock = async (fabricStockData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/AddFabricStock`, fabricStockData);
-        return response.data;
+        await api.post(`${API_BASE_URL}/AddFabricStock`, fabricStockData);
     } catch (error) {
         throw new Error('Error adding fabric stock: ' + error.message);
     }
@@ -202,7 +191,7 @@ export const getAllFabricStocks = async () => {
         const response = await api.get(`${API_BASE_URL}/GetAllFabricStocks`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all fabric stocks: ' + error.message);
+        throw new Error('Error fetching fabric stocks: ' + error.message);
     }
 };
 
@@ -211,15 +200,16 @@ export const getFabricStockById = async (id) => {
         const response = await api.get(`${API_BASE_URL}/GetFabricStockById`, { params: { id } });
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching fabric stock by ID: ' + error.message);
+        throw new Error('Error fetching fabric stock: ' + error.message);
     }
 };
 
-// ----------------------------------Orders
+// Orders
 export const createOrder = async (customerId, productId, fabricTypeId, assignedTo, orderData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/Create-Order`, orderData, { params: { customerId, productId, fabricTypeId, assignedTo } });
-        return response.data;
+        await api.post(`${API_BASE_URL}/Create-Order`, orderData, {
+            params: { customerId, productId, fabricTypeId, assignedTo }
+        });
     } catch (error) {
         throw new Error('Error creating order: ' + error.message);
     }
@@ -227,17 +217,25 @@ export const createOrder = async (customerId, productId, fabricTypeId, assignedT
 
 export const updateOrder = async (id, productId, fabricTypeId, assignedTo, orderData) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/Update-Order/${id}`, orderData, { params: { productId, fabricTypeId, assignedTo } });
-        return response.data;
+        await api.put(`${API_BASE_URL}/Update-Order/${id}`, orderData, {
+            params: { productId, fabricTypeId, assignedTo }
+        });
     } catch (error) {
         throw new Error('Error updating order: ' + error.message);
     }
 };
 
+export const updateOrderStatus = async (orderId, statusData) => {
+    try {
+        await api.put(`${API_BASE_URL}/update-status/${orderId}`, statusData);
+    } catch (error) {
+        throw new Error('Error updating order status: ' + error.message);
+    }
+};
+
 export const deleteOrder = async (id) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/Delete-Order/${id}`);
-        return response.data;
+        await api.delete(`${API_BASE_URL}/Delete-Order/${id}`);
     } catch (error) {
         throw new Error('Error deleting order: ' + error.message);
     }
@@ -257,17 +255,26 @@ export const getAllOrders = async () => {
         const response = await api.get(`${API_BASE_URL}/GetAll-Order`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all orders: ' + error.message);
+        throw new Error('Error fetching orders: ' + error.message);
     }
 };
 
-// -------------------------------------Roles
+export const getRevenue = async () => {
+    try {
+        const response = await api.get(`${API_BASE_URL}/revenue`);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching revenue: ' + error.message);
+    }
+};
+
+// Roles
 export const getAllRoles = async () => {
     try {
         const response = await api.get(`${API_BASE_URL}/GetAll-Role`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching all roles: ' + error.message);
+        throw new Error('Error fetching roles: ' + error.message);
     }
 };
 
@@ -276,14 +283,13 @@ export const getRoleById = async (id) => {
         const response = await api.get(`${API_BASE_URL}/GetById-Role/${id}`);
         return response.data;
     } catch (error) {
-        throw new Error('Error fetching role by ID: ' + error.message);
+        throw new Error('Error fetching role: ' + error.message);
     }
 };
 
-export const updateRole = async (id, roleData) => {
+export const updateRole = async (id, roleName) => {
     try {
-        const response = await api.put(`${API_BASE_URL}/Update-Role${id}`, roleData);
-        return response.data;
+        await api.put(`${API_BASE_URL}/Update-Role${id}`, roleName);
     } catch (error) {
         throw new Error('Error updating role: ' + error.message);
     }
@@ -291,8 +297,7 @@ export const updateRole = async (id, roleData) => {
 
 export const deleteRole = async (id) => {
     try {
-        const response = await api.delete(`${API_BASE_URL}/Delete-Role${id}`);
-        return response.data;
+        await api.delete(`${API_BASE_URL}/Delete-Role${id}`);
     } catch (error) {
         throw new Error('Error deleting role: ' + error.message);
     }

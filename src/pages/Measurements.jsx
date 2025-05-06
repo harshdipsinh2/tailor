@@ -1,63 +1,61 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Popconfirm, message, Card, Spin, Space, Input } from "antd";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { getAllMeasurement, deleteMeasurement } from "../api/measurementapi";
-import { getCustomer } from "../api/customerapi";
-import {getAllFabrics} from "../api/fabricapi";
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
-  const [filteredMeasurements, setFilteredMeasurements] = useState([]); // Filtered data for search
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [filteredMeasurements, setFilteredMeasurements] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchMeasurements();
   }, []);
 
-  const fetchMeasurements = async () => { 
+  const fetchMeasurements = () => {
     setLoading(true);
-    try {
-      const measurementsData = await getAllMeasurement();
-      const measurementsWithCustomerNames = await Promise.all(
-        measurementsData.map(async (measurement) => {
-          const customer = await getCustomer(measurement.customerId);
-          return {
-            ...measurement,
-            customerName: customer.fullName,
-          };
-        })
-      );
-      setMeasurements(measurementsWithCustomerNames);
-      setFilteredMeasurements(measurementsWithCustomerNames); // Initialize filtered data
-    } catch (error) {
-      console.error("Error fetching measurements:", error.message);
-      message.error("Failed to fetch measurements");
-    } finally {
-      setLoading(false);
-    }
+    // Simulated static data (replace this with API data later)
+    const mockData = [
+      {
+        measurementID: 1,
+        customerName: "John Doe",
+        chest: "40",
+        waist: "32",
+        hip: "38",
+        shoulder: "18",
+        sleeveLength: "24",
+        trouserLength: "40",
+        inseam: "30",
+        thigh: "22",
+        neck: "15",
+        sleeve: "20",
+        arms: "23",
+        bicep: "13",
+        forearm: "10",
+        wrist: "7",
+        ankle: "9",
+        calf: "14",
+      },
+    ];
+    setMeasurements(mockData);
+    setFilteredMeasurements(mockData);
+    setLoading(false);
   };
 
-  // Filter measurements based on search term
   useEffect(() => {
     const filteredData = measurements.filter((measurement) =>
       measurement.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      Object.values(measurement).some(value =>
-        typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
+      Object.values(measurement).some(
+        (value) =>
+          typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
     setFilteredMeasurements(filteredData);
   }, [searchTerm, measurements]);
 
-  const handleDeleteMeasurement = async (measurementId) => {
-    try {
-      await deleteMeasurement(measurementId);
-      setMeasurements(measurements.filter((m) => m.measurementID !== measurementId));
-      message.success("Measurement deleted successfully");
-    } catch (error) {
-      console.error("Error deleting measurement:", error.message);
-      message.error("Failed to delete measurement");
-    }
+  const handleDeleteMeasurement = (measurementId) => {
+    setMeasurements(measurements.filter((m) => m.measurementID !== measurementId));
+    message.success("Measurement deleted successfully (mock)");
   };
 
   const columns = [
@@ -115,7 +113,7 @@ const Measurements = () => {
       >
         <Spin spinning={loading}>
           <Table
-            dataSource={filteredMeasurements} // Display filtered data
+            dataSource={filteredMeasurements}
             columns={columns}
             rowKey="measurementID"
             bordered

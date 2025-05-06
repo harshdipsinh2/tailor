@@ -1,34 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Row, Col, Input, Radio, message, Card, Space, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import { updateCustomer, getAllCustomers, deleteCustomer } from "../api/customerapi";
-import { addMeasurement } from "../api/measurementapi";
+// import { updateCustomer, getAllCustomers, deleteCustomer } from "../api/customerapi";
+// import { addMeasurement } from "../api/measurementapi";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-// import {getAllCustomers,addCustomer,editCustomer,deleteCustomer,addMeasurement} from "../api/AdminApi";
 
 const Customers = () => {
-  const [customers, setCustomers] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]); // For search filtering
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
+  const [customers, setCustomers] = useState([
+    // Dummy data for testing
+    {
+      customerId: "1",
+      fullName: "John Doe",
+      phoneNumber: "1234567890",
+      email: "john@example.com",
+      address: "123 Main St",
+      gender: "male"
+    },
+    {
+      customerId: "2",
+      fullName: "Jane Smith",
+      phoneNumber: "9876543210",
+      email: "jane@example.com",
+      address: "456 Elm St",
+      gender: "female"
+    }
+  ]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [customerId, setCustomerID] = useState("");
   const [show, setShow] = useState(false);
   const [showMeasurement, setShowMeasurement] = useState(false);
-  const [loading, setLoading] = useState(false); // Loading state for table
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   useEffect(() => {
-    setLoading(true);
-    getAllCustomers()
-      .then((data) => {
-        setCustomers(data);
-        setFilteredCustomers(data); // Initialize filtered data
-      })
-      .catch((error) => console.error("Error fetching data:", error))
-      .finally(() => setLoading(false));
-  }, []);
+    setFilteredCustomers(customers);
+  }, [customers]);
 
-  // Filter customers based on search term
   useEffect(() => {
     const filteredData = customers.filter((customer) =>
       customer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,9 +49,7 @@ const Customers = () => {
   const handleEditCustomer = (customerId) => {
     setCustomerID(customerId);
     setShowMeasurement(false);
-
     const singleCustomer = customers.find((customer) => customer.customerId === customerId);
-
     if (singleCustomer) {
       form.setFieldsValue(singleCustomer);
       setShow(true);
@@ -59,33 +66,24 @@ const Customers = () => {
 
   const handleClose = () => setShow(false);
 
-  const handleDeleteCustomer = async (customerId) => {
-    try {
-      await deleteCustomer(customerId);
-      message.success("Customer deleted successfully!");
-      setCustomers(customers.filter(customer => customer.customerId !== customerId));
-    } catch (error) {
-      message.error("Failed to delete customer: " + error.message);
-    }
+  const handleDeleteCustomer = (customerId) => {
+    // Simulate delete
+    // await deleteCustomer(customerId);
+    message.success("Customer deleted successfully!");
+    setCustomers(customers.filter(customer => customer.customerId !== customerId));
   };
 
-  const handleEditSubmit = async (values) => {
-    try {
-      if (showMeasurement) {
-        await addMeasurement(customerId, values);
-        message.success("Measurement added successfully!");
-      } else {
-        await updateCustomer(customerId, values);
-        message.success("Customer updated successfully!");
-      }
-      setCustomers(prevCustomers =>
-        prevCustomers.map(customer =>
-          customer.customerId === customerId ? { ...customer, ...values } : customer
-        )
-      );
-    } catch (error) {
-      message.error((showMeasurement ? "Failed to add measurement: " : "Failed to update customer: ") + error.message);
+  const handleEditSubmit = (values) => {
+    if (showMeasurement) {
+      // Simulate addMeasurement(customerId, values);
+      message.success("Measurement added successfully!");
+    } else {
+      // Simulate updateCustomer(customerId, values);
+      message.success("Customer updated successfully!");
     }
+    setCustomers(prev =>
+      prev.map(c => c.customerId === customerId ? { ...c, ...values } : c)
+    );
     setShow(false);
   };
 
@@ -121,7 +119,7 @@ const Customers = () => {
       >
         <Spin spinning={loading}>
           <Table
-            dataSource={filteredCustomers} // Filtered data for display
+            dataSource={filteredCustomers}
             rowKey="customerId"
             bordered
             pagination={{ pageSize: 5 }}
@@ -169,13 +167,9 @@ const Customers = () => {
         visible={show}
         onCancel={handleClose}
         footer={null}
-        width={800} // Adjust modal width
+        width={800}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleEditSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
           {showMeasurement ? (
             <Row gutter={16}>
               {measurementFields.map((field) => (
@@ -211,7 +205,6 @@ const Customers = () => {
               </Form.Item>
             </>
           )}
-
           <Space>
             <Button type="primary" htmlType="submit">Submit</Button>
             <Button onClick={handleClose}>Cancel</Button>

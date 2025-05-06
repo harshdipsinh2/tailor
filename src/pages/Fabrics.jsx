@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Card, Space, Spin } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { addFabric, getAllFabrics, deleteFabric } from "../api/fabricapi";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const Fabrics = () => {
   const [fabrics, setFabrics] = useState([]);
@@ -13,39 +12,31 @@ const Fabrics = () => {
     fetchFabrics();
   }, []);
 
-  const fetchFabrics = async () => {
+  const fetchFabrics = () => {
     setLoading(true);
-    try {
-      const data = await getAllFabrics();
-      setFabrics(data);
-    } catch (error) {
-      message.error("Failed to fetch fabrics.");
-    } finally {
-      setLoading(false);
-    }
+    // Mock data simulating API result
+    const mockFabrics = [
+      { fabricId: 1, fabricName: "Cotton", pricePerMeter: 500, stockQuantity: 20 },
+      { fabricId: 2, fabricName: "Linen", pricePerMeter: 700, stockQuantity: 15 }
+    ];
+    setFabrics(mockFabrics);
+    setLoading(false);
   };
 
-  const handleAddFabric = async (values) => {
-    try {
-      const newFabric = await addFabric(values); // Assuming this returns the newly created fabric
-      message.success("Fabric added successfully!");
-      setFabrics((prevFabrics) => [...prevFabrics, newFabric]); // Directly update state
-      setShowModal(false);
-      form.resetFields();
-    } catch (error) {
-      message.error("Failed to add fabric: " + error.message);
-    }
-};
+  const handleAddFabric = (values) => {
+    const newFabric = {
+      ...values,
+      fabricId: Date.now() // mock unique ID
+    };
+    setFabrics((prev) => [...prev, newFabric]);
+    message.success("Fabric added successfully (mock)!");
+    setShowModal(false);
+    form.resetFields();
+  };
 
-
-  const handleDeleteFabric = async (fabricId) => {
-    try {
-      await deleteFabric(fabricId);
-      message.success("Fabric deleted successfully!");
-      fetchFabrics();
-    } catch (error) {
-      message.error("Failed to delete fabric: " + error.message);
-    }
+  const handleDeleteFabric = (fabricId) => {
+    setFabrics((prev) => prev.filter(fabric => fabric.fabricId !== fabricId));
+    message.success("Fabric deleted successfully (mock)!");
   };
 
   return (
@@ -94,7 +85,7 @@ const Fabrics = () => {
 
       <Modal
         title="Add New Fabric"
-        visible={showModal}
+        open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
       >

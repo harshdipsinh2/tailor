@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, Space, message, Card, Spin } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { getProducts, deleteProduct, addProduct } from "../api/Productsapi";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -15,13 +14,22 @@ const Products = () => {
 
   const fetchProducts = () => {
     setLoading(true);
-    getProducts()
-      .then((data) => {
-        setProducts(data);
-        setFilteredProducts(data);
-      })
-      .catch((error) => message.error("Error fetching products: " + error.message))
-      .finally(() => setLoading(false));
+    // Simulated static product data
+    const mockProducts = [
+      {
+        productID: 1,
+        productName: "Shirt",
+        makingPrice: "800"
+      },
+      {
+        productID: 2,
+        productName: "Pants",
+        makingPrice: "1200"
+      }
+    ];
+    setProducts(mockProducts);
+    setFilteredProducts(mockProducts);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -43,33 +51,40 @@ const Products = () => {
     setShowModal(true);
   };
 
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await deleteProduct(productId);
-      message.success("Product deleted successfully!");
-      fetchProducts(); // Fetch fresh data
-    } catch (error) {
-      message.error("Failed to delete product: " + error.message);
-    }
+  const handleDeleteProduct = (productId) => {
+    setProducts(products.filter((product) => product.productID !== productId));
+    message.success("Product deleted successfully (mock)");
   };
 
-  const handleSubmit = async (values) => {
-    try {
-      const newProduct = { ...values, productID: isEditing ? productId : values.productID };
-      await addProduct(newProduct);
-      message.success(isEditing ? "Product updated successfully!" : "Product added successfully!");
-      fetchProducts(); // Fetch fresh data
-      setShowModal(false);
-      form.resetFields();
-    } catch (error) {
-      message.error("Failed to save product: " + error.message);
+  const handleSubmit = (values) => {
+    if (isEditing) {
+      const updatedProducts = products.map((product) =>
+        product.productID === productId ? { ...product, ...values } : product
+      );
+      setProducts(updatedProducts);
+      message.success("Product updated successfully (mock)");
+    } else {
+      const newProduct = {
+        ...values,
+        productID: Date.now() // simple unique ID
+      };
+      setProducts([...products, newProduct]);
+      message.success("Product added successfully (mock)");
     }
+
+    setShowModal(false);
+    form.resetFields();
   };
 
   const columns = [
     { title: 'Product ID', dataIndex: 'productID', key: 'productID' },
     { title: 'Name', dataIndex: 'productName', key: 'productName' },
-    { title: 'Making Price', dataIndex: 'makingPrice', key: 'makingPrice', render: (price) => `Rs. ${price}` },
+    {
+      title: 'Making Price',
+      dataIndex: 'makingPrice',
+      key: 'makingPrice',
+      render: (price) => `Rs. ${price}`
+    },
     {
       title: 'Actions',
       key: 'actions',
@@ -98,7 +113,7 @@ const Products = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => { setShowModal(true); setIsEditing(false); }}
+              onClick={() => { setShowModal(true); setIsEditing(false); form.resetFields(); }}
             >
               Add Product
             </Button>
@@ -118,12 +133,11 @@ const Products = () => {
 
       <Modal
         title={isEditing ? "Edit Product" : "Add Product"}
-        visible={showModal}
+        open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
- 
           <Form.Item label="Product Name" name="productName" rules={[{ required: true }]}>
             <Input />
           </Form.Item>

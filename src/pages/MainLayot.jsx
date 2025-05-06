@@ -14,9 +14,9 @@ import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import image from "../asset/maschine.jpeg";
 import "../Css/Navbar.css";
 
-const { Header, Sider, Content, Footer } = Layout;
+const { Header, Sider, Content } = Layout;
 
-// Helper for menu item
+// Helper to generate menu item
 const getItem = (label, key, icon, children, type) => ({
   key,
   icon,
@@ -27,36 +27,53 @@ const getItem = (label, key, icon, children, type) => ({
 
 const MainLayout = () => {
   const location = useLocation();
-  const navigate = useNavigate(); // ✅ Correctly inside component
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // ✅ Single, properly placed logout handler
   const handleLogout = () => {
-    localStorage.clear(); // Clear session
-    navigate("/login");   // Redirect using React Router
+    localStorage.clear();
+    navigate("/login");
   };
 
-  const items = [
-    getItem(<Link to="/dashboard">Dashboard</Link>, "1", <PieChartOutlined />),
-    getItem("Customer Management", "sub1", <UserOutlined />, [
-      getItem(<Link to="/customer-registration">Registration</Link>, "2"),
-      getItem(<Link to="/customers">Customers</Link>, "3"),
-      getItem(<Link to="/measurements">Measurements</Link>, "4"),
-    ]),
-    getItem("Product Management", "sub2", <AppstoreOutlined />, [
-      getItem(<Link to="/products">Products</Link>, "5"),
-      getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
-    ]),
-    getItem("Order Management", "sub3", <OrderedListOutlined />, [
-      getItem(<Link to="/orders">Orders</Link>, "7"),
-      getItem(<Link to="/completed-orders">Completed Orders</Link>, "8"),
-    ]),
-    getItem(<Link to="/employees">Employees</Link>, "9", <TeamOutlined />),
-  ];
+  const role = localStorage.getItem("role");
+
+  // Role-based sidebar menu items
+  let items = [getItem(<Link to="/dashboard">Dashboard</Link>, "1", <PieChartOutlined />)];
+
+  if (role === "Admin" || role === "Manager") {
+    items.push(
+      getItem("Customer Management", "sub1", <UserOutlined />, [
+        getItem(<Link to="/customer-registration">Registration</Link>, "2"),
+        getItem(<Link to="/customers">Customers</Link>, "3"),
+        getItem(<Link to="/measurements">Measurements</Link>, "4"),
+      ]),
+      getItem("Product Management", "sub2", <AppstoreOutlined />, [
+        getItem(<Link to="/products">Products</Link>, "5"),
+        getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
+      ]),
+      getItem("Order Management", "sub3", <OrderedListOutlined />, [
+        getItem(<Link to="/orders">Orders</Link>, "7"),
+        getItem(<Link to="/completed-orders">Completed Orders</Link>, "8"),
+      ]),
+      getItem(<Link to="/employees">Employees</Link>, "9", <TeamOutlined />)
+    );
+  } else if (role === "Tailor") {
+    items.push(
+      getItem("Measurements", "sub1", <UserOutlined />, [
+        getItem(<Link to="/measurements">Measurements</Link>, "4"),
+      ]),
+      getItem("Product Management", "sub2", <AppstoreOutlined />, [
+        getItem(<Link to="/products">Products</Link>, "5"),
+        getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
+      ]),
+      getItem("Order Management", "sub3", <OrderedListOutlined />, [
+        getItem(<Link to="/orders">Orders</Link>, "7"),
+      ])
+    );
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -92,16 +109,17 @@ const MainLayout = () => {
         <Header
           style={{
             padding: 0,
-            background: colorBgContainer,
+            background: "linear-gradient(90deg, #2b5876 0%, #4e4376 100%)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            color: "#fff",
           }}
         >
           <span
             style={{ paddingLeft: 20, fontSize: 18, fontWeight: "bold" }}
           >
-            Tailor Management System
+            Tailor Management System ✃
           </span>
 
           <div style={{ paddingRight: 20 }}>
@@ -148,10 +166,6 @@ const MainLayout = () => {
             <Outlet />
           </div>
         </Content>
-
-        <Footer style={{ textAlign: "center" }}>
-          Tailor Management System ©{new Date().getFullYear()} Created by You
-        </Footer>
       </Layout>
     </Layout>
   );

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Button, Card, Form, Input, Layout, Typography, message, theme } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../api/AuthApi'; 
+import { jwtDecode } from 'jwt-decode'; // ✅ correct
+import { login } from '../api/AuthApi';
+import { AuthContext } from '../Contexts/AuthContext';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -10,6 +12,8 @@ const { Content } = Layout;
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login: authLogin } = useContext(AuthContext); // renamed to match context
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -17,9 +21,17 @@ const Login = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const response = await login(values.email, values.password);
-      // Save token 
-      localStorage.setItem('token', response.token);
+      const response = await login(values.email, values.password); // API call
+
+      // ✅ Decode JWT to get role from payload
+      const decoded = jwtDecode(response.token);
+      const role = decoded.role;
+
+      // ✅ Save both token and role using context login function
+      authLogin({ token: response.token, role });
+
+      console.log('Saving to localStorage:', { token: response.token, role });
+
       message.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
@@ -65,11 +77,7 @@ const Login = () => {
                 { type: 'email', message: 'Please enter a valid email!' },
               ]}
             >
-              <Input
-                prefix={<MailOutlined />}
-                placeholder="Email"
-                size="large"
-              />
+              <Input prefix={<MailOutlined />} placeholder="Email" size="large" />
             </Form.Item>
 
             <Form.Item
@@ -79,21 +87,11 @@ const Login = () => {
                 { min: 6, message: 'Password must be at least 6 characters!' },
               ]}
             >
-              <Input.Password
-                prefix={<LockOutlined />}
-                placeholder="Password"
-                size="large"
-              />
+              <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
             </Form.Item>
 
             <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={loading}
-                block
-                size="large"
-              >
+              <Button type="primary" htmlType="submit" loading={loading} block size="large">
                 Sign In
               </Button>
             </Form.Item>

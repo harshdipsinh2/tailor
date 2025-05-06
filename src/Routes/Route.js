@@ -1,6 +1,7 @@
-// src/routes/AppRoutes.jsx
-import React from "react";
-import { Route, Routes, Navigate , BrowserRouter} from "react-router-dom";
+import React, { useContext } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { AuthContext } from "../Contexts/AuthContext";
+import ProtectedRoute from "./ProtectedRoute";
 import CustomerRegistration from "../pages/CustomerRegistration";
 import Customers from "../pages/Customers";
 import Orders from "../pages/Orders";
@@ -12,28 +13,94 @@ import Employees from "../pages/Employees";
 import CompletedOrders from "../pages/CompletedOrders";
 import Login from "../pages/Login";
 import HomePage from "../pages/HomePage";
-import MainLayout from "../pages/MainLayot";
+import MainLayout from "../pages/MainLayot";console.log('AppRoutes component rendered');
+
 
 const AppRoutes = () => {
+  const { user } = useContext(AuthContext); // Retrieve user info from context
+
   return (
     <Routes>
       {/* Show login first on app start */}
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
 
-      {/* Main layout pages */}
+      {/* Protected routes under MainLayout */}
       <Route path="/" element={<MainLayout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="customers" element={<Customers />} />
-        <Route path="orders" element={<Orders />} />
-        <Route path="products" element={<Products />} />
-        <Route path="measurements" element={<Measurements />} />
-        <Route path="customer-registration" element={<CustomerRegistration />} />
-        <Route path="fabrics" element={<Fabrics />} />
-        <Route path="employees" element={<Employees />} />
-        <Route path="completed-orders" element={<CompletedOrders />} />
-        <Route path="homepage" element={<HomePage />} />
-      </Route>
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute
+              element={<Dashboard />}
+              allowedRoles={['admin', 'manager', 'tailor']}
+              userRole={user?.role}
+            />
+          }
+        />
+        {/* More protected routes with role-based access */}
+        <Route
+          path="customers"
+          element={
+            <ProtectedRoute
+              element={<Customers />}
+              allowedRoles={['admin', 'manager']}
+              userRole={user?.role}
+            />
+          }
+
+        />
+        <Route
+          path="customer-registration"
+          element={
+            <ProtectedRoute
+              element={<CustomerRegistration />}
+              allowedRoles={['admin', 'manager']}
+              userRole={user?.role}
+            />
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <ProtectedRoute
+              element={<Orders />}
+              allowedRoles={['admin', 'manager', 'tailor']}
+              userRole={user?.role}
+            />
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <ProtectedRoute
+              element={<Products />}
+              allowedRoles={['admin', 'manager','tailor']}
+              userRole={user?.role}
+            />
+          }
+        />
+        <Route
+          path="measurements"
+          element={
+            <ProtectedRoute
+              element={<Measurements />}
+              allowedRoles={['admin', 'manager', 'tailor']}
+              userRole={user?.role}
+            />
+          }
+        />
+        <Route
+          path="fabrics"
+          element={
+            <ProtectedRoute
+              element={<Fabrics />}
+              allowedRoles={['admin', 'manager','tailor']}
+              userRole={user?.role}
+            />
+          }
+        />  
+
+\      </Route>
     </Routes>
   );
 };
