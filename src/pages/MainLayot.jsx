@@ -43,16 +43,9 @@ const MainLayout = () => {
 
   const handleLogout = () => {
     try {
-      // Remove all auth-related items from localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('user');
-      
-      // Show success message
+      localStorage.clear(); // Clear all localStorage items
       message.success('Logged out successfully');
-      
-      // Redirect to login page
-      navigate('/login');
+      navigate('/login', { replace: true }); // Use replace to prevent going back
     } catch (error) {
       console.error('Logout error:', error);
       message.error('Failed to logout. Please try again.');
