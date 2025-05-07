@@ -11,6 +11,7 @@ import {
   Spin,
   DatePicker,
   Select,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -44,7 +45,6 @@ const Orders = () => {
   const [employees, setEmployees] = useState([]);
   const [form] = Form.useForm();
 
-  // Update the fetchData function to ensure unique IDs
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -82,28 +82,34 @@ const Orders = () => {
           fullName: e.Name || e.name || "N/A",
         }));
 
+      // Update orders filtering to only show pending orders
+      const formattedOrders = ordersRes
+        .map((order) => ({
+          ...order,
+          orderId: order.OrderId || order.orderId || `order-${Math.random()}`,
+          customerName: order.CustomerName || order.customerName || "N/A",
+          productName: order.ProductName || order.productName || "N/A",
+          fabricName: order.FabricName || order.fabricName || "N/A",
+          fabricLength: order.FabricLength || order.fabricLength || 0,
+          quantity: order.Quantity || order.quantity || 0,
+          totalPrice: order.TotalPrice || order.totalPrice || 0,
+          orderDate: order.OrderDate || order.orderDate,
+          completionDate: order.CompletionDate || order.completionDate,
+          assignedToName: order.AssignedToName || order.assignedToName || "N/A",
+          orderStatus: order.OrderStatus || order.orderStatus || "Pending",
+          paymentStatus: order.PaymentStatus || order.paymentStatus || "Pending",
+        }))
+        .filter(order => {
+          // Show order if either order status or payment status is pending
+          const isOrderPending = order.orderStatus?.toLowerCase() === "pending";
+          const isPaymentPending = order.paymentStatus?.toLowerCase() === "pending";
+          return isOrderPending || isPaymentPending;
+        });
+
       setCustomers(formattedCustomers);
       setProducts(formattedProducts);
       setFabrics(formattedFabrics);
       setEmployees(formattedEmployees);
-
-      // Update handleSubmit to match API expectations
-      const formattedOrders = ordersRes.map((order) => ({
-        ...order,
-        orderId: order.OrderId || order.orderId || `order-${Math.random()}`,
-        customerName: order.CustomerName || order.customerName || "N/A",
-        productName: order.ProductName || order.productName || "N/A",
-        fabricName: order.FabricName || order.fabricName || "N/A",
-        fabricLength: order.FabricLength || order.fabricLength || 0,
-        quantity: order.Quantity || order.quantity || 0,
-        totalPrice: order.TotalPrice || order.totalPrice || 0,
-        orderDate: order.OrderDate || order.orderDate,
-        completionDate: order.CompletionDate || order.completionDate,
-        assignedToName: order.AssignedToName || order.assignedToName || "N/A",
-        orderStatus: order.OrderStatus || order.orderStatus || "Pending",
-        paymentStatus: order.PaymentStatus || order.paymentStatus || "Pending",
-      }));
-
       setOrders(formattedOrders);
       setFilteredOrders(formattedOrders);
     } catch (error) {
@@ -258,13 +264,21 @@ const Orders = () => {
                   >
                     Edit
                   </Button>
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteOrder(order.orderId)}
+                  <Popconfirm
+                    title="Delete Order"
+                    description="Are you sure you want to delete this order?"
+                    onConfirm={() => handleDeleteOrder(order.orderId)}
+                    okText="Yes"
+                    cancelText="No"
+                    okButtonProps={{ danger: true }}
                   >
-                    Delete
-                  </Button>
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
                 </Space>
               )}
             />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, Button, Modal, Form, Row, Col, Input, Radio,
-  message, Card, Space, Spin
+  message, Card, Space, Spin, Popconfirm
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -192,13 +192,21 @@ const Customers = () => {
                   >
                     Edit
                   </Button>
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteCustomer(customer.customerId)}
+                  <Popconfirm
+                    title="Delete Customer"
+                    description="Are you sure you want to delete this customer?"
+                    onConfirm={() => handleDeleteCustomer(customer.customerId)}
+                    okText="Yes"
+                    cancelText="No"
+                    okButtonProps={{ danger: true }}
                   >
-                    Delete
-                  </Button>
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
                   <Button
                     icon={<PlusOutlined />}
                     onClick={() => handleAddMeasurements(customer.customerId)}

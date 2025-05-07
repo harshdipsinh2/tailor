@@ -9,7 +9,7 @@ import {
   LogoutOutlined,
   DownOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space } from "antd";
+import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import image from "../asset/maschine.jpeg";
 import "../Css/Navbar.css";
@@ -27,7 +27,9 @@ const getItem = (label, key, icon, children, type) => ({
   key,
   icon,
   children,
-  label,
+  label: typeof label === 'object' ? 
+    React.cloneElement(label, { style: { textDecoration: 'none' } }) : 
+    label,
   type,
 });
 
@@ -40,9 +42,21 @@ const MainLayout = () => {
   } = theme.useToken();
 
   const handleLogout = () => {
-    localStorage.removeItem(token);
-    localStorage.removeItem(role);
-    navigate("/login");
+    try {
+      // Remove all auth-related items from localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      localStorage.removeItem('user');
+      
+      // Show success message
+      message.success('Logged out successfully');
+      
+      // Redirect to login page
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      message.error('Failed to logout. Please try again.');
+    }
   };
 
   const role = localStorage.getItem("role");
@@ -62,14 +76,16 @@ const MainLayout = () => {
       getItem("Product Management", "sub2", <AppstoreOutlined />, [
         getItem(<Link to="/products">Products</Link>, "5"),
         getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
+        getItem(<Link to="/FabricStock">Fabric Stock</Link>, "7"),
       ]),
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
-        getItem(<Link to="/orders">Orders</Link>, "7"),
-        getItem(<Link to="/completed-orders">Completed Orders</Link>, "8"),
+        getItem(<Link to="/orders">Orders</Link>, "8"),
+        getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
       ]),
-      getItem(<Link to="/employees">Employees</Link>, "9", )
+      getItem(<Link to="/employees">Employees</Link>, "10", ),
+      getItem(<Link to="/Calendar">Calendar</Link>, "11", <OrderedListOutlined />),
     );
-  } else if (role === "tailor") {
+  } else if (role === "Tailor") {
     items.push(
       getItem("Measurements", "sub1", <UserOutlined />, [
         getItem(<Link to="/measurements">Measurements</Link>, "4"),
@@ -79,7 +95,7 @@ const MainLayout = () => {
         getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
       ]),
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
-        getItem(<Link to="/orders">Orders</Link>, "7"),
+        getItem(<Link to="/orders">Orders</Link>, "8"),
       ])
     );
   }
@@ -138,11 +154,12 @@ const MainLayout = () => {
                   {
                     key: "logout",
                     label: (
-                      <span onClick={handleLogout}>
+                      <span onClick={handleLogout} style={{ color: '#ff4d4f' }}>
                         <LogoutOutlined style={{ marginRight: 8 }} />
                         Logout
                       </span>
                     ),
+                    danger: true
                   },
                 ],
               }}

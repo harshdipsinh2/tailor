@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, message, Card, Space, Spin } from "antd";
+import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Popconfirm } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import {
   getAllFabricTypes,
@@ -97,13 +97,21 @@ const Fabrics = () => {
               key="actions"
               render={(fabric) => (
                 <Space>
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteFabric(fabric.fabricId)}
+                  <Popconfirm
+                    title="Delete Fabric"
+                    description="Are you sure you want to delete this fabric?"
+                    onConfirm={() => handleDeleteFabric(fabric.fabricId)}
+                    okText="Yes"
+                    cancelText="No"
+                    okButtonProps={{ danger: true }}
                   >
-                    Delete
-                  </Button>
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
                 </Space>
               )}
             />

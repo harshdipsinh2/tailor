@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select } from "antd";
+import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { getAllUsers, registerUser, updateUser, deleteUser } from "../api/UserApi";
 
@@ -179,17 +179,25 @@ const Employees = () => {
                   <Button
                     type="primary"
                     icon={<EditOutlined />}
-                    onClick={() => handleEditEmployee(employee.id)}
+                    onClick={() => handleEditEmployee(employee.employeeId)}
                   >
                     Edit
                   </Button>
-                  <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleDeleteEmployee(employee.id)}
+                  <Popconfirm
+                    title="Delete Employee"
+                    description="Are you sure you want to delete this employee?"
+                    onConfirm={() => handleDeleteEmployee(employee.employeeId)}
+                    okText="Yes"
+                    cancelText="No"
+                    okButtonProps={{ danger: true }}
                   >
-                    Delete
-                  </Button>
+                    <Button
+                      danger
+                      icon={<DeleteOutlined />}
+                    >
+                      Delete
+                    </Button>
+                  </Popconfirm>
                 </Space>
               )}
             />

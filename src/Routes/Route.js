@@ -14,7 +14,9 @@ import CompletedOrders from "../pages/CompletedOrders";
 import Login from "../pages/Login";
 import HomePage from "../pages/HomePage";
 import MainLayout from "../pages/MainLayot";
+import FabricStock from "../pages/FabricStock";
 import Unauthorized from "../pages/Unauthorized";
+import Calendar  from "../pages/Calendar";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -112,7 +114,22 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-
+        <Route
+         path="FabricStock"
+         element={
+           <ProtectedRoute allowedRoles={['admin', 'manager']}>
+             <FabricStock />
+           </ProtectedRoute>
+         }
+        />
+        <Route
+          path="Calendar"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <Calendar />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* Catch all route - redirect to login */}

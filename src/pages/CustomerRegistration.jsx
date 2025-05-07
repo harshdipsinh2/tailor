@@ -13,7 +13,8 @@ const CustomerRegistration = () => {
       navigate("/customers");
     } catch (error) {
       message.error("Failed to add customer. Please try again.");
-    }
+
+    } 
   };
 
   return (

@@ -23,7 +23,7 @@
 
 .dashboard-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .icon-container {
@@ -57,9 +57,49 @@
     margin-top: 5px;
 }
 
-/* Custom background colors */
-.bg-blue-light { background-color: #e6f7ff; }      /* Total Customers */
-.bg-yellow-light { background-color: #fff9e6; }    /* Total Products */
-.bg-green-light { background-color: #e6ffe6; }      /* Total Fabrics */
-.bg-purple-light { background-color: #f3e6ff; }     /* Total Orders */
-.bg-red-light { background-color: #ffe6e6; }        /* Total Employees */
+/* Custom background colors - Updated with modern light colors */
+.bg-blue-light { 
+    background-color: #EBF8FF;
+    color: #2B6CB0;
+}
+
+.bg-yellow-light { 
+    background-color: #FFFFF0;
+    color: #975A16;
+}
+
+.bg-green-light { 
+    background-color: #F0FFF4;
+    color: #2F855A;
+}
+
+.bg-purple-light { 
+    background-color: #FAF5FF;
+    color: #6B46C1;
+}
+
+.bg-red-light { 
+    background-color: #FFF5F5;
+    color: #C53030;
+}
+
+.bg-orange-light { 
+    background-color: #FFFAF0;
+    color: #C05621;
+}
+
+/* Update icon container colors to match their sections */
+.bg-blue-light .icon-container { background-color: rgba(43, 108, 176, 0.1); }
+.bg-yellow-light .icon-container { background-color: rgba(151, 90, 22, 0.1); }
+.bg-green-light .icon-container { background-color: rgba(47, 133, 90, 0.1); }
+.bg-purple-light .icon-container { background-color: rgba(107, 70, 193, 0.1); }
+.bg-red-light .icon-container { background-color: rgba(197, 48, 48, 0.1); }
+.bg-orange-light .icon-container { background-color: rgba(192, 86, 33, 0.1); }
+
+/* Update icon colors to match their sections */
+.bg-blue-light .dashboard-icon { color: #2B6CB0; }
+.bg-yellow-light .dashboard-icon { color: #975A16; }
+.bg-green-light .dashboard-icon { color: #2F855A; }
+.bg-purple-light .dashboard-icon { color: #6B46C1; }
+.bg-red-light .dashboard-icon { color: #C53030; }
+.bg-orange-light .dashboard-icon { color: #C05621; }

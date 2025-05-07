@@ -8,7 +8,8 @@ import {
   Space,
   message,
   Card,
-  Spin
+  Spin,
+  Popconfirm
 } from 'antd';
 import {
   EditOutlined,
@@ -113,13 +114,21 @@ const Products = () => {
           >
             Edit
           </Button>
-          <Button
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => handleDeleteProduct(record.productID)}
+          <Popconfirm
+            title="Delete Product"
+            description="Are you sure you want to delete this product?"
+            onConfirm={() => handleDeleteProduct(record.productID)}
+            okText="Yes"
+            cancelText="No"
+            okButtonProps={{ danger: true }}
           >
-            Delete
-          </Button>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+            >
+              Delete
+            </Button>
+          </Popconfirm>
         </Space>
       )
     }
