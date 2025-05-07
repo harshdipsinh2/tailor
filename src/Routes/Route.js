@@ -16,7 +16,8 @@ import HomePage from "../pages/HomePage";
 import MainLayout from "../pages/MainLayot";
 import FabricStock from "../pages/FabricStock";
 import Unauthorized from "../pages/Unauthorized";
-import Calendar  from "../pages/Calendar";
+import Calendar from "../pages/Calendar";
+import Otp from "../pages/Otp";
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -24,8 +25,14 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={!auth.token ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="/login" element={!auth.token ? <Login /> : <Navigate to="/otp" />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
+
+      {/* Add OTP route before the protected routes */}
+      <Route 
+        path="/otp" 
+        element={auth.token ? <Otp /> : <Navigate to="/login" />} 
+      />
 
       {/* Redirect root to login if not authenticated */}
       <Route

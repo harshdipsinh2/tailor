@@ -22,14 +22,18 @@ const Login = () => {
     try {
       const response = await apiLogin(values.email, values.password);
       
-      // Handle the auth data and pass to context
+      // Store both token and email
+      localStorage.setItem('userEmail', values.email);
+      
+      // Update auth context
       login({
         Token: response.Token,
-        roles: response.roles || 'user' // Fallback role if not provided
+        roles: response.roles,
+        email: values.email // Add email to auth context
       });
 
-      message.success('Login successful!');
-      navigate('/dashboard');
+      message.success('Login successful! Please verify with OTP');
+      navigate('/otp', { state: { email: values.email } }); // Pass email through navigation state
     } catch (error) {
       message.error('Login failed: Invalid credentials');
     } finally {

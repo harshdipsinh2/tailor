@@ -48,3 +48,49 @@ export const register = async (name, email, password, mobileNo, address, roleNam
     }
   }
 };
+
+// Send OTP
+export const sendOTP = async (email) => {
+  try {
+    const response = await api.post(`${API_BASE_URL}/send`, null, {
+      params: { email }
+    });
+    
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error('Failed to send OTP');
+  } catch (error) {
+    if (error.response) {
+      throw new Error('Error sending OTP: ' + (error.response.data?.message || error.message));
+    } else if (error.request) {
+      throw new Error('Network error. Please try again.');
+    } else {
+      throw new Error('Unexpected error: ' + error.message);
+    }
+  }
+};
+
+// Verify OTP
+export const verifyOTP = async (verificationData) => {
+  try {
+    const response = await api.post(`${API_BASE_URL}/verify`, verificationData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error('OTP verification failed');
+  } catch (error) {
+    if (error.response) {
+      throw new Error('Error verifying OTP: ' + (error.response.data?.message || error.message));
+    } else if (error.request) {
+      throw new Error('Network error. Please try again.');
+    } else {
+      throw new Error('Unexpected error: ' + error.message);
+    }
+  }
+};
