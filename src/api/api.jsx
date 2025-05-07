@@ -1,20 +1,17 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://localhost:7252/api",
+  baseURL: "https://localhost:7252",
   headers: { "Content-Type": "application/json" },
 });
 
-// Add token to request headers unless the endpoint is public
+// Add token to request headers
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    const publicRoutes = ["/auth/login", "/auth/register"];
-
-    if (token && !publicRoutes.some(route => config.url.includes(route))) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -24,9 +21,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      alert("Session expired. Please log in again.");
+    if (error.response?.status === 401) {
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
       window.location.href = "/login";
     }
     return Promise.reject(error);

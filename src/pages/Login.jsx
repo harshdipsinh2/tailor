@@ -2,8 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Button, Card, Form, Input, Layout, Typography, message, theme } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // ✅ correct
-import { login } from '../api/AuthApi';
+import { login as apiLogin } from '../api/AuthApi';
 import { AuthContext } from '../Contexts/AuthContext';
 
 const { Title } = Typography;
@@ -12,7 +11,7 @@ const { Content } = Layout;
 const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login: authLogin } = useContext(AuthContext); // renamed to match context
+  const { login } = useContext(AuthContext);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -21,16 +20,13 @@ const Login = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const response = await login(values.email, values.password); // API call
-
-      // ✅ Decode JWT to get role from payload
-      const decoded = jwtDecode(response.token);
-      const role = decoded.role;
-
-      // ✅ Save both token and role using context login function
-      authLogin({ token: response.token, role });
-
-      console.log('Saving to localStorage:', { token: response.token, role });
+      const response = await apiLogin(values.email, values.password);
+      
+      // Handle the auth data and pass to context
+      login({
+        Token: response.Token,
+        roles: response.roles || 'user' // Fallback role if not provided
+      });
 
       message.success('Login successful!');
       navigate('/dashboard');

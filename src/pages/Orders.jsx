@@ -4,8 +4,6 @@ import {
   Button,
   Modal,
   Form,
-  Row,
-  Col,
   Input,
   message,
   Card,
@@ -14,8 +12,22 @@ import {
   DatePicker,
   Select,
 } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import dayjs from "dayjs";
+import {
+  getAllOrders,
+  getAllCustomers,
+  getAllProducts,
+  getAllFabricTypes,
+  createOrder,
+  updateOrder,
+} from "../api/AdminApi";
+import { getAllUsers } from "../api/UserApi";
 
 const { Option } = Select;
 
@@ -32,47 +44,88 @@ const Orders = () => {
   const [employees, setEmployees] = useState([]);
   const [form] = Form.useForm();
 
-  useEffect(() => {
+  // Update the fetchData function to ensure unique IDs
+  const fetchData = async () => {
     setLoading(true);
+    try {
+      const [ordersRes, customersRes, productsRes, fabricsRes, usersRes] = await Promise.all([
+        getAllOrders(),
+        getAllCustomers(),
+        getAllProducts(),
+        getAllFabricTypes(),
+        getAllUsers(),
+      ]);
 
-    // Mock data setup
-    const mockOrders = [
-      {
-        orderId: 1,
-        customerName: "John Doe",
-        productName: "Shirt",
-        fabricName: "Cotton",
-        fabricLength: 2,
-        quantity: 1,
-        totalPrice: 1000,
-        orderDate: "2024-05-01",
-        completionDate: "2024-05-10",
-        assignedToName: "Jane Smith",
-        orderStatus: "Pending",
-        paymentStatus: "Completed",
-      },
-    ];
+      // Ensure unique IDs in customer data
+      const formattedCustomers = customersRes.map((c) => ({
+        customerId: c.CustomerId || c.customerId || `customer-${Math.random()}`,
+        fullName: c.FullName || c.fullName || "N/A",
+      }));
 
-    const mockCustomers = [{ customerId: 1, fullName: "John Doe" }];
-    const mockProducts = [{ productId: 1, productName: "Shirt" }];
-    const mockFabrics = [{ fabricId: 1, fabricName: "Cotton" }];
-    const mockEmployees = [{ employeeId: 1, fullName: "Jane Smith" }];
+      // Ensure unique IDs in product data
+      const formattedProducts = productsRes.map((p) => ({
+        productId: p.ProductID || p.productId || `product-${Math.random()}`,
+        productName: p.ProductName || p.productName || "N/A",
+      }));
 
-    setOrders(mockOrders);
-    setFilteredOrders(mockOrders);
-    setCustomers(mockCustomers);
-    setProducts(mockProducts);
-    setFabrics(mockFabrics);
-    setEmployees(mockEmployees);
-    setLoading(false);
+      // Ensure unique IDs in fabric data
+      const formattedFabrics = fabricsRes.map((f) => ({
+        fabricId: f.FabricTypeID || f.fabricId || `fabric-${Math.random()}`,
+        fabricName: f.FabricName || f.fabricName || "N/A",
+      }));
+
+      // Ensure unique IDs in employee data
+      const formattedEmployees = usersRes
+        .filter((u) => u.RoleName?.toLowerCase() === "tailor")
+        .map((e) => ({
+          employeeId: e.Id || e.id || `employee-${Math.random()}`,
+          fullName: e.Name || e.name || "N/A",
+        }));
+
+      setCustomers(formattedCustomers);
+      setProducts(formattedProducts);
+      setFabrics(formattedFabrics);
+      setEmployees(formattedEmployees);
+
+      // Update handleSubmit to match API expectations
+      const formattedOrders = ordersRes.map((order) => ({
+        ...order,
+        orderId: order.OrderId || order.orderId || `order-${Math.random()}`,
+        customerName: order.CustomerName || order.customerName || "N/A",
+        productName: order.ProductName || order.productName || "N/A",
+        fabricName: order.FabricName || order.fabricName || "N/A",
+        fabricLength: order.FabricLength || order.fabricLength || 0,
+        quantity: order.Quantity || order.quantity || 0,
+        totalPrice: order.TotalPrice || order.totalPrice || 0,
+        orderDate: order.OrderDate || order.orderDate,
+        completionDate: order.CompletionDate || order.completionDate,
+        assignedToName: order.AssignedToName || order.assignedToName || "N/A",
+        orderStatus: order.OrderStatus || order.orderStatus || "Pending",
+        paymentStatus: order.PaymentStatus || order.paymentStatus || "Pending",
+      }));
+
+      setOrders(formattedOrders);
+      setFilteredOrders(formattedOrders);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error("Failed to fetch data: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   useEffect(() => {
-    const filtered = orders.filter(
-      (order) =>
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.productName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = orders.filter((order) => {
+      const customerNameMatch =
+        order?.customerName?.toLowerCase?.()?.includes(searchTerm.toLowerCase()) || false;
+      const productNameMatch =
+        order?.productName?.toLowerCase?.()?.includes(searchTerm.toLowerCase()) || false;
+      return customerNameMatch || productNameMatch;
+    });
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
@@ -85,6 +138,7 @@ const Orders = () => {
         ...existing,
         orderDate: dayjs(existing.orderDate),
         completionDate: dayjs(existing.completionDate),
+        assignedToId: existing.assignedToId,
       });
       setShow(true);
     } else {
@@ -100,38 +154,42 @@ const Orders = () => {
     message.success("Order deleted (mock)!");
   };
 
-  const handleSubmit = (values) => {
-    const formatted = {
-      ...values,
-      orderDate: values.orderDate.format("YYYY-MM-DD"),
-      completionDate: values.completionDate.format("YYYY-MM-DD"),
-      customerName: customers.find((c) => c.customerId === values.customerId)?.fullName || "",
-      productName: products.find((p) => p.productId === values.productId)?.productName || "",
-      fabricName: fabrics.find((f) => f.fabricId === values.fabricId)?.fabricName || "",
-      assignedToName: employees.find((e) => e.employeeId === values.assignedToName)?.fullName || "",
-      totalPrice: values.fabricLength * values.quantity * 100, // mock pricing logic
-    };
+  // Update handleSubmit to match API expectations
+  const handleSubmit = async (values) => {
+    try {
+      setLoading(true);
 
-    if (orderId) {
-      setOrders((prev) =>
-        prev.map((o) => (o.orderId === orderId ? { ...o, ...formatted } : o))
-      );
-      message.success("Order updated (mock)!");
-    } else {
-      const newOrder = { ...formatted, orderId: Date.now() };
-      setOrders((prev) => [...prev, newOrder]);
-      message.success("Order added (mock)!");
+      const orderData = {
+        CustomerId: values.customerId,
+        ProductId: values.productId,
+        FabricId: values.fabricId,
+        AssignedToId: values.assignedToId,
+        FabricLength: parseFloat(values.fabricLength),
+        Quantity: parseInt(values.quantity),
+        OrderDate: values.orderDate?.format("YYYY-MM-DD"),
+        CompletionDate: values.completionDate?.format("YYYY-MM-DD"),
+        OrderStatus: values.orderStatus || "Pending",
+        PaymentStatus: values.paymentStatus || "Pending"
+      };
+
+      if (orderId) {
+        await updateOrder(orderId, orderData);
+        message.success("Order updated successfully!");
+      } else {
+        await createOrder(orderData);
+        message.success("Order created successfully!");
+      }
+
+      fetchData();
+      form.resetFields();
+      setOrderID("");
+      setShow(false);
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      message.error("Failed to submit order: " + error.message);
+    } finally {
+      setLoading(false);
     }
-
-    setFilteredOrders((prev) =>
-      orderId
-        ? prev.map((o) => (o.orderId === orderId ? { ...o, ...formatted } : o))
-        : [...prev, { ...formatted, orderId: Date.now() }]
-    );
-
-    form.resetFields();
-    setOrderID("");
-    setShow(false);
   };
 
   return (
@@ -221,7 +279,16 @@ const Orders = () => {
         footer={null}
         width={800}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          initialValues={{
+            orderStatus: "Pending",
+            paymentStatus: "Pending",
+            orderDate: dayjs(),
+          }}
+        >
           <Form.Item
             label="Customer"
             name="customerId"
@@ -264,11 +331,7 @@ const Orders = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            label="Assigned To"
-            name="assignedToName"
-            rules={[{ required: true, message: "Please select an employee!" }]}
-          >
+          <Form.Item label="Assigned To" name="assignedToId">
             <Select placeholder="Select Employee">
               {employees.map((e) => (
                 <Option key={e.employeeId} value={e.employeeId}>
@@ -295,6 +358,14 @@ const Orders = () => {
           </Form.Item>
 
           <Form.Item
+            label="Order Date"
+            name="orderDate"
+            rules={[{ required: true, message: "Please select order date!" }]}
+          >
+            <DatePicker style={{ width: "100%" }} />
+          </Form.Item>
+
+          <Form.Item
             label="Completion Date"
             name="completionDate"
             rules={[{ required: true, message: "Please select completion date!" }]}
@@ -302,12 +373,8 @@ const Orders = () => {
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
 
-          <Form.Item
-            label="Order Status"
-            name="orderStatus"
-            rules={[{ required: true, message: "Please select order status!" }]}
-          >
-            <Select placeholder="Select Order Status">
+          <Form.Item label="Order Status" name="orderStatus" rules={[{ required: true }]}>
+            <Select disabled={!orderId}>
               <Option value="Pending">Pending</Option>
               <Option value="Completed">Completed</Option>
             </Select>
@@ -326,10 +393,12 @@ const Orders = () => {
 
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit">
-                Submit
+              <Button type="primary" htmlType="submit" loading={loading}>
+                {orderId ? "Update" : "Submit"}
               </Button>
-              <Button onClick={handleClose}>Cancel</Button>
+              <Button onClick={handleClose} disabled={loading}>
+                Cancel
+              </Button>
             </Space>
           </Form.Item>
         </Form>

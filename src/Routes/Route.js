@@ -13,94 +13,110 @@ import Employees from "../pages/Employees";
 import CompletedOrders from "../pages/CompletedOrders";
 import Login from "../pages/Login";
 import HomePage from "../pages/HomePage";
-import MainLayout from "../pages/MainLayot";console.log('AppRoutes component rendered');
-
+import MainLayout from "../pages/MainLayot";
+import Unauthorized from "../pages/Unauthorized";
 
 const AppRoutes = () => {
-  const { user } = useContext(AuthContext); // Retrieve user info from context
+  const { auth } = useContext(AuthContext);
 
   return (
     <Routes>
-      {/* Show login first on app start */}
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<Login />} />
+      {/* Public routes */}
+      <Route path="/login" element={!auth.token ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="/unauthorized" element={<Unauthorized />} />
+
+      {/* Redirect root to login if not authenticated */}
+      <Route
+        path="/"
+        element={
+          auth.token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+        }
+      />
 
       {/* Protected routes under MainLayout */}
-      <Route path="/" element={<MainLayout />}>
+      <Route
+        element={
+          auth.token ? <MainLayout /> : <Navigate to="/login" />
+        }
+      >
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute
-              element={<Dashboard />}
-              allowedRoles={['admin', 'manager', 'tailor']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager', 'tailor']}>
+              <Dashboard />
+            </ProtectedRoute>
           }
         />
-        {/* More protected routes with role-based access */}
+        {/* Other protected routes... */}
         <Route
           path="customers"
           element={
-            <ProtectedRoute
-              element={<Customers />}
-              allowedRoles={['admin', 'manager']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <Customers />
+            </ProtectedRoute>
           }
-
         />
         <Route
           path="customer-registration"
           element={
-            <ProtectedRoute
-              element={<CustomerRegistration />}
-              allowedRoles={['admin', 'manager']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <CustomerRegistration />
+            </ProtectedRoute>
           }
         />
         <Route
           path="orders"
           element={
-            <ProtectedRoute
-              element={<Orders />}
-              allowedRoles={['admin', 'manager', 'tailor']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager', 'tailor']}>
+              <Orders />
+            </ProtectedRoute>
           }
         />
         <Route
           path="products"
           element={
-            <ProtectedRoute
-              element={<Products />}
-              allowedRoles={['admin', 'manager','tailor']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager','tailor']}>
+              <Products />
+            </ProtectedRoute>
           }
         />
         <Route
           path="measurements"
           element={
-            <ProtectedRoute
-              element={<Measurements />}
-              allowedRoles={['admin', 'manager', 'tailor']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager', 'tailor']}>
+              <Measurements />
+            </ProtectedRoute>
           }
         />
         <Route
           path="fabrics"
           element={
-            <ProtectedRoute
-              element={<Fabrics />}
-              allowedRoles={['admin', 'manager','tailor']}
-              userRole={user?.role}
-            />
+            <ProtectedRoute allowedRoles={['admin', 'manager','tailor']}>
+              <Fabrics />
+            </ProtectedRoute>
           }
         />  
+        <Route
+          path="employees"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <Employees />
+            </ProtectedRoute>
+          }
+          />
+        <Route
+          path="completed-orders"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <CompletedOrders />
+            </ProtectedRoute>
+          }
+        />
 
-\      </Route>
+      </Route>
+
+      {/* Catch all route - redirect to login */}
+      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 };

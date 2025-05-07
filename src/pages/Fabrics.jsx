@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Card, Space, Spin } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  getAllFabricTypes,
+  addFabricType,
+  softDeleteFabricType,
+} from "../api/AdminApi";
+
 
 const Fabrics = () => {
   const [fabrics, setFabrics] = useState([]);
@@ -12,32 +18,54 @@ const Fabrics = () => {
     fetchFabrics();
   }, []);
 
-  const fetchFabrics = () => {
+  const fetchFabrics = async () => {
     setLoading(true);
-    // Mock data simulating API result
-    const mockFabrics = [
-      { fabricId: 1, fabricName: "Cotton", pricePerMeter: 500, stockQuantity: 20 },
-      { fabricId: 2, fabricName: "Linen", pricePerMeter: 700, stockQuantity: 15 }
-    ];
-    setFabrics(mockFabrics);
-    setLoading(false);
+    try {
+      const data = await getAllFabricTypes();
+      const formatted = data.map(f => ({
+        fabricId: f.FabricTypeID,
+        fabricName: f.FabricName,
+        pricePerMeter: f.PricePerMeter,
+        stockQuantity: f.AvailableStock,
+      }));
+      setFabrics(formatted);
+    } catch (error) {
+      console.error("Failed to load fabric types:", error);
+      message.error("Failed to load fabrics.");
+    } finally {
+      setLoading(false);
+    }
   };
+  
+  const handleAddFabric = async (values) => {
+    try {
+      await addFabricType({
+        FabricName: values.fabricName,
+        PricePerMeter: values.pricePerMeter,
+        AvailableStock: values.stockQuantity,
+      });
+      message.success("Fabric added successfully!");
+      setShowModal(false);
+      form.resetFields();
+      fetchFabrics(); // Refresh the table
+    } catch (error) {
+      console.error("Add fabric error:", error);
+      message.error("Failed to add fabric.");
+    }
+  };
+  
 
-  const handleAddFabric = (values) => {
-    const newFabric = {
-      ...values,
-      fabricId: Date.now() // mock unique ID
-    };
-    setFabrics((prev) => [...prev, newFabric]);
-    message.success("Fabric added successfully (mock)!");
-    setShowModal(false);
-    form.resetFields();
+  const handleDeleteFabric = async (fabricId) => {
+    try {
+      await softDeleteFabricType(fabricId);
+      message.success("Fabric deleted successfully!");
+      fetchFabrics();
+    } catch (error) {
+      console.error("Delete error:", error);
+      message.error("Failed to delete fabric.");
+    }
   };
-
-  const handleDeleteFabric = (fabricId) => {
-    setFabrics((prev) => prev.filter(fabric => fabric.fabricId !== fabricId));
-    message.success("Fabric deleted successfully (mock)!");
-  };
+  
 
   return (
     <div className="fabrics-container" style={{ padding: "20px" }}>

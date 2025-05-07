@@ -1,55 +1,103 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { getAllUsers, registerUser, updateUser, deleteUser } from "../api/UserApi";
 
 const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeId, setEmployeeID] = useState("");
   const [show, setShow] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [employees, setEmployees] = useState([]);
   const [form] = Form.useForm();
 
-  // Dummy placeholder employee list (optional)
-  const [employees, setEmployees] = useState([]);
-  const filteredEmployees = employees.filter((employee) =>
-    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    employee.mobileNo.includes(searchTerm)
-  );
+  // Fetch employees on component mount
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+  
 
-  const handleEditEmployee = (employeeId) => {
-    setEmployeeID(employeeId);
-    const singleEmployee = employees.find((employee) => employee.id === employeeId);
-    if (singleEmployee) {
-      form.setFieldsValue(singleEmployee);
-      setShow(true);
-    } else {
-      message.error("Employee not found.");
+  const fetchEmployees = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllUsers();
+      // Transform the data to match the expected case
+      const transformedData = data.map(employee => ({
+        id: employee.Id || employee.id,
+        name: employee.Name,
+        email: employee.Email,
+        mobileNo: employee.MobileNo,
+        address: employee.Address,
+        roleName: employee.RoleName,
+        userStatus: employee.UserStatus,
+        isVerified: employee.IsVerified
+      }));
+      setEmployees(transformedData);
+    } catch (error) {
+      message.error("Failed to fetch employees: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDeleteEmployee = (employeeId) => {
-    setEmployees(employees.filter((employee) => employee.id !== employeeId));
-    message.success("Employee deleted successfully!");
-  };
-
-  const handleEditSubmit = (values) => {
-    setEmployees((prev) =>
-      prev.map((emp) => (emp.id === employeeId ? { ...emp, ...values } : emp))
+  // Filter employees with null checks
+  const filteredEmployees = employees.filter((employee) => {
+    if (!employee) return false;
+    return (
+      employee.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.mobileNo?.includes(searchTerm)
     );
-    message.success("Employee updated successfully!");
-    setShow(false);
+  });
+
+  const handleEditEmployee = async (id) => {
+    setEmployeeID(id);
+    try {
+      const singleEmployee = employees.find((employee) => employee.id === id);
+      if (singleEmployee) {
+        form.setFieldsValue(singleEmployee);
+        setShow(true);
+      }
+    } catch (error) {
+      message.error("Failed to fetch employee details: " + error.message);
+    }
   };
 
-  const handleAddSubmit = (values) => {
-    const newEmployee = {
-      ...values,
-      id: Date.now().toString(), // simple unique ID
-    };
-    setEmployees([...employees, newEmployee]);
-    message.success("Employee added successfully!");
-    setIsAddModalVisible(false);
-    form.resetFields();
+  const handleDeleteEmployee = async (id) => {
+    try {
+      await deleteUser(id);
+      message.success("Employee deleted successfully!");
+      fetchEmployees(); // Refresh the list
+    } catch (error) {
+      message.error("Failed to delete employee: " + error.message);
+    }
   };
+
+  const handleEditSubmit = async (values) => {
+    try {
+      await updateUser(employeeId, values);
+      message.success("Employee updated successfully!");
+      setShow(false);
+      form.resetFields();
+      fetchEmployees(); // Refresh the list
+    } catch (error) {
+      message.error("Failed to update employee: " + error.message);
+    }
+  };
+
+  const handleAddSubmit = async (values) => {
+    try {
+      await registerUser(values);
+      message.success("Employee added successfully!");
+      setIsAddModalVisible(false);
+      form.resetFields();
+      fetchEmployees(); // Refresh the list
+    } catch (error) {
+      message.error("Failed to add employee: " + error.message);
+    }
+  };
+
+  
 
   return (
     <div className="employees-container" style={{ padding: "20px" }}>
@@ -79,7 +127,7 @@ const Employees = () => {
           </Space>
         }
       >
-        <Spin spinning={false}>
+        <Spin spinning={loading}>
           <Table
             dataSource={filteredEmployees}
             rowKey="id"
@@ -87,13 +135,42 @@ const Employees = () => {
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           >
-            <Table.Column title="Name" dataIndex="name" key="name" />
-            <Table.Column title="Email" dataIndex="email" key="email" />
-            <Table.Column title="Mobile" dataIndex="mobileNo" key="mobileNo" />
-            <Table.Column title="Address" dataIndex="address" key="address" />
-            <Table.Column title="Role" dataIndex="roleName" key="roleName" />
-            <Table.Column title="Status" dataIndex="userStatus" key="userStatus" />
-
+            <Table.Column 
+              title="Name" 
+              dataIndex="name" 
+              key="name"
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Email" 
+              dataIndex="email" 
+              key="email"
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Mobile" 
+              dataIndex="mobileNo" 
+              key="mobileNo"
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Address" 
+              dataIndex="address" 
+              key="address"
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Role" 
+              dataIndex="roleName" 
+              key="roleName"
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Status" 
+              dataIndex="userStatus" 
+              key="userStatus"
+              render={(text) => text || 'N/A'} 
+            />
             <Table.Column
               title="Actions"
               key="actions"
@@ -139,7 +216,7 @@ const Employees = () => {
           <Form.Item label="Name" name="name" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Email" name="email" rules={[{ required: true }]}>
+          <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email' }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Mobile Number" name="mobileNo" rules={[{ required: true }]}>
@@ -148,25 +225,37 @@ const Employees = () => {
           <Form.Item label="Address" name="address" rules={[{ required: true }]}>
             <Input.TextArea />
           </Form.Item>
-          <Form.Item label="Password" name="password" rules={[{ required: !employeeId }]}>
+          <Form.Item 
+            label="Password" 
+            name="password" 
+            rules={[{ required: !employeeId }]}
+          >
             <Input.Password />
           </Form.Item>
           <Form.Item label="Role" name="roleName" rules={[{ required: true }]}>
-            <Input />
+            <Select>
+              <Select.Option value="admin">Admin</Select.Option>
+              <Select.Option value="manager">Manager</Select.Option>
+              <Select.Option value="tailor">Tailor</Select.Option>
+            </Select>
           </Form.Item>
           <Form.Item label="Status" name="userStatus" rules={[{ required: true }]}>
             <Select>
-              <Select.Option value="Pending">Pending</Select.Option>
-              <Select.Option value="Completed">Completed</Select.Option>
+              <Select.Option value="Active">Active</Select.Option>
+              <Select.Option value="Inactive">Inactive</Select.Option>
             </Select>
           </Form.Item>
           <Space>
-            <Button type="primary" htmlType="submit">Submit</Button>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
             <Button onClick={() => {
               setShow(false);
               setIsAddModalVisible(false);
               form.resetFields();
-            }}>Cancel</Button>
+            }}>
+              Cancel
+            </Button>
           </Space>
         </Form>
       </Modal>

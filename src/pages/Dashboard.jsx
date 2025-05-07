@@ -1,51 +1,86 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaUsers,
   FaTshirt,
   FaBoxes,
   FaClipboardList,
   FaUserTie,
-} from "react-icons/fa"; // Imported necessary icons
-import "../Css/Dashboard.css"; // Import your CSS file
+  FaClock,
+} from "react-icons/fa";
+import "../Css/Dashboard.css";
+import { getSummary, getAllOrders } from "../api/AdminApi";
 
 const Dashboard = () => {
+  const [summary, setSummary] = useState({
+    TotalCustomers: 0,
+    TotalOrders: 0,
+    TotalUsers: 0,
+    TotalProducts: 0,
+    TotalFabrics: 0,
+    PendingOrders: 0
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [summaryData, ordersData] = await Promise.all([
+          getSummary(),
+          getAllOrders()
+        ]);
+
+        // Count pending orders
+        const pendingOrdersCount = ordersData.filter(order => 
+          (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending"
+        ).length;
+
+        setSummary({
+          ...summaryData,
+          PendingOrders: pendingOrdersCount
+        });
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const data = [
     {
       title: "Total Customers",
-      value: "--",
+      value: summary.TotalCustomers,
       icon: <FaUsers className="dashboard-icon text-blue-500" />,
       bgColor: "bg-blue-light",
     },
     {
       title: "Total Products",
-      value: "--",
+      value: summary.TotalProducts,
       icon: <FaTshirt className="dashboard-icon text-yellow-500" />,
       bgColor: "bg-yellow-light",
     },
     {
       title: "Total Fabrics",
-      value: "--",
-      icon: <FaBoxes className="dashboard-icon text-green-500" />, // Changed to Fabric Icon
+      value: summary.TotalFabrics,
+      icon: <FaBoxes className="dashboard-icon text-green-500" />,
       bgColor: "bg-green-light",
     },
     {
       title: "Total Orders",
-      value: "--",
-      icon: <FaClipboardList className="dashboard-icon text-purple-500" />, // Changed to Order Icon
+      value: summary.TotalOrders,
+      icon: <FaClipboardList className="dashboard-icon text-purple-500" />,
       bgColor: "bg-purple-light",
     },
     {
       title: "Total Employees",
-      value: "--",
-      icon: <FaUserTie className="dashboard-icon text-red-500" />, // Changed to Employee Icon
+      value: summary.TotalUsers,
+      icon: <FaUserTie className="dashboard-icon text-red-500" />,
       bgColor: "bg-red-light",
     },
     {
       title: "Pending Orders",
-      value: "--",
-      icon: <FaClipboardList className="dashboard-icon text-red-500" />, // Changed to Employee Icon
-      bgColor: "bg-brown-light",
-    }
+      value: summary.PendingOrders,
+      icon: <FaClock className="dashboard-icon text-orange-500" />,
+      bgColor: "bg-orange-light",
+    },
   ];
 
   return (

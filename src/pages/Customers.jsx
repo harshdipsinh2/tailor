@@ -1,90 +1,121 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Row, Col, Input, Radio, message, Card, Space, Spin } from "antd";
+import {
+  Table, Button, Modal, Form, Row, Col, Input, Radio,
+  message, Card, Space, Spin
+} from "antd";
 import { useNavigate } from "react-router-dom";
-// import { updateCustomer, getAllCustomers, deleteCustomer } from "../api/customerapi";
-// import { addMeasurement } from "../api/measurementapi";
-import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined
+} from "@ant-design/icons";
+import {
+  getAllCustomers,
+  editCustomer,
+  deleteCustomer,
+} from "../api/AdminApi";
+
 
 const Customers = () => {
-  const [customers, setCustomers] = useState([
-    // Dummy data for testing
-    {
-      customerId: "1",
-      fullName: "John Doe",
-      phoneNumber: "1234567890",
-      email: "john@example.com",
-      address: "123 Main St",
-      gender: "male"
-    },
-    {
-      customerId: "2",
-      fullName: "Jane Smith",
-      phoneNumber: "9876543210",
-      email: "jane@example.com",
-      address: "456 Elm St",
-      gender: "female"
-    }
-  ]);
+  const [customers, setCustomers] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [customerId, setCustomerID] = useState("");
   const [show, setShow] = useState(false);
   const [showMeasurement, setShowMeasurement] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
   useEffect(() => {
-    setFilteredCustomers(customers);
-  }, [customers]);
+    const fetchCustomers = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllCustomers();
+  
+        // Convert PascalCase to camelCase
+        const validCustomers = data.map(customer => ({
+          customerId: customer.CustomerId,
+          fullName: customer.FullName || 'N/A',
+          phoneNumber: customer.PhoneNumber || 'N/A',
+          email: customer.Email || 'N/A',
+          address: customer.Address || 'N/A',
+          gender: customer.Gender ? customer.Gender.charAt(0).toUpperCase() + customer.Gender.slice(1) : 'N/A',
+        }));
+  
+        setCustomers(validCustomers);
+        setFilteredCustomers(validCustomers);
+      } catch (err) {
+        console.error('Failed to load customers:', err);
+        message.error("Failed to load customers");
+        setCustomers([]);
+        setFilteredCustomers([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchCustomers();
+  }, []);
+  
 
   useEffect(() => {
-    const filteredData = customers.filter((customer) =>
-      customer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phoneNumber.includes(searchTerm)
-    );
+    const filteredData = customers.filter((customer) => {
+        // Add null checks and default values
+        const fullName = customer?.fullName || '';
+        const phoneNumber = customer?.phoneNumber || '';
+        
+        return fullName.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+               phoneNumber.toString().includes(searchTerm);
+    });
     setFilteredCustomers(filteredData);
-  }, [searchTerm, customers]);
+}, [searchTerm, customers]);
 
-  const handleEditCustomer = (customerId) => {
-    setCustomerID(customerId);
-    setShowMeasurement(false);
-    const singleCustomer = customers.find((customer) => customer.customerId === customerId);
-    if (singleCustomer) {
-      form.setFieldsValue(singleCustomer);
+  const handleEditCustomer = (id) => {
+    const customer = customers.find((c) => c.customerId === id);
+    if (customer) {
+      form.setFieldsValue(customer);
+      setCustomerID(id);
+      setShowMeasurement(false);
       setShow(true);
     } else {
       message.error("Customer not found.");
     }
   };
 
-  const handleAddMeasurements = (customerId) => {
-    setCustomerID(customerId);
+  const handleAddMeasurements = (id) => {
+    setCustomerID(id);
     setShowMeasurement(true);
+    form.resetFields();
     setShow(true);
   };
 
   const handleClose = () => setShow(false);
 
-  const handleDeleteCustomer = (customerId) => {
-    // Simulate delete
-    // await deleteCustomer(customerId);
-    message.success("Customer deleted successfully!");
-    setCustomers(customers.filter(customer => customer.customerId !== customerId));
+  const handleDeleteCustomer = async (id) => {
+    try {
+      await deleteCustomer(id);
+      message.success("Customer deleted successfully!");
+      setCustomers((prev) => prev.filter((c) => c.customerId !== id));
+    } catch (err) {
+      message.error("Failed to delete customer");
+    }
   };
 
-  const handleEditSubmit = (values) => {
-    if (showMeasurement) {
-      // Simulate addMeasurement(customerId, values);
-      message.success("Measurement added successfully!");
-    } else {
-      // Simulate updateCustomer(customerId, values);
-      message.success("Customer updated successfully!");
+  const handleEditSubmit = async (values) => {
+    try {
+      if (showMeasurement) {
+        // Simulate addMeasurement API here
+        message.success("Measurement added successfully!");
+      } else {
+        await editCustomer(customerId, values);
+        message.success("Customer updated successfully!");
+        setCustomers((prev) =>
+          prev.map((c) => c.customerId === customerId ? { ...c, ...values } : c)
+        );
+      }
+      setShow(false);
+    } catch (err) {
+      message.error("Failed to update customer");
     }
-    setCustomers(prev =>
-      prev.map(c => c.customerId === customerId ? { ...c, ...values } : c)
-    );
-    setShow(false);
   };
 
   const measurementFields = [
@@ -125,14 +156,33 @@ const Customers = () => {
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           >
-            <Table.Column title="Name" dataIndex="fullName" key="fullName" />
-            <Table.Column title="Phone" dataIndex="phoneNumber" key="phoneNumber" />
-            <Table.Column title="Email" dataIndex="email" key="email" />
-            <Table.Column title="Address" dataIndex="address" key="address" />
-            <Table.Column title="Gender" dataIndex="gender" key="gender" />
+            <Table.Column 
+              title="Name" 
+              dataIndex="fullName" 
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Phone" 
+              dataIndex="phoneNumber" 
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Email" 
+              dataIndex="email" 
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Address" 
+              dataIndex="address" 
+              render={(text) => text || 'N/A'} 
+            />
+            <Table.Column 
+              title="Gender" 
+              dataIndex="gender" 
+              render={(text) => text || 'N/A'} 
+            />
             <Table.Column
               title="Actions"
-              key="actions"
               render={(customer) => (
                 <Space>
                   <Button
@@ -164,7 +214,7 @@ const Customers = () => {
 
       <Modal
         title={showMeasurement ? "Add Measurements" : "Update Customer Details"}
-        visible={show}
+        open={show}
         onCancel={handleClose}
         footer={null}
         width={800}

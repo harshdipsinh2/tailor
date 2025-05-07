@@ -5,8 +5,15 @@ import { AuthContext } from '../Contexts/AuthContext';
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { auth } = useContext(AuthContext);
 
-  if (!auth.token || !allowedRoles.includes(auth.role)) {
-    return <Navigate to="/unauthorized" />; // Or redirect to login
+  // Check if user is authenticated
+  if (!auth.token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check if user's role is allowed
+  const userRole = auth.role?.toLowerCase();
+  if (!allowedRoles.includes(userRole)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;

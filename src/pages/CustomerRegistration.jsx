@@ -1,25 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Radio, Button, Card, message } from "antd";
-import { addCustomer } from "../api/customerapi";
+import { addCustomer } from "../api/AdminApi";
 
 const CustomerRegistration = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phoneNumber: "",
-    email: "",
-    address: "",
-    gender: "",
-  });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (values) => {
     try {
-      await addCustomer(formData);
+      await addCustomer(values);
       message.success("Customer added successfully!");
       navigate("/customers");
     } catch (error) {
@@ -39,13 +28,7 @@ const CustomerRegistration = () => {
             name="fullName"
             rules={[{ required: true, message: "Please enter full name" }]}
           >
-            <Input
-              name="fullName"
-              placeholder="Full Name"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
+            <Input placeholder="Full Name" />
           </Form.Item>
 
           <Form.Item
@@ -53,13 +36,7 @@ const CustomerRegistration = () => {
             name="phoneNumber"
             rules={[{ required: true, message: "Please enter phone number" }]}
           >
-            <Input
-              name="phoneNumber"
-              placeholder="Phone Number"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
+            <Input placeholder="Phone Number" />
           </Form.Item>
 
           <Form.Item
@@ -67,16 +44,10 @@ const CustomerRegistration = () => {
             name="email"
             rules={[
               { required: true, message: "Please enter a valid email address" },
-              { type: "email", message: "Please enter a valid email address" },
+              { type: "email", message: "Invalid email format" },
             ]}
           >
-            <Input
-              name="email"
-              placeholder="Email Address"
-              value={formData.email}
-              onChange={handleChange}
-              className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
+            <Input placeholder="Email Address" />
           </Form.Item>
 
           <Form.Item
@@ -84,14 +55,7 @@ const CustomerRegistration = () => {
             name="address"
             rules={[{ required: true, message: "Please enter address" }]}
           >
-            <Input.TextArea
-              name="address"
-              placeholder="Address"
-              value={formData.address}
-              onChange={handleChange}
-              className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              rows={3}
-            />
+            <Input.TextArea placeholder="Address" rows={3} />
           </Form.Item>
 
           <Form.Item
@@ -99,18 +63,9 @@ const CustomerRegistration = () => {
             name="gender"
             rules={[{ required: true, message: "Please select gender" }]}
           >
-            <Radio.Group
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="flex space-x-4"
-            >
-              <Radio value="Male" className="text-gray-700">
-                Male
-              </Radio>
-              <Radio value="Female" className="text-gray-700">
-                Female
-              </Radio>
+            <Radio.Group className="flex space-x-4">
+              <Radio value="Male">Male</Radio>
+              <Radio value="Female">Female</Radio>
             </Radio.Group>
           </Form.Item>
 

@@ -1,6 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, message, Card, Spin } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  message,
+  Card,
+  Spin
+} from 'antd';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  SearchOutlined
+} from '@ant-design/icons';
+import {
+  addProduct,
+  getProduct,
+  getAllProducts,
+  updateProduct,
+  deleteProduct
+} from "../api/AdminApi";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -12,77 +34,72 @@ const Products = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchProducts = () => {
+  const fetchProducts = async () => {
     setLoading(true);
-    // Simulated static product data
-    const mockProducts = [
-      {
-        productID: 1,
-        productName: "Shirt",
-        makingPrice: "800"
-      },
-      {
-        productID: 2,
-        productName: "Pants",
-        makingPrice: "1200"
-      }
-    ];
-    setProducts(mockProducts);
-    setFilteredProducts(mockProducts);
-    setLoading(false);
+    try {
+      const data = await getAllProducts();
+      setProducts(data);
+      setFilteredProducts(data);
+    } catch (error) {
+      message.error(error.message || "Failed to fetch products.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const filteredData = products.filter((product) =>
-      product.productName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredProducts(filteredData);
-  }, [searchQuery, products]);
+  // useEffect(() => {
+  //   const filtered = products.filter((product) =>
+  //     product.productName.includes(searchQuery.toLowerCase())
+  //   );
+  //   setFilteredProducts(filtered);
+  // }, [searchQuery, products]);
 
-  const handleEditProduct = (productId) => {
-    const selectedProduct = products.find((product) => product.productID === productId);
-    setProductId(productId);
-    form.setFieldsValue(selectedProduct);
+  const handleEditProduct = (id) => {
+    const selected = products.find((p) => p.productID === id);
+    setProductId(id);
     setIsEditing(true);
+    form.setFieldsValue(selected);
     setShowModal(true);
   };
 
-  const handleDeleteProduct = (productId) => {
-    setProducts(products.filter((product) => product.productID !== productId));
-    message.success("Product deleted successfully (mock)");
+  const handleDeleteProduct = async (id) => {
+    try {
+      await deleteProduct(id);
+      message.success("Product deleted successfully.");
+      fetchProducts();
+    } catch (error) {
+      message.error(error.message);
+    }
   };
 
-  const handleSubmit = (values) => {
-    if (isEditing) {
-      const updatedProducts = products.map((product) =>
-        product.productID === productId ? { ...product, ...values } : product
-      );
-      setProducts(updatedProducts);
-      message.success("Product updated successfully (mock)");
-    } else {
-      const newProduct = {
-        ...values,
-        productID: Date.now() // simple unique ID
-      };
-      setProducts([...products, newProduct]);
-      message.success("Product added successfully (mock)");
+  const handleSubmit = async (values) => {
+    try {
+      if (isEditing) {
+        await updateProduct(productId, values);
+        message.success("Product updated successfully.");
+      } else {
+        await addProduct(values);
+        message.success("Product added successfully.");
+      }
+      setShowModal(false);
+      form.resetFields();
+      fetchProducts();
+    } catch (error) {
+      message.error(error.message);
     }
-
-    setShowModal(false);
-    form.resetFields();
   };
 
   const columns = [
-    { title: 'Product ID', dataIndex: 'productID', key: 'productID' },
-    { title: 'Name', dataIndex: 'productName', key: 'productName' },
+    { title: 'Product ID', dataIndex: 'ProductID', key: 'ProductID' },
+    { title: 'Name', dataIndex: 'ProductName', key: 'ProductName' },
     {
       title: 'Making Price',
-      dataIndex: 'makingPrice',
-      key: 'makingPrice',
+      dataIndex: 'MakingPrice',
+      key: 'MakingPrice',
       render: (price) => `Rs. ${price}`
     },
     {
@@ -90,8 +107,19 @@ const Products = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Button icon={<EditOutlined />} onClick={() => handleEditProduct(record.productID)}>Edit</Button>
-          <Button icon={<DeleteOutlined />} danger onClick={() => handleDeleteProduct(record.productID)}>Delete</Button>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => handleEditProduct(record.productID)}
+          >
+            Edit
+          </Button>
+          <Button
+            icon={<DeleteOutlined />}
+            danger
+            onClick={() => handleDeleteProduct(record.productID)}
+          >
+            Delete
+          </Button>
         </Space>
       )
     }
@@ -113,7 +141,11 @@ const Products = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => { setShowModal(true); setIsEditing(false); form.resetFields(); }}
+              onClick={() => {
+                setShowModal(true);
+                setIsEditing(false);
+                form.resetFields();
+              }}
             >
               Add Product
             </Button>
@@ -136,16 +168,27 @@ const Products = () => {
         open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
+        destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
-          <Form.Item label="Product Name" name="productName" rules={[{ required: true }]}>
+          <Form.Item
+            label="Product Name"
+            name="productName"
+            rules={[{ required: true, message: "Please enter product name" }]}
+          >
             <Input />
           </Form.Item>
-          <Form.Item label="Making Price" name="makingPrice" rules={[{ required: true }]}>
+          <Form.Item
+            label="Making Price"
+            name="makingPrice"
+            rules={[{ required: true, message: "Enter price" }]}
+          >
             <Input type="number" />
           </Form.Item>
-          <Space>
-            <Button type="primary" htmlType="submit">Submit</Button>
+          <Space style={{ marginTop: 16 }}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
             <Button onClick={() => setShowModal(false)}>Cancel</Button>
           </Space>
         </Form>

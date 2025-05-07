@@ -13,8 +13,14 @@ import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import image from "../asset/maschine.jpeg";
 import "../Css/Navbar.css";
+import { AuthContext } from "../Contexts/AuthContext";
 
 const { Header, Sider, Content } = Layout;
+const token = AuthContext.token;
+const role = AuthContext.role;
+console.log(role);
+
+console.log(token);
 
 // Helper to generate menu item
 const getItem = (label, key, icon, children, type) => ({
@@ -34,11 +40,14 @@ const MainLayout = () => {
   } = theme.useToken();
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem(token);
+    localStorage.removeItem(role);
     navigate("/login");
   };
 
   const role = localStorage.getItem("role");
+  console.log(role);
+  
 
   // Role-based sidebar menu items
   let items = [getItem(<Link to="/dashboard">Dashboard</Link>, "1", <PieChartOutlined />)];
@@ -58,9 +67,9 @@ const MainLayout = () => {
         getItem(<Link to="/orders">Orders</Link>, "7"),
         getItem(<Link to="/completed-orders">Completed Orders</Link>, "8"),
       ]),
-      getItem(<Link to="/employees">Employees</Link>, "9", <TeamOutlined />)
+      getItem(<Link to="/employees">Employees</Link>, "9", )
     );
-  } else if (role === "Tailor") {
+  } else if (role === "tailor") {
     items.push(
       getItem("Measurements", "sub1", <UserOutlined />, [
         getItem(<Link to="/measurements">Measurements</Link>, "4"),

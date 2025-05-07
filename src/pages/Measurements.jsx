@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Popconfirm, message, Card, Spin, Space, Input } from "antd";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { getAllMeasurements , deleteMeasurement } from "../api/AdminApi"; 
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -12,51 +13,67 @@ const Measurements = () => {
     fetchMeasurements();
   }, []);
 
-  const fetchMeasurements = () => {
+  const fetchMeasurements = async () => {
     setLoading(true);
-    // Simulated static data (replace this with API data later)
-    const mockData = [
-      {
-        measurementID: 1,
-        customerName: "John Doe",
-        chest: "40",
-        waist: "32",
-        hip: "38",
-        shoulder: "18",
-        sleeveLength: "24",
-        trouserLength: "40",
-        inseam: "30",
-        thigh: "22",
-        neck: "15",
-        sleeve: "20",
-        arms: "23",
-        bicep: "13",
-        forearm: "10",
-        wrist: "7",
-        ankle: "9",
-        calf: "14",
-      },
-    ];
-    setMeasurements(mockData);
-    setFilteredMeasurements(mockData);
-    setLoading(false);
+    try {
+      const data = await getAllMeasurements();
+  
+      // Normalize PascalCase keys to camelCase (adjust this to match your backend field names)
+      const normalized = data.map((m) => ({
+        measurementID: m.MeasurementID,
+        customerName: m.CustomerName,
+        chest: m.Chest,
+        waist: m.Waist,
+        hip: m.Hip,
+        shoulder: m.Shoulder,
+        sleeveLength: m.SleeveLength,
+        trouserLength: m.TrouserLength,
+        inseam: m.Inseam,
+        thigh: m.Thigh,
+        neck: m.Neck,
+        sleeve: m.Sleeve,
+        arms: m.Arms,
+        bicep: m.Bicep,
+        forearm: m.Forearm,
+        wrist: m.Wrist,
+        ankle: m.Ankle,
+        calf: m.Calf,
+      }));
+  
+      setMeasurements(normalized);
+      setFilteredMeasurements(normalized);
+    } catch (error) {
+      console.error("Error loading measurements:", error);
+      message.error("Failed to load measurements.");
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
-  useEffect(() => {
-    const filteredData = measurements.filter((measurement) =>
-      measurement.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      Object.values(measurement).some(
-        (value) =>
-          typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    setFilteredMeasurements(filteredData);
-  }, [searchTerm, measurements]);
+useEffect(() => {
+  const filteredData = measurements.filter((measurement) =>
+    (measurement.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    Object.values(measurement).some(
+      (value) =>
+        typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+  setFilteredMeasurements(filteredData);
+}, [searchTerm, measurements]);
 
-  const handleDeleteMeasurement = (measurementId) => {
-    setMeasurements(measurements.filter((m) => m.measurementID !== measurementId));
-    message.success("Measurement deleted successfully (mock)");
+
+  const handleDeleteMeasurement = async (measurementId) => {
+    try {
+      await deleteMeasurement(measurementId);
+      setMeasurements((prev) => prev.filter((m) => m.measurementID !== measurementId));
+      message.success("Measurement deleted successfully!");
+    } catch (error) {
+      console.error("Delete failed:", error);
+      message.error("Failed to delete measurement.");
+    }
   };
+  
 
   const columns = [
     { title: "Customer Name", dataIndex: "customerName", key: "customerName" },

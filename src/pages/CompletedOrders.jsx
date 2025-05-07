@@ -1,150 +1,161 @@
-// import React, { useEffect, useState } from "react";
-// import {
-//   Table,
-//   Modal,
-//   Form,
-//   Input,
-//   message,
-//   Card,
-//   Space,
-//   Spin,
-//   DatePicker,
-//   Select,
-// } from "antd";
-// import { useNavigate } from "react-router-dom";
-// import { getAllOrders } from "../api/Orderapi";
-// import { getAllCustomers } from "../api/customerapi";
-// import { getProducts } from "../api/Productsapi";
-// import { getAllFabrics } from "../api/fabricapi";
-// import { getAllEmployees } from "../api/Employeesapi";
-// import { SearchOutlined } from "@ant-design/icons";
-// import dayjs from "dayjs";
+import React, { useEffect, useState } from "react";
+import {
+  Table,
+  Input,
+  message,
+  Card,
+  Space,
+  Spin,
+} from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import { getAllOrders } from "../api/AdminApi";
+import dayjs from "dayjs";
 
-// const { Option } = Select;
+const CompletedOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
 
-// const Orders = () => {
-//   // State variables
-//   const [orders, setOrders] = useState([]);
-//   const [filteredOrders, setFilteredOrders] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const [customers, setCustomers] = useState([]);
-//   const [products, setProducts] = useState([]);
-//   const [fabrics, setFabrics] = useState([]);
-//   const [employees, setEmployees] = useState([]);
-//   const navigate = useNavigate();
+  // Fetch completed orders
+  useEffect(() => {
+    const fetchCompletedOrders = async () => {
+      setLoading(true);
+      try {
+        const data = await getAllOrders();
+        console.log('Raw API response:', data); // Debug log
 
-//   // Fetch initial data
-//   useEffect(() => {
-//     setLoading(true);
-//     getAllOrders()
-//       .then((data) => {
-//         if (Array.isArray(data)) {
-//           // Filter orders to only show completed orders with completed payment
-//           const completedOrders = data.filter(
-//             (order) => 
-//               order.orderStatus === "Completed" && 
-//               order.paymentStatus === "Completed"
-//           );
-//           setOrders(completedOrders);
-//           setFilteredOrders(completedOrders);
-//         } else {
-//           setOrders([]);
-//           setFilteredOrders([]);
-//           message.warning("No completed order data available.");
-//         }
-//       })
-//       .catch((error) => message.error("Error fetching data: " + error.message))
-//       .finally(() => setLoading(false));
+        // Filter for completed orders only with case-insensitive comparison
+        const completedOrders = data.filter(order => {
+          console.log('Checking order:', order); // Debug log
+          const orderStatus = order.OrderStatus || order.orderStatus;
+          const paymentStatus = order.PaymentStatus || order.paymentStatus;
+          
+          return orderStatus?.toLowerCase() === "completed" && 
+                 paymentStatus?.toLowerCase() === "completed";
+        });
 
-//     // Fetch customers, products, and fabrics
-//     getAllCustomers()
-//       .then((data) => setCustomers(data))
-//       .catch((error) =>
-//         message.error("Error fetching customers: " + error.message)
-//       );
+        console.log('Completed orders:', completedOrders); // Debug log
 
-//     getProducts()
-//       .then((data) => setProducts(data))
-//       .catch((error) =>
-//         message.error("Error fetching products: " + error.message)
-//       );
+        // Transform the data to ensure consistent property names
+        const formattedOrders = completedOrders.map(order => ({
+          orderId: order.OrderId || order.orderId,
+          customerName: order.CustomerName || order.customerName || 'N/A',
+          productName: order.ProductName || order.productName || 'N/A',
+          fabricName: order.FabricName || order.fabricName || 'N/A',
+          fabricLength: order.FabricLength || order.fabricLength || 0,
+          quantity: order.Quantity || order.quantity || 0,
+          totalPrice: order.TotalPrice || order.totalPrice || 0,
+          orderDate: order.OrderDate || order.orderDate,
+          completionDate: order.CompletionDate || order.completionDate,
+          assignedToName: order.AssignedToName || order.assignedToName || 'N/A',
+          orderStatus: order.OrderStatus || order.orderStatus,
+          paymentStatus: order.PaymentStatus || order.paymentStatus
+        }));
 
-//     getAllFabrics()
-//       .then((data) => setFabrics(data))
-//       .catch((error) =>
-//         message.error("Error fetching fabrics: " + error.message)
-//       );
-    
-//     // Fetch employees
-//     getAllEmployees()
-//       .then((data) => setEmployees(data))
-//       .catch((error) =>
-//         message.error("Error fetching employees: " + error.message)
-//       );
-//   }, []);
+        console.log('Formatted orders:', formattedOrders); // Debug log
 
-//   // Filter orders based on search term
-//   useEffect(() => {
-//     const filteredData = orders.filter(
-//       (order) =>
-//         order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//         order.productName.toLowerCase().includes(searchTerm.toLowerCase())
-//     );
-//     setFilteredOrders(filteredData);
-//   }, [searchTerm, orders]);
+        setOrders(formattedOrders);
+        setFilteredOrders(formattedOrders);
+      } catch (error) {
+        console.error("Error fetching completed orders:", error);
+        message.error("Failed to fetch completed orders: " + error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   return (
-//     <div className="orders-container" style={{ padding: "20px" }}>
-//       {/* Order Records Table */}
-//       <Card
-//         title={<h2 style={{ margin: 0 }}>Completed Orders</h2>}
-//         extra={
-//           <Space>
-//             {/* Search Field */}
-//             <Input
-//               placeholder="Search by Customer or Product"
-//               prefix={<SearchOutlined />}
-//               value={searchTerm}
-//               onChange={(e) => setSearchTerm(e.target.value)}
-//               allowClear
-//               style={{ width: "250px" }}
-//             />
-//           </Space>
-//         }
-//       >
-//         <Spin spinning={loading}>
-//           {/* Order Table */}
-//           <Table
-//             dataSource={filteredOrders}
-//             rowKey="orderId"
-//             bordered
-//             pagination={{ pageSize: 5 }}
-//             scroll={{ x: "max-content" }}
-//           >
-//             {/* Table Columns */}
-//             <Table.Column title="Customer Name" dataIndex="customerName" />
-//             <Table.Column title="Product Name" dataIndex="productName" />
-//             <Table.Column title="Fabric Name" dataIndex="fabricName" />
-//             <Table.Column title="Fabric Length" dataIndex="fabricLength" />
-//             <Table.Column title="Quantity" dataIndex="quantity" />
-//             <Table.Column title="Total Price" dataIndex="totalPrice" />
-//             <Table.Column
-//               title="Order Date"
-//               dataIndex="orderDate"
-//               render={(date) => (date ? dayjs(date).format("DD/MM/YYYY") : "-")}
-//             />
-//             <Table.Column
-//               title="Completion Date"
-//               dataIndex="completionDate"
-//               render={(date) => (date ? dayjs(date).format("DD/MM/YYYY") : "-")}
-//             />
-//             <Table.Column title="Assigned To" dataIndex="assignedToName" />
-//           </Table>
-//         </Spin>
-//       </Card>
-//     </div>
-//   );
-// };
+    fetchCompletedOrders();
+  }, []);
 
-// export default Orders;
+  // Filter orders based on search term
+  useEffect(() => {
+    const filtered = orders.filter((order) => {
+      const customerNameMatch = order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+      const productNameMatch = order.productName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+      return customerNameMatch || productNameMatch;
+    });
+    setFilteredOrders(filtered);
+  }, [searchTerm, orders]);
+
+  return (
+    <div className="completed-orders-container" style={{ padding: "20px" }}>
+      <Card
+        title={<h2 style={{ margin: 0 }}>Completed Orders</h2>}
+        extra={
+          <Space>
+            <Input
+              placeholder="Search by Customer or Product"
+              prefix={<SearchOutlined />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              allowClear
+              style={{ width: "250px" }}
+            />
+          </Space>
+        }
+      >
+        <Spin spinning={loading}>
+          <Table
+            dataSource={filteredOrders}
+            rowKey="orderId"
+            bordered
+            pagination={{ pageSize: 5 }}
+            scroll={{ x: "max-content" }}
+          >
+            <Table.Column 
+              title="Customer Name" 
+              dataIndex="customerName"
+              key="customerName"
+            />
+            <Table.Column 
+              title="Product Name" 
+              dataIndex="productName"
+              key="productName"
+            />
+            <Table.Column 
+              title="Fabric Name" 
+              dataIndex="fabricName"
+              key="fabricName"
+            />
+            <Table.Column 
+              title="Fabric Length" 
+              dataIndex="fabricLength"
+              key="fabricLength"
+            />
+            <Table.Column 
+              title="Quantity" 
+              dataIndex="quantity"
+              key="quantity"
+            />
+            <Table.Column 
+              title="Total Price" 
+              dataIndex="totalPrice"
+              key="totalPrice"
+              render={(price) => `₹${price}`}
+            />
+            <Table.Column
+              title="Order Date"
+              dataIndex="orderDate"
+              key="orderDate"
+              render={(date) => date ? dayjs(date).format("DD/MM/YYYY") : "-"}
+            />
+            <Table.Column
+              title="Completion Date"
+              dataIndex="completionDate"
+              key="completionDate"
+              render={(date) => date ? dayjs(date).format("DD/MM/YYYY") : "-"}
+            />
+            <Table.Column 
+              title="Assigned To" 
+              dataIndex="assignedToName"
+              key="assignedToName"
+            />
+          </Table>
+        </Spin>
+      </Card>
+    </div>
+  );
+};
+
+export default CompletedOrders;

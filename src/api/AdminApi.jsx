@@ -16,9 +16,11 @@ export const getSummary = async () => {
 export const getAllCustomers = async () => {
     try {
         const response = await api.get(`${API_BASE_URL}/GetAllCustomers`);
-        return response.data;
+        // Ensure we're returning an array, even if empty
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
-        throw new Error('Error fetching customers: ' + error.message);
+        console.error('Error fetching customers:', error);
+        return []; // Return empty array on error
     }
 };
 
@@ -85,8 +87,14 @@ export const deleteMeasurement = async (measurementId) => {
 export const getAllMeasurements = async () => {
     try {
         const response = await api.get(`${API_BASE_URL}/GetAllMeasurements`);
+        if (!response.data) {
+            throw new Error('No data received from the server');
+        }
+        // Log the response to check the data structure
+        console.log('Measurements API Response:', response.data);
         return response.data;
     } catch (error) {
+        console.error('Error fetching measurements:', error);
         throw new Error('Error fetching measurements: ' + error.message);
     }
 };
@@ -205,23 +213,23 @@ export const getFabricStockById = async (id) => {
 };
 
 // Orders
-export const createOrder = async (customerId, productId, fabricTypeId, assignedTo, orderData) => {
+export const createOrder = async (orderData) => {
     try {
-        await api.post(`${API_BASE_URL}/Create-Order`, orderData, {
-            params: { customerId, productId, fabricTypeId, assignedTo }
-        });
+        const response = await api.post(`${API_BASE_URL}/Order`, orderData);
+        return response.data;
     } catch (error) {
-        throw new Error('Error creating order: ' + error.message);
+        console.error('API Error:', error.response?.data);
+        throw new Error('Error creating order: ' + (error.response?.data?.message || error.message));
     }
 };
 
-export const updateOrder = async (id, productId, fabricTypeId, assignedTo, orderData) => {
+export const updateOrder = async (orderId, orderData) => {
     try {
-        await api.put(`${API_BASE_URL}/Update-Order/${id}`, orderData, {
-            params: { productId, fabricTypeId, assignedTo }
-        });
+        const response = await api.put(`${API_BASE_URL}/Order/${orderId}`, orderData);
+        return response.data;
     } catch (error) {
-        throw new Error('Error updating order: ' + error.message);
+        console.error('API Error:', error.response?.data);
+        throw new Error('Error updating order: ' + (error.response?.data?.message || error.message));
     }
 };
 
