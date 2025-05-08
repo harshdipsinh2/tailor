@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Popconfirm, message, Card, Spin, Space, Input } from "antd";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { getAllMeasurements , deleteMeasurement } from "../api/AdminApi"; 
+import { getAllMeasurements, deleteMeasurement, getAllCustomers } from "../api/AdminApi";
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
   const [filteredMeasurements, setFilteredMeasurements] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [customers, setCustomers] = useState({});
 
   useEffect(() => {
     fetchMeasurements();
@@ -16,12 +17,22 @@ const Measurements = () => {
   const fetchMeasurements = async () => {
     setLoading(true);
     try {
-      const data = await getAllMeasurements();
-  
-      // Normalize PascalCase keys to camelCase (adjust this to match your backend field names)
-      const normalized = data.map((m) => ({
+      const [measurementsData, customersData] = await Promise.all([
+        getAllMeasurements(),
+        getAllCustomers()
+      ]);
+
+      // Create customers lookup object
+      const customersMap = {};
+      customersData.forEach(customer => {
+        customersMap[customer.CustomerId] = customer.FullName;
+      });
+      setCustomers(customersMap);
+
+      // Update normalized data to show only customer name
+      const normalized = measurementsData.map((m) => ({
         measurementID: m.MeasurementID,
-        customerName: m.CustomerName,
+        customerName: customersMap[m.CustomerId] || 'Unknown Customer',
         chest: m.Chest,
         waist: m.Waist,
         hip: m.Hip,
@@ -39,44 +50,60 @@ const Measurements = () => {
         ankle: m.Ankle,
         calf: m.Calf,
       }));
-  
+
       setMeasurements(normalized);
       setFilteredMeasurements(normalized);
     } catch (error) {
-      console.error("Error loading measurements:", error);
+      console.error("Error loading data:", error);
       message.error("Failed to load measurements.");
     } finally {
       setLoading(false);
     }
   };
-  
 
-useEffect(() => {
-  const filteredData = measurements.filter((measurement) =>
-    (measurement.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    Object.values(measurement).some(
-      (value) =>
-        typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
-  setFilteredMeasurements(filteredData);
-}, [searchTerm, measurements]);
-
+  useEffect(() => {
+    const filteredData = measurements.filter((measurement) =>
+      (measurement.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      Object.values(measurement).some(
+        (value) =>
+          typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setFilteredMeasurements(filteredData);
+  }, [searchTerm, measurements]);
 
   const handleDeleteMeasurement = async (measurementId) => {
     try {
-      await deleteMeasurement(measurementId);
-      setMeasurements((prev) => prev.filter((m) => m.measurementID !== measurementId));
-      message.success("Measurement deleted successfully!");
+        setLoading(true);
+        // Log the measurementId being sent
+        console.log('Deleting measurement:', measurementId);
+        
+        await deleteMeasurement(measurementId);
+        
+        // Update local state after successful deletion
+        setMeasurements(prev => prev.filter(m => m.measurementID !== measurementId));
+        setFilteredMeasurements(prev => prev.filter(m => m.measurementID !== measurementId));
+        
+        message.success("Measurement deleted successfully!");
+        
+        // Optionally refresh the data
+        await fetchMeasurements();
     } catch (error) {
-      console.error("Delete failed:", error);
-      message.error("Failed to delete measurement.");
+        console.error("Delete failed:", error);
+        message.error(error.message || "Failed to delete measurement");
+    } finally {
+        setLoading(false);
     }
-  };
-  
+};
 
   const columns = [
-    { title: "Customer Name", dataIndex: "customerName", key: "customerName" },
+    {
+      title: "Customer",
+      dataIndex: "customerName",
+      key: "customerName",
+      // Simplified render to only show the name
+      render: (text) => <span>{text}</span>
+    },
     { title: "Chest", dataIndex: "chest", key: "chest" },
     { title: "Waist", dataIndex: "waist", key: "waist" },
     { title: "Hip", dataIndex: "hip", key: "hip" },
@@ -96,16 +123,18 @@ useEffect(() => {
     {
       title: "Actions",
       key: "actions",
-      render: (measurement) => (
+      render: (record) => (
         <Popconfirm
-          title="Are you sure you want to delete this measurement?"
-          onConfirm={() => handleDeleteMeasurement(measurement.measurementID)}
-          okText="Yes"
-          cancelText="No"
+            title="Delete Measurement"
+            description="Are you sure you want to delete this measurement?"
+            onConfirm={() => handleDeleteMeasurement(record.measurementID)}
+            okText="Yes"
+            cancelText="No"
+            okButtonProps={{ danger: true }}
         >
-          <Button danger icon={<DeleteOutlined />}>
-            Delete
-          </Button>
+            <Button danger icon={<DeleteOutlined />}>
+                Delete
+            </Button>
         </Popconfirm>
       ),
     },

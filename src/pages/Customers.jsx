@@ -11,6 +11,7 @@ import {
   getAllCustomers,
   editCustomer,
   deleteCustomer,
+  addMeasurement
 } from "../api/AdminApi";
 
 
@@ -81,12 +82,25 @@ const Customers = () => {
     }
   };
 
-  const handleAddMeasurements = (id) => {
-    setCustomerID(id);
-    setShowMeasurement(true);
-    form.resetFields();
-    setShow(true);
+  const handleAddMeasurements = async (id) => {
+    try {
+      setLoading(true);
+      // Log the customerId being used
+      console.log('Adding measurements for customer:', id);
+      
+      setCustomerID(id);
+      setShowMeasurement(true);
+      form.resetFields();
+      setShow(true);
+    } catch (error) {
+      console.error("Failed to prepare measurement form:", error);
+      message.error("Failed to load measurement form");
+      setShow(false);
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   const handleClose = () => setShow(false);
 
@@ -102,19 +116,66 @@ const Customers = () => {
 
   const handleEditSubmit = async (values) => {
     try {
+      setLoading(true);
+
       if (showMeasurement) {
-        // Simulate addMeasurement API here
+        // Format measurement data with proper casing
+        const measurementData = {
+          CustomerId: customerId,
+          MeasurementData: {
+            Chest: parseFloat(values.chest) || 0,
+            Waist: parseFloat(values.waist) || 0,
+            Hip: parseFloat(values.hip) || 0,
+            Shoulder: parseFloat(values.shoulder) || 0,
+            SleeveLength: parseFloat(values.sleeveLength) || 0,
+            TrouserLength: parseFloat(values.trouserLength) || 0,
+            Inseam: parseFloat(values.inseam) || 0,
+            Thigh: parseFloat(values.thigh) || 0,
+            Neck: parseFloat(values.neck) || 0,
+            Sleeve: parseFloat(values.sleeve) || 0,
+            Arms: parseFloat(values.arms) || 0,
+            Bicep: parseFloat(values.bicep) || 0,
+            Forearm: parseFloat(values.forearm) || 0,
+            Wrist: parseFloat(values.wrist) || 0,
+            Ankle: parseFloat(values.ankle) || 0,
+            Calf: parseFloat(values.calf) || 0
+          }
+        };
+  
+        // Validate measurements
+        const hasValues = Object.values(measurementData.MeasurementData)
+          .some(val => val > 0);
+        
+        if (!hasValues) {
+          throw new Error('Please enter at least one measurement');
+        }
+  
+        // Log the data being sent
+        console.log('Sending measurement data:', measurementData);
+  
+        // Call API and get response
+        const response = await addMeasurement(customerId, measurementData);
+        
         message.success("Measurement added successfully!");
+        
+        // Navigate to measurements page with the new measurement
+        navigate('/measurements');
       } else {
+        // Handle customer edit
         await editCustomer(customerId, values);
         message.success("Customer updated successfully!");
-        setCustomers((prev) =>
-          prev.map((c) => c.customerId === customerId ? { ...c, ...values } : c)
+        setCustomers(prev =>
+          prev.map(c => c.customerId === customerId ? { ...c, ...values } : c)
         );
       }
+  
       setShow(false);
-    } catch (err) {
-      message.error("Failed to update customer");
+      form.resetFields();
+    } catch (error) {
+      console.error('Submission error:', error);
+      message.error(error.message || "Failed to submit");
+    } finally {
+      setLoading(false);
     }
   };
 

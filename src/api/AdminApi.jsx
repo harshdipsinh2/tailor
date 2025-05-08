@@ -58,14 +58,42 @@ export const deleteCustomer = async (customerId) => {
     }
 };
 
+// Add function to get customer details
+export const getCustomerById = async (customerId) => {
+    try {
+        const response = await api.get(`${API_BASE_URL}/GetCustomer`, {
+            params: { customerId }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching customer:', error);
+        throw error;
+    }
+};
+
 // Measurements
 export const addMeasurement = async (customerId, measurementData) => {
     try {
-        await api.post(`${API_BASE_URL}/AddMeasurement`, measurementData, { params: { customerId } });
+      // Log the data being sent
+      console.log('Adding measurement for customer:', customerId, measurementData);
+      
+      const response = await api.post(
+        `${API_BASE_URL}/AddMeasurement`,
+        measurementData,
+        {
+          params: { customerId }
+        }
+      );
+  
+      if (response.status === 200 || response.status === 201) {
+        return response.data;
+      }
+      throw new Error(response.data?.message || 'Failed to add measurement');
     } catch (error) {
-        throw new Error('Error adding measurement: ' + error.message);
+      console.error('Add measurement error:', error.response?.data || error);
+      throw new Error(error.response?.data?.message || 'Failed to add measurement');
     }
-};
+  };
 
 export const getMeasurement = async (customerId) => {
     try {
@@ -76,13 +104,22 @@ export const getMeasurement = async (customerId) => {
     }
 };
 
-export const deleteMeasurement = async (measurementId) => {
+// AdminApi.jsx
+export const deleteMeasurement = async (MeasurementID) => {
     try {
-        await api.delete(`${API_BASE_URL}/DeleteMeasurement`, { params: { measurementId } });
+      const response = await api.delete(
+        `https://localhost:7252/api/Admin/DeleteMeasurement`,
+        {
+          params: { MeasurementID } // 👈 Pass as query param
+        }
+      );
+      return response.data;
     } catch (error) {
-        throw new Error('Error deleting measurement: ' + error.message);
+      console.error("Delete measurement error:", error);
+      throw new Error(error.response?.data?.message || "Measurement not found.");
     }
-};
+  };
+  
 
 export const getAllMeasurements = async () => {
     try {
@@ -215,13 +252,39 @@ export const getFabricStockById = async (id) => {
 // Orders
 export const createOrder = async (orderData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/Order`, orderData);
+      // Include ID fields in query params and rest in request body
+      const queryParams = {
+        customerId: orderData.CustomerId,
+        productId: orderData.ProductId,
+        fabricTypeId: orderData.FabricTypeId,
+        assignedTo: orderData.AssignedTo || 0
+      };
+  
+      // Create request body for remaining data
+      const requestBody = {
+        FabricLength: orderData.FabricLength,
+        Quantity: orderData.Quantity,
+        OrderDate: orderData.OrderDate,
+        CompletionDate: orderData.CompletionDate,
+        OrderStatus: orderData.OrderStatus,
+        PaymentStatus: orderData.PaymentStatus
+      };
+  
+      const response = await api.post(`${API_BASE_URL}/Create-Order`, requestBody, {
+        params: queryParams
+      });
+  
+      if (response.status === 200 || response.status === 201) {
         return response.data;
+      }
+  
+      throw new Error(response.data?.title || 'Error creating order');
     } catch (error) {
-        console.error('API Error:', error.response?.data);
-        throw new Error('Error creating order: ' + (error.response?.data?.message || error.message));
+      console.error('API Error:', error.response?.data || error);
+      const errorMessage = error.response?.data?.title || error.message;
+      throw new Error(`Error creating order: ${errorMessage}`);
     }
-};
+  };
 
 export const updateOrder = async (orderId, orderData) => {
     try {

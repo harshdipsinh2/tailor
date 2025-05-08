@@ -6,9 +6,10 @@ import {
   FaClipboardList,
   FaUserTie,
   FaClock,
+  FaMoneyBillWave,
 } from "react-icons/fa";
 import "../Css/Dashboard.css";
-import { getSummary, getAllOrders } from "../api/AdminApi";
+import { getSummary, getAllOrders, getRevenue } from "../api/AdminApi";
 
 const Dashboard = () => {
   const [summary, setSummary] = useState({
@@ -17,25 +18,30 @@ const Dashboard = () => {
     TotalUsers: 0,
     TotalProducts: 0,
     TotalFabrics: 0,
-    PendingOrders: 0
+    PendingOrders: 0,
+    TotalRevenue: 0,
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [summaryData, ordersData] = await Promise.all([
+        const [summaryData, ordersData, revenueData] = await Promise.all([
           getSummary(),
-          getAllOrders()
+          getAllOrders(),
+          getRevenue(),
         ]);
 
         // Count pending orders
-        const pendingOrdersCount = ordersData.filter(order => 
-          (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending"
+        const pendingOrdersCount = ordersData.filter(
+          (order) =>
+            (order.OrderStatus || order.orderStatus)?.toLowerCase() ===
+            "pending"
         ).length;
 
         setSummary({
           ...summaryData,
-          PendingOrders: pendingOrdersCount
+          PendingOrders: pendingOrdersCount,
+          TotalRevenue: revenueData || 0,
         });
       } catch (error) {
         console.error("Failed to fetch data:", error);
@@ -45,6 +51,12 @@ const Dashboard = () => {
   }, []);
 
   const data = [
+    {
+      title: "Total Revenue",
+      value: `₹${summary.TotalRevenue.toLocaleString()}`,
+      icon: <FaMoneyBillWave className="dashboard-icon text-green-600" />,
+      bgColor: "bg-green-light",
+    },
     {
       title: "Total Customers",
       value: summary.TotalCustomers,

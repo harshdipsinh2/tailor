@@ -86,7 +86,19 @@
 .bg-orange-light { 
     background-color: #FFFAF0;
     color: #C05621;
+
 }
+
+/* Add these styles to your existing CSS */
+.dashboard-card .dashboard-info p.revenue {
+    color: #047857;
+    font-weight: bold;
+  }
+  
+  .dashboard-icon.revenue-icon {
+    color: #047857;
+    background: rgba(4, 120, 87, 0.1);
+  }
 
 /* Update icon container colors to match their sections */
 .bg-blue-light .icon-container { background-color: rgba(43, 108, 176, 0.1); }
