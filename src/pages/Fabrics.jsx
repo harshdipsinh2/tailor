@@ -5,14 +5,18 @@ import {
   getAllFabricTypes,
   addFabricType,
   softDeleteFabricType,
+  updateFabricPrice, // make sure this is imported
 } from "../api/AdminApi";
-
 
 const Fabrics = () => {
   const [fabrics, setFabrics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [form] = Form.useForm();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFabricId, setEditFabricId] = useState(null);
+  const [editPriceForm] = Form.useForm();
 
   useEffect(() => {
     fetchFabrics();
@@ -36,7 +40,7 @@ const Fabrics = () => {
       setLoading(false);
     }
   };
-  
+
   const handleAddFabric = async (values) => {
     try {
       await addFabricType({
@@ -47,13 +51,12 @@ const Fabrics = () => {
       message.success("Fabric added successfully!");
       setShowModal(false);
       form.resetFields();
-      fetchFabrics(); // Refresh the table
+      fetchFabrics();
     } catch (error) {
       console.error("Add fabric error:", error);
       message.error("Failed to add fabric.");
     }
   };
-  
 
   const handleDeleteFabric = async (fabricId) => {
     try {
@@ -65,7 +68,24 @@ const Fabrics = () => {
       message.error("Failed to delete fabric.");
     }
   };
-  
+
+  const handleEditPrice = (fabric) => {
+    setEditFabricId(fabric.fabricId);
+    setIsEditing(true);
+    editPriceForm.setFieldsValue({ pricePerMeter: fabric.pricePerMeter });
+  };
+
+  const handlePriceUpdate = async (values) => {
+    try {
+      await updateFabricPrice(editFabricId, values.pricePerMeter);
+      message.success("Price updated successfully!");
+      setIsEditing(false);
+      fetchFabrics();
+    } catch (error) {
+      console.error("Update price error:", error);
+      message.error("Failed to update price.");
+    }
+  };
 
   return (
     <div className="fabrics-container" style={{ padding: "20px" }}>
@@ -97,6 +117,7 @@ const Fabrics = () => {
               key="actions"
               render={(fabric) => (
                 <Space>
+                  <Button onClick={() => handleEditPrice(fabric)}>Edit Price</Button>
                   <Popconfirm
                     title="Delete Fabric"
                     description="Are you sure you want to delete this fabric?"
@@ -105,10 +126,7 @@ const Fabrics = () => {
                     cancelText="No"
                     okButtonProps={{ danger: true }}
                   >
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                    >
+                    <Button danger icon={<DeleteOutlined />}>
                       Delete
                     </Button>
                   </Popconfirm>
@@ -119,6 +137,7 @@ const Fabrics = () => {
         </Spin>
       </Card>
 
+      {/* Add Fabric Modal */}
       <Modal
         title="Add New Fabric"
         open={showModal}
@@ -157,6 +176,28 @@ const Fabrics = () => {
           <Space>
             <Button type="primary" htmlType="submit">Submit</Button>
             <Button onClick={() => setShowModal(false)}>Cancel</Button>
+          </Space>
+        </Form>
+      </Modal>
+
+      {/* Edit Price Modal */}
+      <Modal
+        title="Edit Fabric Price"
+        open={isEditing}
+        onCancel={() => setIsEditing(false)}
+        footer={null}
+      >
+        <Form form={editPriceForm} layout="vertical" onFinish={handlePriceUpdate}>
+          <Form.Item
+            label="New Price Per Meter"
+            name="pricePerMeter"
+            rules={[{ required: true, message: "Enter the new price!" }]}
+          >
+            <Input type="number" />
+          </Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit">Update</Button>
+            <Button onClick={() => setIsEditing(false)}>Cancel</Button>
           </Space>
         </Form>
       </Modal>

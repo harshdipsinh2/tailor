@@ -78,7 +78,7 @@ const Orders = () => {
       const formattedEmployees = usersRes
         .filter((u) => u.RoleName?.toLowerCase() === "tailor")
         .map((e) => ({
-          employeeId: e.Id || e.id || `employee-${Math.random()}`,
+          employeeId: parseInt(e.Id) || parseInt(e.id), // Ensure integer ID
           fullName: e.Name || e.name || "N/A",
         }));
 
@@ -165,11 +165,16 @@ const Orders = () => {
     try {
       setLoading(true);
 
+      // Validate required fields
+      if (!values.customerId || !values.productId || !values.fabricId) {
+        throw new Error('Please fill in all required fields');
+      }
+
       const orderData = {
-        CustomerId: values.customerId,
-        ProductId: values.productId,
-        FabricId: values.fabricId,
-        AssignedToId: values.assignedToId,
+        CustomerId: parseInt(values.customerId),
+        ProductId: parseInt(values.productId),
+        FabricTypeId: parseInt(values.fabricId),
+        AssignedTo: values.assignedToId ? parseInt(values.assignedToId) : 0, // Ensure integer
         FabricLength: parseFloat(values.fabricLength),
         Quantity: parseInt(values.quantity),
         OrderDate: values.orderDate?.format("YYYY-MM-DD"),
@@ -177,6 +182,16 @@ const Orders = () => {
         OrderStatus: values.orderStatus || "Pending",
         PaymentStatus: values.paymentStatus || "Pending"
       };
+
+      // Validate numeric values
+      if (isNaN(orderData.FabricLength) || orderData.FabricLength <= 0) {
+        throw new Error('Invalid fabric length');
+      }
+      if (isNaN(orderData.Quantity) || orderData.Quantity <= 0) {
+        throw new Error('Invalid quantity');
+      }
+
+      console.log('Sending order data:', orderData);
 
       if (orderId) {
         await updateOrder(orderId, orderData);
@@ -186,13 +201,13 @@ const Orders = () => {
         message.success("Order created successfully!");
       }
 
-      fetchData();
+      await fetchData();
       form.resetFields();
       setOrderID("");
       setShow(false);
     } catch (error) {
       console.error("Error submitting order:", error);
-      message.error("Failed to submit order: " + error.message);
+      message.error(error.message || "Failed to submit order");
     } finally {
       setLoading(false);
     }

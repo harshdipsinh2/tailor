@@ -7,6 +7,7 @@ import {
   FaUserTie,
   FaClock,
   FaMoneyBillWave,
+  FaCheckCircle, // Add this import for completed orders icon
 } from "react-icons/fa";
 import "../Css/Dashboard.css";
 import { getSummary, getAllOrders, getRevenue } from "../api/AdminApi";
@@ -19,6 +20,7 @@ const Dashboard = () => {
     TotalProducts: 0,
     TotalFabrics: 0,
     PendingOrders: 0,
+    CompletedOrders: 0, // Add this state
     TotalRevenue: 0,
   });
 
@@ -31,16 +33,22 @@ const Dashboard = () => {
           getRevenue(),
         ]);
 
-        // Count pending orders
+        // Count pending and completed orders
         const pendingOrdersCount = ordersData.filter(
           (order) =>
-            (order.OrderStatus || order.orderStatus)?.toLowerCase() ===
-            "pending"
+            (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending"
+        ).length;
+
+        const completedOrdersCount = ordersData.filter(
+          (order) =>
+            (order.OrderStatus || order.orderStatus)?.toLowerCase() === "completed" &&
+            (order.PaymentStatus || order.paymentStatus)?.toLowerCase() === "completed"
         ).length;
 
         setSummary({
           ...summaryData,
           PendingOrders: pendingOrdersCount,
+          CompletedOrders: completedOrdersCount,
           TotalRevenue: revenueData || 0,
         });
       } catch (error) {
@@ -92,6 +100,12 @@ const Dashboard = () => {
       value: summary.PendingOrders,
       icon: <FaClock className="dashboard-icon text-orange-500" />,
       bgColor: "bg-orange-light",
+    },
+    {
+      title: "Completed Orders",
+      value: summary.CompletedOrders,
+      icon: <FaCheckCircle className="dashboard-icon text-green-500" />,
+      bgColor: "bg-green-light",
     },
   ];
 

@@ -85,9 +85,13 @@ const Customers = () => {
   const handleAddMeasurements = async (id) => {
     try {
       setLoading(true);
-      // Log the customerId being used
-      console.log('Adding measurements for customer:', id);
+      console.log('Setting up measurements for customer:', id);
       
+      if (!id) {
+        throw new Error('Customer ID is required');
+      }
+  
+      // Store the customer ID
       setCustomerID(id);
       setShowMeasurement(true);
       form.resetFields();
@@ -117,48 +121,49 @@ const Customers = () => {
   const handleEditSubmit = async (values) => {
     try {
       setLoading(true);
-
+  
       if (showMeasurement) {
-        // Format measurement data with proper casing
+        // Ensure we have a valid customerId
+        if (!customerId) {
+          throw new Error('Customer ID is required');
+        }
+  
+        console.log('Submitting measurement for customer:', customerId);
+  
+        // Format measurement data
         const measurementData = {
-          CustomerId: customerId,
-          MeasurementData: {
-            Chest: parseFloat(values.chest) || 0,
-            Waist: parseFloat(values.waist) || 0,
-            Hip: parseFloat(values.hip) || 0,
-            Shoulder: parseFloat(values.shoulder) || 0,
-            SleeveLength: parseFloat(values.sleeveLength) || 0,
-            TrouserLength: parseFloat(values.trouserLength) || 0,
-            Inseam: parseFloat(values.inseam) || 0,
-            Thigh: parseFloat(values.thigh) || 0,
-            Neck: parseFloat(values.neck) || 0,
-            Sleeve: parseFloat(values.sleeve) || 0,
-            Arms: parseFloat(values.arms) || 0,
-            Bicep: parseFloat(values.bicep) || 0,
-            Forearm: parseFloat(values.forearm) || 0,
-            Wrist: parseFloat(values.wrist) || 0,
-            Ankle: parseFloat(values.ankle) || 0,
-            Calf: parseFloat(values.calf) || 0
-          }
+          Chest: parseFloat(values.chest) || 0,
+          Waist: parseFloat(values.waist) || 0,
+          Hip: parseFloat(values.hip) || 0,
+          Shoulder: parseFloat(values.shoulder) || 0,
+          SleeveLength: parseFloat(values.sleeveLength) || 0,
+          TrouserLength: parseFloat(values.trouserLength) || 0,
+          Inseam: parseFloat(values.inseam) || 0,
+          Thigh: parseFloat(values.thigh) || 0,
+          Neck: parseFloat(values.neck) || 0,
+          Sleeve: parseFloat(values.sleeve) || 0,
+          Arms: parseFloat(values.arms) || 0,
+          Bicep: parseFloat(values.bicep) || 0,
+          Forearm: parseFloat(values.forearm) || 0,
+          Wrist: parseFloat(values.wrist) || 0,
+          Ankle: parseFloat(values.ankle) || 0,
+          Calf: parseFloat(values.calf) || 0
         };
   
-        // Validate measurements
-        const hasValues = Object.values(measurementData.MeasurementData)
+        // Validate that at least one measurement is entered
+        const hasValues = Object.values(measurementData)
           .some(val => val > 0);
-        
+  
         if (!hasValues) {
           throw new Error('Please enter at least one measurement');
         }
   
-        // Log the data being sent
-        console.log('Sending measurement data:', measurementData);
-  
-        // Call API and get response
-        const response = await addMeasurement(customerId, measurementData);
-        
+        // Call API with correct numeric CustomerId
+        const numericCustomerId = Number(customerId);
+        const response = await addMeasurement(numericCustomerId, measurementData);
+
+        console.log('Measurement added:', response);
         message.success("Measurement added successfully!");
-        
-        // Navigate to measurements page with the new measurement
         navigate('/measurements');
       } else {
         // Handle customer edit
@@ -178,7 +183,7 @@ const Customers = () => {
       setLoading(false);
     }
   };
-
+  
   const measurementFields = [
     "chest", "waist", "hip", "shoulder", "sleeveLength",
     "trouserLength", "inseam", "thigh", "neck", "sleeve",
@@ -332,6 +337,6 @@ const Customers = () => {
       </Modal>
     </div>
   );
-};
+}; // Add this closing brace
 
 export default Customers;

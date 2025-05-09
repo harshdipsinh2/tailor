@@ -74,26 +74,24 @@ export const getCustomerById = async (customerId) => {
 // Measurements
 export const addMeasurement = async (customerId, measurementData) => {
     try {
-      // Log the data being sent
       console.log('Adding measurement for customer:', customerId, measurementData);
-      
+  
       const response = await api.post(
-        `${API_BASE_URL}/AddMeasurement`,
+        `https://localhost:7252/api/Admin/AddMeasurement`, // ✅ Your endpoint
         measurementData,
         {
-          params: { customerId }
+          params: { CustomerId: customerId }, // ✅ Pass as query param
         }
       );
   
-      if (response.status === 200 || response.status === 201) {
-        return response.data;
-      }
-      throw new Error(response.data?.message || 'Failed to add measurement');
+      return response.data;
     } catch (error) {
       console.error('Add measurement error:', error.response?.data || error);
       throw new Error(error.response?.data?.message || 'Failed to add measurement');
     }
   };
+  
+  
 
 export const getMeasurement = async (customerId) => {
     try {
@@ -251,40 +249,31 @@ export const getFabricStockById = async (id) => {
 
 // Orders
 export const createOrder = async (orderData) => {
-    try {
-      // Include ID fields in query params and rest in request body
-      const queryParams = {
-        customerId: orderData.CustomerId,
-        productId: orderData.ProductId,
-        fabricTypeId: orderData.FabricTypeId,
-        assignedTo: orderData.AssignedTo || 0
-      };
-  
-      // Create request body for remaining data
-      const requestBody = {
-        FabricLength: orderData.FabricLength,
-        Quantity: orderData.Quantity,
-        OrderDate: orderData.OrderDate,
-        CompletionDate: orderData.CompletionDate,
-        OrderStatus: orderData.OrderStatus,
-        PaymentStatus: orderData.PaymentStatus
-      };
-  
-      const response = await api.post(`${API_BASE_URL}/Create-Order`, requestBody, {
-        params: queryParams
-      });
-  
-      if (response.status === 200 || response.status === 201) {
-        return response.data;
-      }
-  
-      throw new Error(response.data?.title || 'Error creating order');
-    } catch (error) {
-      console.error('API Error:', error.response?.data || error);
-      const errorMessage = error.response?.data?.title || error.message;
-      throw new Error(`Error creating order: ${errorMessage}`);
+  try {
+    console.log('Creating order with data:', orderData);
+    
+    const response = await api.post(`${API_BASE_URL}/Create-Order`, {
+      customerId: orderData.CustomerId,
+      productId: orderData.ProductId,
+      fabricTypeId: orderData.FabricTypeId,
+      assignedTo: orderData.AssignedTo,
+      fabricLength: orderData.FabricLength,
+      quantity: orderData.Quantity,
+      orderDate: orderData.OrderDate,
+      completionDate: orderData.CompletionDate,
+      orderStatus: orderData.OrderStatus,
+      paymentStatus: orderData.PaymentStatus
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      return response.data;
     }
-  };
+    throw new Error(response.data?.message || 'Error creating order');
+  } catch (error) {
+    console.error('API Error:', error.response?.data || error.message);
+    throw new Error(`Error creating order: ${error.response?.data || error.message}`);
+  }
+};
 
 export const updateOrder = async (orderId, orderData) => {
     try {
