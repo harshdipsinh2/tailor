@@ -6,6 +6,7 @@
     "@ant-design/icons": "^5.6.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@react-pdf/renderer": "^4.3.0",
     "antd": "^5.24.4",
     "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
@@ -48,5 +49,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.27.1"
   }
 }

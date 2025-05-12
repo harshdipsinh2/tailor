@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import {
   UserOutlined,
-  TeamOutlined,
   PieChartOutlined,
   AppstoreOutlined,
   OrderedListOutlined,
   LogoutOutlined,
   DownOutlined,
+  TeamOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
@@ -44,12 +45,18 @@ const MainLayout = () => {
   // Handle user logout
   const handleLogout = () => {
     try {
-      localStorage.clear(); // Clear all local storage data
+      // Clear all authentication data
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("isVerified");
+      
       message.success('Logged out successfully');
-      navigate('/login', { replace: true }); // Redirect to login page
+      // Force navigate to login
+      navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout error:', error);
-      message.error('Failed to logout. Please try again.');
+      message.error('Failed to logout');
     }
   };
 
@@ -81,8 +88,8 @@ const MainLayout = () => {
         getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
       ]),
       // Additional management options
-      getItem(<Link to="/employees">Employees</Link>, "10", ),
-      getItem(<Link to="/Calendar">Calendar</Link>, "11", <OrderedListOutlined />),
+      getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
+      getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
     );
   } else if (role === "Tailor") {
     // Tailor sees limited menu items
@@ -197,12 +204,7 @@ const MainLayout = () => {
 
         {/* Main Content */}
         <Content style={{ margin: "0 16px" }}>
-          {/* Breadcrumb Navigation */}
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            <Breadcrumb.Item>
-              {location.pathname.split("/")[1] || "Dashboard"}
-            </Breadcrumb.Item>
-          </Breadcrumb>
+
 
           {/* Content Container */}
           <div

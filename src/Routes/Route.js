@@ -25,13 +25,13 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={!auth.token ? <Login /> : <Navigate to="/otp" />} />
+      <Route path="/login" element={ <Login /> } />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Add OTP route before the protected routes */}
       <Route 
         path="/otp" 
-        element={auth.token ? <Otp /> : <Navigate to="/login" />} 
+        element={ <Otp /> } 
       />
 
       {/* Redirect root to login if not authenticated */}
