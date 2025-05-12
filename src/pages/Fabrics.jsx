@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Popconfirm } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   getAllFabricTypes,
   addFabricType,
@@ -18,9 +18,19 @@ const Fabrics = () => {
   const [editFabricId, setEditFabricId] = useState(null);
   const [editPriceForm] = Form.useForm();
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredFabrics, setFilteredFabrics] = useState([]);
+
   useEffect(() => {
     fetchFabrics();
   }, []);
+
+  useEffect(() => {
+    const filtered = fabrics.filter((fabric) =>
+      fabric.fabricName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredFabrics(filtered);
+  }, [searchQuery, fabrics]);
 
   const fetchFabrics = async () => {
     setLoading(true);
@@ -33,6 +43,7 @@ const Fabrics = () => {
         stockQuantity: f.AvailableStock,
       }));
       setFabrics(formatted);
+      setFilteredFabrics(formatted);
     } catch (error) {
       console.error("Failed to load fabric types:", error);
       message.error("Failed to load fabrics.");
@@ -92,18 +103,27 @@ const Fabrics = () => {
       <Card
         title={<h2>Fabric Records</h2>}
         extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setShowModal(true)}
-          >
-            Add Fabric
-          </Button>
+          <Space>
+            <Input
+              placeholder="Search by Fabric Name"
+              prefix={<SearchOutlined />}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ width: 250 }}
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowModal(true)}
+            >
+              Add Fabric
+            </Button>
+          </Space>
         }
       >
         <Spin spinning={loading}>
           <Table
-            dataSource={fabrics}
+            dataSource={filteredFabrics}
             rowKey="fabricId"
             bordered
             pagination={{ pageSize: 5 }}

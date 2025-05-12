@@ -171,33 +171,36 @@ const Orders = () => {
       }
 
       const orderData = {
-        CustomerId: parseInt(values.customerId),
-        ProductId: parseInt(values.productId),
-        FabricTypeId: parseInt(values.fabricId),
-        AssignedTo: values.assignedToId ? parseInt(values.assignedToId) : 0, // Ensure integer
-        FabricLength: parseFloat(values.fabricLength),
-        Quantity: parseInt(values.quantity),
-        OrderDate: values.orderDate?.format("YYYY-MM-DD"),
-        CompletionDate: values.completionDate?.format("YYYY-MM-DD"),
-        OrderStatus: values.orderStatus || "Pending",
-        PaymentStatus: values.paymentStatus || "Pending"
+        customerId: parseInt(values.customerId),
+        productId: parseInt(values.productId),
+        fabricTypeId: parseInt(values.fabricId),
+        // Fix: Ensure assignedTo is always sent as a number, default to 0 if not selected
+        assignedTo: values.assignedToId ? parseInt(values.assignedToId) : 0,
+        fabricLength: parseFloat(values.fabricLength),
+        quantity: parseInt(values.quantity),
+        orderDate: values.orderDate?.format("YYYY-MM-DD"),
+        completionDate: values.completionDate?.format("YYYY-MM-DD"),
+        orderStatus: values.orderStatus || "Pending",
+        paymentStatus: values.paymentStatus || "Pending"
       };
 
-      // Validate numeric values
-      if (isNaN(orderData.FabricLength) || orderData.FabricLength <= 0) {
+      // Additional validation
+      if (isNaN(orderData.fabricLength) || orderData.fabricLength <= 0) {
         throw new Error('Invalid fabric length');
       }
-      if (isNaN(orderData.Quantity) || orderData.Quantity <= 0) {
+      if (isNaN(orderData.quantity) || orderData.quantity <= 0) {
         throw new Error('Invalid quantity');
       }
 
-      console.log('Sending order data:', orderData);
+      // Log the final payload for debugging
+      console.log('Sending order data:', JSON.stringify(orderData, null, 2));
 
       if (orderId) {
         await updateOrder(orderId, orderData);
         message.success("Order updated successfully!");
       } else {
-        await createOrder(orderData);
+        const response = await createOrder(orderData);
+        console.log('Order creation response:', response);
         message.success("Order created successfully!");
       }
 

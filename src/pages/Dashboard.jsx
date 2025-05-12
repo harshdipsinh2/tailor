@@ -58,56 +58,72 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const data = [
-    {
-      title: "Total Revenue",
-      value: `₹${summary.TotalRevenue.toLocaleString()}`,
-      icon: <FaMoneyBillWave className="dashboard-icon text-green-600" />,
-      bgColor: "bg-green-light",
-    },
-    {
-      title: "Total Customers",
-      value: summary.TotalCustomers,
-      icon: <FaUsers className="dashboard-icon text-blue-500" />,
-      bgColor: "bg-blue-light",
-    },
-    {
-      title: "Total Products",
-      value: summary.TotalProducts,
-      icon: <FaTshirt className="dashboard-icon text-yellow-500" />,
-      bgColor: "bg-yellow-light",
-    },
-    {
-      title: "Total Fabrics",
-      value: summary.TotalFabrics,
-      icon: <FaBoxes className="dashboard-icon text-green-500" />,
-      bgColor: "bg-green-light",
-    },
-    {
-      title: "Total Orders",
-      value: summary.TotalOrders,
-      icon: <FaClipboardList className="dashboard-icon text-purple-500" />,
-      bgColor: "bg-purple-light",
-    },
-    {
-      title: "Total Employees",
-      value: summary.TotalUsers,
-      icon: <FaUserTie className="dashboard-icon text-red-500" />,
-      bgColor: "bg-red-light",
-    },
-    {
-      title: "Pending Orders",
-      value: summary.PendingOrders,
-      icon: <FaClock className="dashboard-icon text-orange-500" />,
-      bgColor: "bg-orange-light",
-    },
-    {
-      title: "Completed Orders",
-      value: summary.CompletedOrders,
-      icon: <FaCheckCircle className="dashboard-icon text-green-500" />,
-      bgColor: "bg-green-light",
-    },
-  ];
+const role = localStorage.getItem("role");
+
+const data = [
+  {
+    key: "revenue",
+    title: "Total Revenue",
+    value: `₹${summary.TotalRevenue.toLocaleString()}`,
+    icon: <FaMoneyBillWave className="dashboard-icon text-green-600" />,
+    bgColor: "bg-green-light",
+  },
+  {
+    key: "customers",
+    title: "Total Customers",
+    value: summary.TotalCustomers,
+    icon: <FaUsers className="dashboard-icon text-blue-500" />,
+    bgColor: "bg-blue-light",
+  },
+  {
+    key: "products",
+    title: "Total Products",
+    value: summary.TotalProducts,
+    icon: <FaTshirt className="dashboard-icon text-yellow-500" />,
+    bgColor: "bg-yellow-light",
+  },
+  {
+    key: "fabrics",
+    title: "Total Fabrics",
+    value: summary.TotalFabrics,
+    icon: <FaBoxes className="dashboard-icon text-green-500" />,
+    bgColor: "bg-green-light",
+  },
+  {
+    key: "orders",
+    title: "Total Orders",
+    value: summary.TotalOrders,
+    icon: <FaClipboardList className="dashboard-icon text-purple-500" />,
+    bgColor: "bg-purple-light",
+  },
+  {
+    key: "employees",
+    title: "Total Employees",
+    value: summary.TotalUsers,
+    icon: <FaUserTie className="dashboard-icon text-red-500" />,
+    bgColor: "bg-red-light",
+  },
+  {
+    key: "pending",
+    title: "Pending Orders",
+    value: summary.PendingOrders,
+    icon: <FaClock className="dashboard-icon text-orange-500" />,
+    bgColor: "bg-orange-light",
+  },
+  {
+    key: "completed",
+    title: "Completed Orders",
+    value: summary.CompletedOrders,
+    icon: <FaCheckCircle className="dashboard-icon text-green-500" />,
+    bgColor: "bg-green-light",
+  },
+].filter((item) => {
+  if (role === "Tailor") {
+    return item.key !== "revenue" && item.key !== "employees";
+  }
+  return true;
+});
+
 
   return (
     <div className="dashboard">

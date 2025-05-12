@@ -14,25 +14,26 @@ import {
   addMeasurement
 } from "../api/AdminApi";
 
-
 const Customers = () => {
-  const [customers, setCustomers] = useState([]);
-  const [filteredCustomers, setFilteredCustomers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [customerId, setCustomerID] = useState("");
-  const [show, setShow] = useState(false);
-  const [showMeasurement, setShowMeasurement] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
+  // State management for customer data and UI controls
+  const [customers, setCustomers] = useState([]); // Stores all customers
+  const [filteredCustomers, setFilteredCustomers] = useState([]); // Stores searched/filtered customers
+  const [searchTerm, setSearchTerm] = useState(""); // Search input value
+  const [customerId, setCustomerID] = useState(""); // Selected customer ID for edit/measurement
+  const [show, setShow] = useState(false); // Controls modal visibility
+  const [showMeasurement, setShowMeasurement] = useState(false); // Toggle between edit and measurement forms
+  const [loading, setLoading] = useState(true); // Loading state for API calls
+  const [form] = Form.useForm(); // Antd form instance
+  const navigate = useNavigate(); // Router navigation
 
+  // Fetch customers data when component mounts
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
         setLoading(true);
         const data = await getAllCustomers();
   
-        // Convert PascalCase to camelCase
+        // Transform API data to match our frontend format
         const validCustomers = data.map(customer => ({
           customerId: customer.CustomerId,
           fullName: customer.FullName || 'N/A',
@@ -57,44 +58,42 @@ const Customers = () => {
     fetchCustomers();
   }, []);
   
-
+  // Filter customers based on search term
   useEffect(() => {
     const filteredData = customers.filter((customer) => {
-        // Add null checks and default values
         const fullName = customer?.fullName || '';
         const phoneNumber = customer?.phoneNumber || '';
         
+        // Search by name or phone number
         return fullName.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
                phoneNumber.toString().includes(searchTerm);
     });
     setFilteredCustomers(filteredData);
-}, [searchTerm, customers]);
+  }, [searchTerm, customers]);
 
+  // Handler for editing customer details
   const handleEditCustomer = (id) => {
     const customer = customers.find((c) => c.customerId === id);
     if (customer) {
-      form.setFieldsValue(customer);
+      form.setFieldsValue(customer); // Pre-fill form with customer data
       setCustomerID(id);
-      setShowMeasurement(false);
+      setShowMeasurement(false); // Ensure we're in edit mode, not measurement mode
       setShow(true);
     } else {
       message.error("Customer not found.");
     }
   };
 
+  // Handler for adding customer measurements
   const handleAddMeasurements = async (id) => {
     try {
       setLoading(true);
-      console.log('Setting up measurements for customer:', id);
       
-      if (!id) {
-        throw new Error('Customer ID is required');
-      }
+      if (!id) throw new Error('Customer ID is required');
   
-      // Store the customer ID
       setCustomerID(id);
-      setShowMeasurement(true);
-      form.resetFields();
+      setShowMeasurement(true); // Switch to measurement form
+      form.resetFields(); // Clear form fields
       setShow(true);
     } catch (error) {
       console.error("Failed to prepare measurement form:", error);
@@ -104,7 +103,6 @@ const Customers = () => {
       setLoading(false);
     }
   };
-  
 
   const handleClose = () => setShow(false);
 
@@ -118,6 +116,7 @@ const Customers = () => {
     }
   };
 
+  // Form submission handler for both edit and measurement forms
   const handleEditSubmit = async (values) => {
     try {
       setLoading(true);
@@ -184,6 +183,7 @@ const Customers = () => {
     }
   };
   
+  // Array of measurement fields for dynamic form generation
   const measurementFields = [
     "chest", "waist", "hip", "shoulder", "sleeveLength",
     "trouserLength", "inseam", "thigh", "neck", "sleeve",
@@ -337,6 +337,6 @@ const Customers = () => {
       </Modal>
     </div>
   );
-}; // Add this closing brace
+};
 
 export default Customers;

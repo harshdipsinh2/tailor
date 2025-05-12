@@ -111,7 +111,7 @@ const Products = () => {
   };
 
   const columns = [
-    { title: 'Product ID', dataIndex: 'ProductID', key: 'ProductID' },
+    // { title: 'Product ID', dataIndex: 'ProductID', key: 'ProductID' },
     { title: 'Name', dataIndex: 'ProductName', key: 'ProductName' },
     {
       title: 'Making Price',

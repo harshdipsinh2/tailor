@@ -1,4 +1,3 @@
-// src/layout/MainLayout.jsx
 import React, { useState } from "react";
 import {
   UserOutlined,
@@ -15,14 +14,14 @@ import image from "../asset/maschine.jpeg";
 import "../Css/Navbar.css";
 import { AuthContext } from "../Contexts/AuthContext";
 
+// Destructure Layout components
 const { Header, Sider, Content } = Layout;
+
+// Get authentication data from context
 const token = AuthContext.token;
 const role = AuthContext.role;
-console.log(role);
 
-console.log(token);
-
-// Helper to generate menu item
+// Helper function to create menu items with consistent structure
 const getItem = (label, key, icon, children, type) => ({
   key,
   icon,
@@ -34,6 +33,7 @@ const getItem = (label, key, icon, children, type) => ({
 });
 
 const MainLayout = () => {
+  // Hooks for navigation and state management
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
@@ -41,45 +41,53 @@ const MainLayout = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  // Handle user logout
   const handleLogout = () => {
     try {
-      localStorage.clear(); // Clear all localStorage items
+      localStorage.clear(); // Clear all local storage data
       message.success('Logged out successfully');
-      navigate('/login', { replace: true }); // Use replace to prevent going back
+      navigate('/login', { replace: true }); // Redirect to login page
     } catch (error) {
       console.error('Logout error:', error);
       message.error('Failed to logout. Please try again.');
     }
   };
 
+  // Get user role from local storage
   const role = localStorage.getItem("role");
-  console.log(role);
-  
 
-  // Role-based sidebar menu items
+  // Initialize sidebar menu items with Dashboard (available to all roles)
   let items = [getItem(<Link to="/dashboard">Dashboard</Link>, "1", <PieChartOutlined />)];
 
+  // Add role-specific menu items
   if (role === "Admin" || role === "Manager") {
+    // Admin and Manager see all menu items
     items.push(
+      // Customer Management section
       getItem("Customer Management", "sub1", <UserOutlined />, [
         getItem(<Link to="/customer-registration">Registration</Link>, "2"),
         getItem(<Link to="/customers">Customers</Link>, "3"),
         getItem(<Link to="/measurements">Measurements</Link>, "4"),
       ]),
+      // Product Management section
       getItem("Product Management", "sub2", <AppstoreOutlined />, [
         getItem(<Link to="/products">Products</Link>, "5"),
         getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
         getItem(<Link to="/FabricStock">Fabric Stock</Link>, "7"),
       ]),
+      // Order Management section
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
         getItem(<Link to="/orders">Orders</Link>, "8"),
         getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
       ]),
+      // Additional management options
       getItem(<Link to="/employees">Employees</Link>, "10", ),
       getItem(<Link to="/Calendar">Calendar</Link>, "11", <OrderedListOutlined />),
     );
   } else if (role === "Tailor") {
+    // Tailor sees limited menu items
     items.push(
+      // Tailor-specific sections
       getItem("Measurements", "sub1", <UserOutlined />, [
         getItem(<Link to="/measurements">Measurements</Link>, "4"),
       ]),
@@ -93,13 +101,16 @@ const MainLayout = () => {
     );
   }
 
+  // Main layout structure
   return (
     <Layout style={{ minHeight: "100vh" }}>
+      {/* Collapsible Sidebar */}
       <Sider
         collapsible
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
+        {/* Logo container */}
         <div
           style={{
             height: 64,
@@ -115,6 +126,7 @@ const MainLayout = () => {
             style={{ borderRadius: "50%" }}
           />
         </div>
+        {/* Navigation Menu */}
         <Menu
           theme="dark"
           mode="inline"
@@ -123,7 +135,9 @@ const MainLayout = () => {
         />
       </Sider>
 
+      {/* Main Content Area */}
       <Layout>
+        {/* Header with user profile */}
         <Header
           style={{
             padding: 0,
@@ -134,16 +148,29 @@ const MainLayout = () => {
             color: "#fff",
           }}
         >
-          <span
-            style={{ paddingLeft: 20, fontSize: 18, fontWeight: "bold" }}
-          >
+          {/* Application Title */}
+          <span style={{ paddingLeft: 20, fontSize: 18, fontWeight: "bold" }}>
             Tailor Management System ✃
           </span>
 
+          {/* User Profile Dropdown */}
           <div style={{ paddingRight: 20 }}>
             <Dropdown
               menu={{
                 items: [
+                  // Role display
+                  {
+                    key: "role",
+                    label: (
+                      <span style={{ color: '#1890ff' }}>
+                        <TeamOutlined style={{ marginRight: 8 }} />
+                        Role: {role || 'N/A'}
+                      </span>
+                    ),
+                    disabled: true
+                  },
+                  { type: 'divider' },
+                  // Logout option
                   {
                     key: "logout",
                     label: (
@@ -161,19 +188,23 @@ const MainLayout = () => {
             >
               <Space style={{ cursor: "pointer" }}>
                 <Avatar icon={<UserOutlined />} />
+                <span style={{ color: '#fff' }}>{role || 'User'}</span>
                 <DownOutlined />
               </Space>
             </Dropdown>
           </div>
         </Header>
 
+        {/* Main Content */}
         <Content style={{ margin: "0 16px" }}>
+          {/* Breadcrumb Navigation */}
           <Breadcrumb style={{ margin: "16px 0" }}>
             <Breadcrumb.Item>
               {location.pathname.split("/")[1] || "Dashboard"}
             </Breadcrumb.Item>
           </Breadcrumb>
 
+          {/* Content Container */}
           <div
             style={{
               padding: 24,
