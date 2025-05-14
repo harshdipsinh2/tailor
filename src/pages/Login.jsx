@@ -4,6 +4,8 @@ import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { login as apiLogin } from '../api/AuthApi';
 import { AuthContext } from '../Contexts/AuthContext';
+import image from '../asset/8636.jpg';
+
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -40,23 +42,19 @@ const Login = () => {
       setLoading(false);
     }
   };
-
-  return (
-    <Layout style={{ minHeight: '100vh', background: colorBgContainer }}>
-      <Content
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '24px',
-        }}
-      >
+return (
+  <Layout style={{ minHeight: '100vh', background: colorBgContainer }}>
+    <Content style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+      
+      {/* Left side: login form */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Card
           style={{
             width: '100%',
             maxWidth: '420px',
             borderRadius: borderRadiusLG,
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            margin: '2rem'
           }}
         >
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -97,13 +95,20 @@ const Login = () => {
             </Form.Item>
 
             <div style={{ textAlign: 'center' }}>
-              <Link to="/forgot-password">Forgot password?</Link>
             </div>
           </Form>
         </Card>
-      </Content>
-    </Layout>
-  );
+      </div>
+
+      {/* Right side: image */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+        <img src={image} alt="Tailor Illustration" style={{ width: '80%', maxHeight: '500px', objectFit: 'contain' }} />
+      </div>
+      
+    </Content>
+  </Layout>
+);
+
 };
 
 export default Login;

@@ -179,14 +179,14 @@ const Employees = () => {
                   <Button
                     type="primary"
                     icon={<EditOutlined />}
-                    onClick={() => handleEditEmployee(employee.employeeId)}
+                    onClick={() => handleEditEmployee(employee.id)}  // Changed from employee.employeeId
                   >
                     Edit
                   </Button>
                   <Popconfirm
                     title="Delete Employee"
                     description="Are you sure you want to delete this employee?"
-                    onConfirm={() => handleDeleteEmployee(employee.employeeId)}
+                    onConfirm={() => handleDeleteEmployee(employee.id)}  // Changed from employee.employeeId
                     okText="Yes"
                     cancelText="No"
                     okButtonProps={{ danger: true }}
