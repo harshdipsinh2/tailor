@@ -63,7 +63,6 @@ const MainLayout = () => {
   // Get user role from local storage
   const role = localStorage.getItem("role");
 
-  // Initialize sidebar menu items with Dashboard (available to all roles)
   let items = [getItem(<Link to="/dashboard">Dashboard</Link>, "1", <PieChartOutlined />)];
 
   // Add role-specific menu items

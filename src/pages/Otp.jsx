@@ -3,6 +3,7 @@ import { Button, Card, Form, Input, Layout, Typography, message, Space } from 'a
 import { MailOutlined, KeyOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { sendOTP, verifyOTP } from '../api/AuthApi';
+import Image from '../asset/20945597.jpg';
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -57,20 +58,21 @@ const Otp = () => {
     }
   };
 
-  return (
-    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      <Content style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '24px'
-      }}>
-        <Card style={{
-          width: '100%',
-          maxWidth: '420px',
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-        }}>
+return (
+  <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
+    <Content style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+      
+      {/* Left side: OTP form */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Card
+          style={{
+            width: '100%',
+            maxWidth: '420px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            margin: '2rem'
+          }}
+        >
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <Title level={3}>Email Verification</Title>
             <p>{otpSent ? 'Enter the OTP sent to your email' : 'Click below to receive OTP'}</p>
@@ -129,9 +131,17 @@ const Otp = () => {
             </Form>
           )}
         </Card>
-      </Content>
-    </Layout>
-  );
+      </div>
+
+      {/* Right side: Image */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem' }}>
+        <img src={Image} alt="OTP Illustration" style={{ width: '80%', maxHeight: '500px', objectFit: 'contain' }} />
+      </div>
+
+    </Content>
+  </Layout>
+);
+
 };
 
 export default Otp;

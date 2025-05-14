@@ -11,6 +11,7 @@ const Employees = () => {
   const [loading, setLoading] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [form] = Form.useForm();
+  const userRole = localStorage.getItem("role")?.toLowerCase();
 
   // Fetch employees on component mount
   useEffect(() => {
@@ -113,17 +114,19 @@ const Employees = () => {
               allowClear
               style={{ width: "250px" }}
             />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setIsAddModalVisible(true);
-                setEmployeeID("");
-                form.resetFields();
-              }}
-            >
-              Add Employee
-            </Button>
+            {userRole === 'admin' && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setIsAddModalVisible(true);
+                  setEmployeeID("");
+                  form.resetFields();
+                }}
+              >
+                Add Employee
+              </Button>
+            )}
           </Space>
         }
       >
