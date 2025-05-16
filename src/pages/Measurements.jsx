@@ -24,23 +24,6 @@ const Measurements = () => {
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState({});
 
-  const calculateFabricRequirement = (measurements) => {
-    const inchToMeter = 0.0254;
-
-    const shirtLength = 30; // standard shirt length
-    const upperBodyFabric =
-      (shirtLength + (Number(measurements.sleeveLength) || 24) + 6) *
-      inchToMeter;
-
-    const lowerBodyFabric =
-      ((Number(measurements.trouserLength) || 40) + 10) * inchToMeter;
-
-    const totalFabric = upperBodyFabric + lowerBodyFabric;
-    const fabricWithAllowance = totalFabric * 1.15;
-
-    return Math.ceil(fabricWithAllowance * 10) / 10;
-  };
-
   const fetchMeasurements = async () => {
     setLoading(true);
     try {
@@ -74,14 +57,8 @@ const Measurements = () => {
         wrist: m.Wrist,
         ankle: m.Ankle,
         calf: m.Calf,
-        estimatedFabric: calculateFabricRequirement({
-          chest: m.Chest,
-          shoulder: m.Shoulder,
-          sleeveLength: m.SleeveLength,
-          waist: m.Waist,
-          hip: m.Hip,
-          trouserLength: m.TrouserLength,
-        }),
+        upperBodyMeasurement: m.UpperBodyMeasurement,
+        lowerBodyMeasurement: m.LowerBodyMeasurement,
       }));
 
       setMeasurements(normalized);
@@ -158,14 +135,18 @@ const Measurements = () => {
     { title: "Wrist (in)", dataIndex: "wrist", key: "wrist" },
     { title: "Ankle (in)", dataIndex: "ankle", key: "ankle" },
     { title: "Calf (in)", dataIndex: "calf", key: "calf" },
-{
-  title: "Estimated Fabric (m)",
-  dataIndex: "estimatedFabric",
-  key: "estimatedFabric",
-  render: (value) => value ? `${value} meters` : "N/A",
-  width: 160,
-}
-,
+    {
+      title: "Upper Body Fabric (m)",
+      dataIndex: "upperBodyMeasurement",
+      key: "upperBodyMeasurement",
+      render: (value) => value ? `${value} meters` : "N/A",
+    },
+    {
+      title: "Lower Body Fabric (m)",
+      dataIndex: "lowerBodyMeasurement",
+      key: "lowerBodyMeasurement",
+      render: (value) => value ? `${value} meters` : "N/A",
+    },
     {
       title: "Actions",
       key: "actions",

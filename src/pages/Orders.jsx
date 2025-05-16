@@ -27,6 +27,7 @@ import {
   getAllFabricTypes,
   createOrder,
   updateOrder,
+  getAllMeasurements
 } from "../api/AdminApi";
 import { getAllUsers } from "../api/UserApi";
 
@@ -43,18 +44,40 @@ const Orders = () => {
   const [products, setProducts] = useState([]);
   const [fabrics, setFabrics] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [measurements, setMeasurements] = useState([]); // Add this state
   const [form] = Form.useForm();
 
+  // Add this function to calculate fabric requirement
+  const calculateFabricRequirement = (measurements) => {
+    const inchToMeter = 0.0254;
+
+    const shirtLength = 30; // standard shirt length
+    const upperBodyFabric =
+      (shirtLength + (Number(measurements.sleeveLength) || 24) + 6) *
+      inchToMeter;
+
+    const lowerBodyFabric =
+      ((Number(measurements.trouserLength) || 40) + 10) * inchToMeter;
+
+    const totalFabric = upperBodyFabric + lowerBodyFabric;
+    const fabricWithAllowance = totalFabric * 1.15;
+
+    return Math.ceil(fabricWithAllowance * 10) / 10;
+  };
+
+  // Modify fetchData to include measurements
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [ordersRes, customersRes, productsRes, fabricsRes, usersRes] = await Promise.all([
-        getAllOrders(),
-        getAllCustomers(),
-        getAllProducts(),
-        getAllFabricTypes(),
-        getAllUsers(),
-      ]);
+      const [ordersRes, customersRes, productsRes, fabricsRes, usersRes, measurementsRes] = 
+        await Promise.all([
+          getAllOrders(),
+          getAllCustomers(),
+          getAllProducts(),
+          getAllFabricTypes(),
+          getAllUsers(),
+          getAllMeasurements(), // Add this API call
+        ]);
 
       // Ensure unique IDs in customer data
       const formattedCustomers = customersRes.map((c) => ({
@@ -112,6 +135,8 @@ const Orders = () => {
       setEmployees(formattedEmployees);
       setOrders(formattedOrders);
       setFilteredOrders(formattedOrders);
+      // Store measurements data
+      setMeasurements(measurementsRes);
     } catch (error) {
       console.error("Error fetching data:", error);
       message.error("Failed to fetch data: " + error.message);
@@ -158,6 +183,23 @@ const Orders = () => {
     setOrders((prev) => prev.filter((o) => o.orderId !== id));
     setFilteredOrders((prev) => prev.filter((o) => o.orderId !== id));
     message.success("Order deleted (mock)!");
+  };
+
+  // Add this function to handle customer selection
+  const handleCustomerSelect = (customerId) => {
+    const customerMeasurement = measurements.find(m => m.CustomerId === customerId);
+    if (customerMeasurement) {
+      const estimatedFabric = calculateFabricRequirement({
+        chest: customerMeasurement.Chest,
+        shoulder: customerMeasurement.Shoulder,
+        sleeveLength: customerMeasurement.SleeveLength,
+        waist: customerMeasurement.Waist,
+        hip: customerMeasurement.Hip,
+        trouserLength: customerMeasurement.TrouserLength,
+      });
+      
+      form.setFieldValue('fabricLength', estimatedFabric);
+    }
   };
 
   // Update handleSubmit to match API expectations
@@ -323,7 +365,10 @@ const Orders = () => {
             name="customerId"
             rules={[{ required: true, message: "Please select a customer!" }]}
           >
-            <Select placeholder="Select Customer">
+            <Select 
+              placeholder="Select Customer"
+              onChange={handleCustomerSelect}
+            >
               {customers.map((c) => (
                 <Option key={c.customerId} value={c.customerId}>
                   {c.fullName}
@@ -375,7 +420,11 @@ const Orders = () => {
             name="fabricLength"
             rules={[{ required: true, message: "Please enter fabric length!" }]}
           >
-            <Input type="number" />
+            <Input 
+              type="number" 
+              step="0.1"
+              addonAfter="meters"
+            />
           </Form.Item>
 
           <Form.Item
