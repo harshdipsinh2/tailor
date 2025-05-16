@@ -115,3 +115,17 @@
 .bg-purple-light .dashboard-icon { color: #6B46C1; }
 .bg-red-light .dashboard-icon { color: #C53030; }
 .bg-orange-light .dashboard-icon { color: #C05621; }
+
+.revenue-chart {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.revenue-chart h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.5rem;
+}
