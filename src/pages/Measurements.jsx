@@ -1,7 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Popconfirm, message, Card, Spin, Space, Input } from "antd";
+import {
+  Table,
+  Button,
+  Popconfirm,
+  message,
+  Card,
+  Spin,
+  Space,
+  Input,
+  Tooltip,
+} from "antd";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
-import { getAllMeasurements, deleteMeasurement, getAllCustomers } from "../api/AdminApi";
+import {
+  getAllMeasurements,
+  deleteMeasurement,
+  getAllCustomers,
+} from "../api/AdminApi";
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -10,29 +24,40 @@ const Measurements = () => {
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState({});
 
-  useEffect(() => {
-    fetchMeasurements();
-  }, []);
+  const calculateFabricRequirement = (measurements) => {
+    const inchToMeter = 0.0254;
+
+    const shirtLength = 30; // standard shirt length
+    const upperBodyFabric =
+      (shirtLength + (Number(measurements.sleeveLength) || 24) + 6) *
+      inchToMeter;
+
+    const lowerBodyFabric =
+      ((Number(measurements.trouserLength) || 40) + 10) * inchToMeter;
+
+    const totalFabric = upperBodyFabric + lowerBodyFabric;
+    const fabricWithAllowance = totalFabric * 1.15;
+
+    return Math.ceil(fabricWithAllowance * 10) / 10;
+  };
 
   const fetchMeasurements = async () => {
     setLoading(true);
     try {
       const [measurementsData, customersData] = await Promise.all([
         getAllMeasurements(),
-        getAllCustomers()
+        getAllCustomers(),
       ]);
 
-      // Create customers lookup object
       const customersMap = {};
-      customersData.forEach(customer => {
+      customersData.forEach((customer) => {
         customersMap[customer.CustomerId] = customer.FullName;
       });
       setCustomers(customersMap);
 
-      // Update normalized data to show only customer name
       const normalized = measurementsData.map((m) => ({
         measurementID: m.MeasurementID,
-        customerName: customersMap[m.CustomerId] || 'Unknown Customer',
+        customerName: customersMap[m.CustomerId] || "Unknown Customer",
         chest: m.Chest,
         waist: m.Waist,
         hip: m.Hip,
@@ -49,6 +74,14 @@ const Measurements = () => {
         wrist: m.Wrist,
         ankle: m.Ankle,
         calf: m.Calf,
+        estimatedFabric: calculateFabricRequirement({
+          chest: m.Chest,
+          shoulder: m.Shoulder,
+          sleeveLength: m.SleeveLength,
+          waist: m.Waist,
+          hip: m.Hip,
+          trouserLength: m.TrouserLength,
+        }),
       }));
 
       setMeasurements(normalized);
@@ -62,79 +95,92 @@ const Measurements = () => {
   };
 
   useEffect(() => {
+    fetchMeasurements();
+  }, []);
+
+  useEffect(() => {
     const filteredData = measurements.filter((measurement) =>
-      (measurement.customerName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      Object.values(measurement).some(
-        (value) =>
-          typeof value === "string" && value.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      (measurement.customerName || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
     );
     setFilteredMeasurements(filteredData);
   }, [searchTerm, measurements]);
 
   const handleDeleteMeasurement = async (measurementId) => {
     try {
-        setLoading(true);
-        // Log the measurementId being sent
-        console.log('Deleting measurement:', measurementId);
-        
-        await deleteMeasurement(measurementId);
-        
-        // Update local state after successful deletion
-        setMeasurements(prev => prev.filter(m => m.measurementID !== measurementId));
-        setFilteredMeasurements(prev => prev.filter(m => m.measurementID !== measurementId));
-        
-        message.success("Measurement deleted successfully!");
-        
-        // Optionally refresh the data
-        await fetchMeasurements();
+      setLoading(true);
+      await deleteMeasurement(measurementId);
+
+      setMeasurements((prev) =>
+        prev.filter((m) => m.measurementID !== measurementId)
+      );
+      setFilteredMeasurements((prev) =>
+        prev.filter((m) => m.measurementID !== measurementId)
+      );
+
+      message.success("Measurement deleted successfully!");
     } catch (error) {
-        console.error("Delete failed:", error);
-        message.error(error.message || "Failed to delete measurement");
+      console.error("Delete failed:", error);
+      message.error(error.message || "Failed to delete measurement");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   const columns = [
     {
       title: "Customer",
       dataIndex: "customerName",
       key: "customerName",
-      // Simplified render to only show the name
-      render: (text) => <span>{text}</span>
     },
-    { title: "Chest", dataIndex: "chest", key: "chest" },
-    { title: "Waist", dataIndex: "waist", key: "waist" },
-    { title: "Hip", dataIndex: "hip", key: "hip" },
-    { title: "Shoulder", dataIndex: "shoulder", key: "shoulder" },
-    { title: "Sleeve Length", dataIndex: "sleeveLength", key: "sleeveLength" },
-    { title: "Trouser Length", dataIndex: "trouserLength", key: "trouserLength" },
-    { title: "Inseam", dataIndex: "inseam", key: "inseam" },
-    { title: "Thigh", dataIndex: "thigh", key: "thigh" },
-    { title: "Neck", dataIndex: "neck", key: "neck" },
-    { title: "Sleeve", dataIndex: "sleeve", key: "sleeve" },
-    { title: "Arms", dataIndex: "arms", key: "arms" },
-    { title: "Bicep", dataIndex: "bicep", key: "bicep" },
-    { title: "Forearm", dataIndex: "forearm", key: "forearm" },
-    { title: "Wrist", dataIndex: "wrist", key: "wrist" },
-    { title: "Ankle", dataIndex: "ankle", key: "ankle" },
-    { title: "Calf", dataIndex: "calf", key: "calf" },
+    { title: "Chest (in)", dataIndex: "chest", key: "chest" },
+    { title: "Waist (in)", dataIndex: "waist", key: "waist" },
+    { title: "Hip (in)", dataIndex: "hip", key: "hip" },
+    { title: "Shoulder (in)", dataIndex: "shoulder", key: "shoulder" },
+    {
+      title: "Sleeve Length (in)",
+      dataIndex: "sleeveLength",
+      key: "sleeveLength",
+    },
+    {
+      title: "Trouser Length (in)",
+      dataIndex: "trouserLength",
+      key: "trouserLength",
+    },
+    { title: "Inseam (in)", dataIndex: "inseam", key: "inseam" },
+    { title: "Thigh (in)", dataIndex: "thigh", key: "thigh" },
+    { title: "Neck (in)", dataIndex: "neck", key: "neck" },
+    { title: "Sleeve (in)", dataIndex: "sleeve", key: "sleeve" },
+    { title: "Arms (in)", dataIndex: "arms", key: "arms" },
+    { title: "Bicep (in)", dataIndex: "bicep", key: "bicep" },
+    { title: "Forearm (in)", dataIndex: "forearm", key: "forearm" },
+    { title: "Wrist (in)", dataIndex: "wrist", key: "wrist" },
+    { title: "Ankle (in)", dataIndex: "ankle", key: "ankle" },
+    { title: "Calf (in)", dataIndex: "calf", key: "calf" },
+{
+  title: "Estimated Fabric (m)",
+  dataIndex: "estimatedFabric",
+  key: "estimatedFabric",
+  render: (value) => value ? `${value} meters` : "N/A",
+  width: 160,
+}
+,
     {
       title: "Actions",
       key: "actions",
       render: (record) => (
         <Popconfirm
-            title="Delete Measurement"
-            description="Are you sure you want to delete this measurement?"
-            onConfirm={() => handleDeleteMeasurement(record.measurementID)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{ danger: true }}
+          title="Delete Measurement"
+          description="Are you sure you want to delete this measurement?"
+          onConfirm={() => handleDeleteMeasurement(record.measurementID)}
+          okText="Yes"
+          cancelText="No"
+          okButtonProps={{ danger: true }}
         >
-            <Button danger icon={<DeleteOutlined />}>
-                Delete
-            </Button>
+          <Button danger icon={<DeleteOutlined />}>
+            Delete
+          </Button>
         </Popconfirm>
       ),
     },
@@ -147,7 +193,7 @@ const Measurements = () => {
         extra={
           <Space>
             <Input
-              placeholder="Search by Name or Measurement"
+              placeholder="Search by customer name"
               prefix={<SearchOutlined />}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

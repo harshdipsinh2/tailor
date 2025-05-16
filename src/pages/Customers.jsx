@@ -26,6 +26,16 @@ const Customers = () => {
   const [form] = Form.useForm(); // Antd form instance
   const navigate = useNavigate(); // Router navigation
 
+  const upperBodyMeasurements = [
+    "chest", "shoulder", "sleeveLength", "neck", "sleeve",
+    "arms", "bicep", "forearm", "wrist"
+  ];
+  
+  const lowerBodyMeasurements = [
+    "waist", "hip", "trouserLength", "inseam", "thigh",
+    "ankle", "calf"
+  ];
+
   // Fetch customers data when component mounts
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -116,6 +126,27 @@ const Customers = () => {
     }
   };
 
+  // Add this function in your Customers component
+  const calculateFabricRequirement = (values) => {
+    // Upper body fabric calculation
+    const upperBodyFabric = (
+      (Number(values.chest) || 0) * 0.5 +
+      (Number(values.shoulder) || 0) * 0.3 +
+      (Number(values.sleeveLength) || 0) * 2
+    );
+  
+    // Lower body fabric calculation
+    const lowerBodyFabric = (
+      (Number(values.waist) || 0) * 0.5 +
+      (Number(values.hip) || 0) * 0.5 +
+      (Number(values.trouserLength) || 0) * 2
+    );
+  
+    // Add some allowance for seams and adjustments
+    const totalFabric = (upperBodyFabric + lowerBodyFabric) * 1.1;
+    return Math.ceil(totalFabric * 100) / 100; // Round to 2 decimal places
+  };
+
   // Form submission handler for both edit and measurement forms
   const handleEditSubmit = async (values) => {
     try {
@@ -146,7 +177,8 @@ const Customers = () => {
           Forearm: parseFloat(values.forearm) || 0,
           Wrist: parseFloat(values.wrist) || 0,
           Ankle: parseFloat(values.ankle) || 0,
-          Calf: parseFloat(values.calf) || 0
+          Calf: parseFloat(values.calf) || 0,
+          EstimatedFabric: calculateFabricRequirement(values)
         };
   
         // Validate that at least one measurement is entered
@@ -295,18 +327,34 @@ const Customers = () => {
       >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
           {showMeasurement ? (
-            <Row gutter={16}>
-              {measurementFields.map((field) => (
-                <Col xs={24} sm={12} md={8} key={field}>
-                  <Form.Item
-                    label={field.charAt(0).toUpperCase() + field.slice(1)}
-                    name={field}
-                  >
-                    <Input type="number" />
-                  </Form.Item>
-                </Col>
-              ))}
-            </Row>
+            <>
+              <h3>Upper Body Measurements</h3>
+              <Row gutter={16}>
+                {upperBodyMeasurements.map((field) => (
+                  <Col xs={24} sm={12} md={8} key={field}>
+                    <Form.Item
+                      label={field.charAt(0).toUpperCase() + field.slice(1)}
+                      name={field}
+                    >
+                      <Input type="number" min={0} step={0.5} />
+                    </Form.Item>
+                  </Col>
+                ))}
+              </Row>
+              <h3>Lower Body Measurements</h3>
+              <Row gutter={16}>
+                {lowerBodyMeasurements.map((field) => (
+                  <Col xs={24} sm={12} md={8} key={field}>
+                    <Form.Item
+                      label={field.charAt(0).toUpperCase() + field.slice(1)}
+                      name={field}
+                    >
+                      <Input type="number" min={0} step={0.5} />
+                    </Form.Item>
+                  </Col>
+                ))}
+              </Row>
+            </>
           ) : (
             <>
               <Form.Item label="Full Name" name="fullName" rules={[{ required: true }]}>

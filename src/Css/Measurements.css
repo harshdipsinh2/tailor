@@ -10,6 +10,13 @@ h2 {
   color: #333;
 }
 
+h3 {
+  margin: 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #1890ff;
+}
+
 .menu-container {
   position: relative;
 }
@@ -116,4 +123,8 @@ button.menu-button {
   border: 1px solid #ccc;
   background: white;
   cursor: pointer;
+}
+
+.ant-form-item-label > label {
+  font-weight: 500;
 }
