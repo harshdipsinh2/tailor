@@ -9,7 +9,8 @@ import {
   message,
   Card,
   Spin,
-  Popconfirm
+  Popconfirm,
+  Select
 } from 'antd';
 import {
   EditOutlined,
@@ -65,7 +66,8 @@ const Products = () => {
       // Transform the data to match form field names
       const formData = {
         productName: selected.ProductName,
-        makingPrice: selected.MakingPrice
+        makingPrice: selected.MakingPrice,
+        productType: selected.ProductType // Add ProductType
       };
       
       setProductId(id);
@@ -92,7 +94,8 @@ const Products = () => {
       // Transform form values to match API expectations
       const apiData = {
         ProductName: values.productName,
-        MakingPrice: parseFloat(values.makingPrice)
+        MakingPrice: parseFloat(values.makingPrice),
+        ProductType: values.productType // Add ProductType
       };
 
       if (isEditing) {
@@ -118,6 +121,11 @@ const Products = () => {
       dataIndex: 'MakingPrice',
       key: 'MakingPrice',
       render: (price) => `Rs. ${price}`
+    },
+    {
+      title: 'Product Type',
+      dataIndex: 'ProductType',
+      key: 'ProductType'
     },
     {
       title: 'Actions',
@@ -209,6 +217,16 @@ const Products = () => {
             rules={[{ required: true, message: "Enter price" }]}
           >
             <Input type="number" />
+          </Form.Item>
+          <Form.Item
+            label="Product Type"
+            name="productType"
+            rules={[{ required: true, message: "Please select product type" }]}
+          >
+            <Select>
+              <Select.Option value="Upper">Upper</Select.Option>
+              <Select.Option value="Lower">Lower</Select.Option>
+            </Select>
           </Form.Item>
           <Space style={{ marginTop: 16 }}>
             <Button type="primary" htmlType="submit">
