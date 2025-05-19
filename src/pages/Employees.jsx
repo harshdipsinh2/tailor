@@ -236,20 +236,20 @@ const Employees = () => {
           <Form.Item label="Address" name="address" rules={[{ required: true }]}>
             <Input.TextArea />
           </Form.Item>
-          <Form.Item 
+          {/* <Form.Item 
             label="Password" 
             name="password" 
             rules={[{ required: !employeeId }]}
           >
             <Input.Password />
-          </Form.Item>
-          <Form.Item label="Role" name="roleName" rules={[{ required: true }]}>
+          </Form.Item> */}
+          {/* <Form.Item label="Role" name="roleName" rules={[{ required: true }]}>
             <Select>
               <Select.Option value="admin">Admin</Select.Option>
               <Select.Option value="manager">Manager</Select.Option>
               <Select.Option value="tailor">Tailor</Select.Option>
             </Select>
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label="Status" name="userStatus" rules={[{ required: true }]}>
             <Select>
               <Select.Option value="Active">Active</Select.Option>

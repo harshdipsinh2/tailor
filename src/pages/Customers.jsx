@@ -5,14 +5,16 @@ import {
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
-  EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined
+  EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined,FilePdfOutlined
 } from "@ant-design/icons";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import CustomerListPDF from "../Components/Pdf/CustomerListPDF";
 import {
   getAllCustomers,
   editCustomer,
   deleteCustomer,
   addMeasurement
-} from "../api/AdminApi";
+} from "../api/AdminApi";   
 
 const Customers = () => {
   // State management for customer data and UI controls
@@ -226,25 +228,47 @@ const Customers = () => {
     <div className="customers-container" style={{ padding: "20px" }}>
       <Card
         title={<h2 style={{ margin: 0 }}>Customer Records</h2>}
-        extra={
-          <Space>
-            <Input
-              placeholder="Search by Name or Mobile"
-              prefix={<SearchOutlined />}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              allowClear
-              style={{ width: "250px" }}
-            />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => navigate("/customer-registration")}
-            >
-              Add Customer
-            </Button>
-          </Space>
-        }
+     extra={
+  <Space>
+       {/* PDF Download Icon with Popconfirm */}
+    <Popconfirm
+      title="Download customer list as PDF?"
+      onConfirm={() => document.getElementById("customer-pdf-download").click()}
+      okText="Yes"
+      cancelText="No"
+    >
+      <span style={{ cursor: "pointer", fontSize: 20, color: "#1890ff" }}>
+        <FilePdfOutlined />
+      </span>
+    </Popconfirm>
+    <PDFDownloadLink
+      id="customer-pdf-download"
+      document={<CustomerListPDF customers={filteredCustomers} />}
+      fileName="customers_list.pdf"
+      style={{ display: "none" }}
+    >
+      {({ loading }) => (loading ? "Loading..." : null)}
+    </PDFDownloadLink>
+    <Input
+      placeholder="Search by Name or Mobile"
+      prefix={<SearchOutlined />}
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      allowClear
+      style={{ width: "250px" }}
+    />
+    <Button
+      type="primary"
+      icon={<PlusOutlined />}
+      onClick={() => navigate("/customer-registration")}
+    >
+      Add Customer
+    </Button>
+
+ 
+  </Space>
+}
+
       >
         <Spin spinning={loading}>
           <Table

@@ -18,6 +18,8 @@ import FabricStock from "../pages/FabricStock";
 import Unauthorized from "../pages/Unauthorized";
 import Calendar from "../pages/Calendar";
 import Otp from "../pages/Otp";
+import PaymentSuccess from "../Stripe/Payment-Success";
+
 
 const AppRoutes = () => {
   const { auth } = useContext(AuthContext);
@@ -138,6 +140,16 @@ const AppRoutes = () => {
           }
         />
       </Route>
+
+      <Route
+        path="payment-success"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        }
+      />
+
 
       {/* Catch all route - redirect to login */}
       <Route path="*" element={<Navigate to="/login" />} />

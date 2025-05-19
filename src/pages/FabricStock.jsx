@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select, DatePicker } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Table, Button, Modal, Form, Input, message, Card,Popconfirm, Space, Spin, Select, DatePicker } from "antd";
+import { PlusOutlined , FilePdfOutlined} from "@ant-design/icons";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import FabricStockPDF from "../Components/Pdf/FabricStockPDF";
 import {
   getAllFabricStocks,
   addFabricStock,
@@ -79,13 +81,39 @@ const FabricStock = () => {
       <Card
         title={<h2>Fabric Stock Records</h2>}
         extra={
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setShowModal(true)}
-          >
-            Add Stock
-          </Button>
+          <Space>
+            <Popconfirm
+              title="Are you sure you want to download the PDF?"
+              okText="Yes"
+              cancelText="No"
+              onConfirm={() => {
+                document.getElementById("fabric-stock-pdf-trigger").click();
+              }}
+            >
+              <span>
+                <PDFDownloadLink
+                  id="fabric-stock-pdf-trigger"
+                  document={<FabricStockPDF stocks={stocks} />}
+                  fileName="fabric_stock_report.pdf"
+                  style={{ display: "none" }}
+                >
+                  {({ loading }) => (loading ? "..." : <span />)}
+                </PDFDownloadLink>
+
+                <FilePdfOutlined
+                  style={{ fontSize: 20, color: "#1890ff", cursor: "pointer" }}
+                />
+              </span>
+            </Popconfirm>
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setShowModal(true)}
+            >
+              Add Stock
+            </Button>
+          </Space>
         }
       >
         <Spin spinning={loading}>

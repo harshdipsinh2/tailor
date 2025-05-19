@@ -249,30 +249,10 @@ export const getFabricStockById = async (id) => {
 
 // Orders
 export const createOrder = async (orderData) => {
-  try {
-    console.log('Creating order with data:', orderData);
-    
-    const response = await api.post(`${API_BASE_URL}/Create-Order`, {
-      customerId: orderData.CustomerId,
-      productId: orderData.ProductId,
-      fabricTypeId: orderData.FabricTypeId,
-      assignedTo: orderData.AssignedTo,
-      fabricLength: orderData.FabricLength,
-      quantity: orderData.Quantity,
-      orderDate: orderData.OrderDate,
-      completionDate: orderData.CompletionDate,
-      orderStatus: orderData.OrderStatus,
-      paymentStatus: orderData.PaymentStatus
-    });
-
-    if (response.status === 200 || response.status === 201) {
-      return response.data;
-    }
-    throw new Error(response.data?.message || 'Error creating order');
-  } catch (error) {
-    console.error('API Error:', error.response?.data || error.message);
-    throw new Error(`Error creating order: ${error.response?.data || error.message}`);
-  }
+  console.log('Sending order data:', orderData); // Debug log
+  const response = await api.post(`${API_BASE_URL}/orders`, orderData);
+  console.log('Create order response:', response.data); // Debug log
+  return response.data;
 };
 
 export const updateOrder = async (orderId, orderData) => {
