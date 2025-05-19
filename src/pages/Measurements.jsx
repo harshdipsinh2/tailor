@@ -10,12 +10,54 @@ import {
   Input,
   Tooltip,
 } from "antd";
-import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
+import { DeleteOutlined, SearchOutlined, FilePdfOutlined } from "@ant-design/icons";
 import {
   getAllMeasurements,
   deleteMeasurement,
   getAllCustomers,
 } from "../api/AdminApi";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+
+const handleDownloadPDF = (record) => {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("Customer Measurement Report", 14, 22);
+
+  doc.setFontSize(12);
+  doc.text(`Customer: ${record.customerName}`, 14, 32);
+
+  const fields = [
+    ["Chest", record.chest],
+    ["Waist", record.waist],
+    ["Hip", record.hip],
+    ["Shoulder", record.shoulder],
+    ["Sleeve Length", record.sleeveLength],
+    ["Trouser Length", record.trouserLength],
+    ["Inseam", record.inseam],
+    ["Thigh", record.thigh],
+    ["Neck", record.neck],
+    ["Sleeve", record.sleeve],
+    ["Arms", record.arms],
+    ["Bicep", record.bicep],
+    ["Forearm", record.forearm],
+    ["Wrist", record.wrist],
+    ["Ankle", record.ankle],
+    ["Calf", record.calf],
+    ["Upper Body Fabric (m)", record.upperBodyMeasurement],
+    ["Lower Body Fabric (m)", record.lowerBodyMeasurement],
+  ];
+
+  autoTable(doc, {
+    startY: 40,
+    head: [["Measurement", "Value"]],
+    body: fields.map(([key, val]) => [key, val !== null && val !== undefined ? val : "N/A"]),
+  });
+
+  doc.save(`${record.customerName}_Measurement_Report.pdf`);
+};
 
 const Measurements = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -147,24 +189,40 @@ const Measurements = () => {
       key: "lowerBodyMeasurement",
       render: (value) => value ? `${value} meters` : "N/A",
     },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (record) => (
-        <Popconfirm
-          title="Delete Measurement"
-          description="Are you sure you want to delete this measurement?"
-          onConfirm={() => handleDeleteMeasurement(record.measurementID)}
-          okText="Yes"
-          cancelText="No"
-          okButtonProps={{ danger: true }}
-        >
-          <Button danger icon={<DeleteOutlined />}>
-            Delete
-          </Button>
-        </Popconfirm>
-      ),
-    },
+   {
+  title: "Actions",
+  key: "actions",
+  render: (record) => (
+    <Space>
+
+            <Popconfirm
+        title="Download Measurement"
+        description="Are you sure you want to download the PDF?"
+        okText="Yes"
+        cancelText="No"
+        onConfirm={() => handleDownloadPDF(record)}
+      >
+        <FilePdfOutlined
+          style={{ fontSize: 20, color: "#1890ff", cursor: "pointer" }}
+        />
+      </Popconfirm>
+      <Popconfirm
+        title="Delete Measurement"
+        description="Are you sure you want to delete this measurement?"
+        onConfirm={() => handleDeleteMeasurement(record.measurementID)}
+        okText="Yes"
+        cancelText="No"
+        okButtonProps={{ danger: true }}
+      >
+        <Button danger icon={<DeleteOutlined />}>
+          Delete
+        </Button>
+      </Popconfirm>
+
+    </Space>
+  ),
+}
+
   ];
 
   return (

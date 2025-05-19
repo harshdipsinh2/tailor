@@ -30,6 +30,8 @@ import {
   getAllMeasurements
 } from "../api/AdminApi";
 import { getAllUsers } from "../api/UserApi";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import OrderInvoicePDF from "../Components/Pdf/OrderInvoicePDF";
 
 const { Option } = Select;
 
@@ -336,6 +338,17 @@ const Orders = () => {
                       Delete
                     </Button>
                   </Popconfirm>
+                  <PDFDownloadLink
+                    document={<OrderInvoicePDF order={order} />}
+                    fileName={`invoice-${order.orderId}.pdf`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    {({ loading }) => (
+                      <Button type="dashed">
+                        {loading ? "Generating..." : "Download Invoice"}
+                      </Button>
+                    )}
+                  </PDFDownloadLink>
                 </Space>
               )}
             />
