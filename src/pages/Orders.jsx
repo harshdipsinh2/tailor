@@ -93,10 +93,14 @@ const Orders = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = orders.filter(order =>
-      order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.ProductName?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = orders.filter(order => {
+      const isPending = (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending";
+      const matchesSearch = (
+        order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.ProductName?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      return isPending && matchesSearch;
+    });
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
@@ -234,7 +238,8 @@ const Orders = () => {
       title: "Completion Date",
       dataIndex: "CompletionDate",
       key: "completionDate",
-      render: (date) => dayjs(date).format("DD/MM/YYYY")
+      render: (date) => dayjs(date).format("DD/MM/YYYY"),
+      sorter: (a, b) => dayjs(a.CompletionDate).unix() - dayjs(b.CompletionDate).unix(),
     },
     {
       title: "Assigned To",
@@ -347,7 +352,15 @@ const Orders = () => {
             label="Customer"
             rules={[{ required: true, message: "Please select a customer" }]}
           >
-            <Select placeholder="Select customer">
+            <Select
+              placeholder="Select customer"
+              showSearch
+              allowClear
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            >
               {customers.map(c => (
                 <Option key={c.CustomerId} value={c.CustomerId}>
                   {c.FullName}
@@ -361,7 +374,15 @@ const Orders = () => {
             label="Product"
             rules={[{ required: true, message: "Please select a product" }]}
           >
-            <Select placeholder="Select product">
+            <Select
+              placeholder="Select product"
+              showSearch
+              allowClear
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            >
               {products.map(p => (
                 <Option key={p.ProductID} value={p.ProductID}>
                   {p.ProductName}
@@ -375,7 +396,15 @@ const Orders = () => {
             label="Fabric"
             rules={[{ required: true, message: "Please select a fabric" }]}
           >
-            <Select placeholder="Select fabric">
+            <Select
+              placeholder="Select fabric"
+              showSearch
+              allowClear
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            >
               {fabrics.map(f => (
                 <Option key={f.FabricTypeID} value={f.FabricTypeID}>
                   {f.FabricName}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { getAllUsers, registerUser, updateUser, deleteUser } from "../api/UserApi";
+import Password from "antd/es/input/Password";
 
 const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,6 +30,7 @@ const Employees = () => {
         name: employee.Name,
         email: employee.Email,
         mobileNo: employee.MobileNo,
+        Password: employee.Password,
         address: employee.Address,
         roleName: employee.RoleName,
         userStatus: employee.UserStatus,
@@ -236,20 +238,18 @@ const Employees = () => {
           <Form.Item label="Address" name="address" rules={[{ required: true }]}>
             <Input.TextArea />
           </Form.Item>
-          {/* <Form.Item 
-            label="Password" 
-            name="password" 
-            rules={[{ required: !employeeId }]}
-          >
-            <Input.Password />
-          </Form.Item> */}
-          {/* <Form.Item label="Role" name="roleName" rules={[{ required: true }]}>
-            <Select>
-              <Select.Option value="admin">Admin</Select.Option>
-              <Select.Option value="manager">Manager</Select.Option>
-              <Select.Option value="tailor">Tailor</Select.Option>
-            </Select>
-          </Form.Item> */}
+  <Form.Item label="Password" name="password" rules={[{ required: !employeeId }]}>
+  <Input.Password />
+</Form.Item>
+
+<Form.Item label="Role" name="roleName" rules={[{ required: true }]}>
+  <Select>
+    <Select.Option value="Admin">Admin</Select.Option>
+    <Select.Option value="Manager">Manager</Select.Option>
+    <Select.Option value="Tailor">Tailor</Select.Option>
+  </Select>
+</Form.Item>
+
           <Form.Item label="Status" name="userStatus" rules={[{ required: true }]}>
             <Select>
               <Select.Option value="Active">Active</Select.Option>
