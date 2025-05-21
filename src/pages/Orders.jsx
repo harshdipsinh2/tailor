@@ -5,19 +5,19 @@ import {
   Modal,
   Form,
   Input,
-  message,
-  Card,
   Space,
   Spin,
-  DatePicker,
+  Card,
   Select,
-  Popconfirm,
+  DatePicker,
+  message,
+  Popconfirm
 } from "antd";
 import {
-  EditOutlined,
-  DeleteOutlined,
   PlusOutlined,
   SearchOutlined,
+  DeleteOutlined,
+  EditOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {
@@ -26,259 +26,263 @@ import {
   getAllProducts,
   getAllFabricTypes,
   createOrder,
-  updateOrder,
-  getAllMeasurements
+  deleteOrder
 } from "../api/AdminApi";
 import { getAllUsers } from "../api/UserApi";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import OrderInvoicePDF from "../Components/Pdf/OrderInvoicePDF";
 
 const { Option } = Select;
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [orderId, setOrderID] = useState("");
-  const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [fabrics, setFabrics] = useState([]);
   const [employees, setEmployees] = useState([]);
-  const [measurements, setMeasurements] = useState([]); // Add this state
+  const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [form] = Form.useForm();
 
-  // Add this function to calculate fabric requirement
-  const calculateFabricRequirement = (measurements) => {
-    const inchToMeter = 0.0254;
+  // Fetch all data
+ const fetchData = async () => {
+  setLoading(true);
+  try {
+    const [
+      ordersData,
+      customersData,
+      productsData,
+      fabricsData,
+      usersData
+    ] = await Promise.all([
+      getAllOrders(),
+      getAllCustomers(),
+      getAllProducts(),
+      getAllFabricTypes(),
+      getAllUsers()
+    ]);
 
-    const shirtLength = 30; // standard shirt length
-    const upperBodyFabric =
-      (shirtLength + (Number(measurements.sleeveLength) || 24) + 6) *
-      inchToMeter;
+    console.log('Raw users data:', usersData);
 
-    const lowerBodyFabric =
-      ((Number(measurements.trouserLength) || 40) + 10) * inchToMeter;
+    // Assume each user has an ID or fall back to Email if necessary
+    const formattedUsers = usersData.map(user => ({
+      value: user.UserID , // Prefer numeric ID
+      label: user.Name || user.name || user.FullName || user.fullName,
+      isVerified: user.IsVerified ?? false
+    }));
 
-    const totalFabric = upperBodyFabric + lowerBodyFabric;
-    const fabricWithAllowance = totalFabric * 1.15;
+    console.log('Formatted users:', formattedUsers);
 
-    return Math.ceil(fabricWithAllowance * 10) / 10;
-  };
+    setEmployees(formattedUsers);
+    setOrders(ordersData);
+    setFilteredOrders(ordersData);
+    setCustomers(customersData);
+    setProducts(productsData);
+    setFabrics(fabricsData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    message.error("Failed to load data");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // Modify fetchData to include measurements
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const [ordersRes, customersRes, productsRes, fabricsRes, usersRes, measurementsRes] = 
-        await Promise.all([
-          getAllOrders(),
-          getAllCustomers(),
-          getAllProducts(),
-          getAllFabricTypes(),
-          getAllUsers(),
-          getAllMeasurements(), // Add this API call
-        ]);
+useEffect(() => {
+  fetchData();
+}, []);
 
-      // Ensure unique IDs in customer data
-      const formattedCustomers = customersRes.map((c) => ({
-        customerId: c.CustomerId || c.customerId || `customer-${Math.random()}`,
-        fullName: c.FullName || c.fullName || "N/A",
-      }));
-
-      // Ensure unique IDs in product data
-      const formattedProducts = productsRes.map((p) => ({
-        productId: p.ProductID || p.productId || `product-${Math.random()}`,
-        productName: p.ProductName || p.productName || "N/A",
-      }));
-
-      // Ensure unique IDs in fabric data
-      const formattedFabrics = fabricsRes.map((f) => ({
-        fabricId: f.FabricTypeID || f.fabricId || `fabric-${Math.random()}`,
-        fabricName: f.FabricName || f.fabricName || "N/A",
-      }));
-
-      // Ensure unique IDs in employee data
-      const formattedEmployees = usersRes
-        .filter((u) => u.RoleName?.toLowerCase() === "tailor")
-        .map((e) => ({
-          employeeId: parseInt(e.Id) || parseInt(e.id), // Ensure integer ID
-          fullName: e.Name || e.name || "N/A",
-        }));
-
-      // Update orders filtering to only show pending orders
-      const formattedOrders = ordersRes
-        .map((order) => ({
-          ...order,
-          orderId: order.OrderId || order.orderId || `order-${Math.random()}`,
-          customerName: order.CustomerName || order.customerName || "N/A",
-          productName: order.ProductName || order.productName || "N/A",
-          fabricName: order.FabricName || order.fabricName || "N/A",
-          fabricLength: order.FabricLength || order.fabricLength || 0,
-          quantity: order.Quantity || order.quantity || 0,
-          totalPrice: order.TotalPrice || order.totalPrice || 0,
-          orderDate: order.OrderDate || order.orderDate,
-          completionDate: order.CompletionDate || order.completionDate,
-          assignedToName: order.AssignedToName || order.assignedToName || "N/A",
-          orderStatus: order.OrderStatus || order.orderStatus || "Pending",
-          paymentStatus: order.PaymentStatus || order.paymentStatus || "Pending",
-        }))
-        .filter(order => {
-          // Show order if either order status or payment status is pending
-          const isOrderPending = order.orderStatus?.toLowerCase() === "pending";
-          const isPaymentPending = order.paymentStatus?.toLowerCase() === "pending";
-          return isOrderPending || isPaymentPending;
-        });
-
-      setCustomers(formattedCustomers);
-      setProducts(formattedProducts);
-      setFabrics(formattedFabrics);
-      setEmployees(formattedEmployees);
-      setOrders(formattedOrders);
-      setFilteredOrders(formattedOrders);
-      // Store measurements data
-      setMeasurements(measurementsRes);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      message.error("Failed to fetch data: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Search functionality
   useEffect(() => {
-    const filtered = orders.filter((order) => {
-      const customerNameMatch =
-        order?.customerName?.toLowerCase?.()?.includes(searchTerm.toLowerCase()) || false;
-      const productNameMatch =
-        order?.productName?.toLowerCase?.()?.includes(searchTerm.toLowerCase()) || false;
-      return customerNameMatch || productNameMatch;
-    });
+    const filtered = orders.filter(order =>
+      order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.ProductName?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
-  const handleEditOrder = (id) => {
-    setOrderID(id);
-    const existing = orders.find((order) => order.orderId === id);
-
-    if (existing) {
-      form.setFieldsValue({
-        ...existing,
-        orderDate: dayjs(existing.orderDate),
-        completionDate: dayjs(existing.completionDate),
-        assignedToId: existing.assignedToId,
-      });
-      setShow(true);
-    } else {
-      message.error("Order not found.");
-    }
-  };
-
-  const handleClose = () => setShow(false);
-
-  const handleDeleteOrder = (id) => {
-    setOrders((prev) => prev.filter((o) => o.orderId !== id));
-    setFilteredOrders((prev) => prev.filter((o) => o.orderId !== id));
-    message.success("Order deleted (mock)!");
-  };
-
-  // Add this function to handle customer selection
-  const handleCustomerSelect = (customerId) => {
-    const customerMeasurement = measurements.find(m => m.CustomerId === customerId);
-    if (customerMeasurement) {
-      const estimatedFabric = calculateFabricRequirement({
-        chest: customerMeasurement.Chest,
-        shoulder: customerMeasurement.Shoulder,
-        sleeveLength: customerMeasurement.SleeveLength,
-        waist: customerMeasurement.Waist,
-        hip: customerMeasurement.Hip,
-        trouserLength: customerMeasurement.TrouserLength,
-      });
-      
-      form.setFieldValue('fabricLength', estimatedFabric);
-    }
-  };
-
-  // Update handleSubmit to match API expectations
+  // Handle form submission
   const handleSubmit = async (values) => {
+    setLoading(true);
     try {
-      setLoading(true);
-
-      // Validate required fields
-      if (!values.customerId || !values.productId || !values.fabricId) {
-        throw new Error('Please fill in all required fields');
-      }
+      // Log the form values
+      console.log('Form values:', values);
 
       const orderData = {
-        CustomerId: parseInt(values.customerId),
-        ProductId: parseInt(values.productId),
-        FabricTypeId: parseInt(values.fabricId),
-        AssignedTo: values.assignedToId ? parseInt(values.assignedToId) : 0,
-        FabricLength: parseFloat(values.fabricLength),
-        Quantity: parseInt(values.quantity),
-        OrderDate: values.orderDate?.format("YYYY-MM-DD"),
-        CompletionDate: values.completionDate?.format("YYYY-MM-DD"),
-        OrderStatus: values.orderStatus || "Pending",
-        PaymentStatus: values.paymentStatus || "Pending"
+        CustomerId: values.customerId,
+        ProductId: values.productId,
+        FabricTypeId: values.fabricId,
+        AssignedTo: parseInt(values.assignedTo), // Ensure it's a number
+        Quantity: values.quantity,
+        OrderDate: values.orderDate.format("YYYY-MM-DD"),
+        CompletionDate: values.completionDate.format("YYYY-MM-DD"),
+        OrderStatus: "Pending",
+        PaymentStatus: values.paymentStatus
       };
 
-      // Validate numeric values
-      if (isNaN(orderData.FabricLength) || orderData.FabricLength <= 0) {
-        throw new Error('Invalid fabric length');
-      }
-      if (isNaN(orderData.Quantity) || orderData.Quantity <= 0) {
-        throw new Error('Invalid quantity');
-      }
-
-      console.log('Sending order data:', orderData);
-
-      if (orderId) {
-        await updateOrder(orderId, orderData);
-        message.success("Order updated successfully!");
-      } else {
-        await createOrder(orderData);
-        message.success("Order created successfully!");
-      }
-
-      await fetchData();
+      console.log('Submitting order data:', orderData);
+      await createOrder(orderData);
+      message.success("Order created successfully");
+      setShowModal(false);
       form.resetFields();
-      setOrderID("");
-      setShow(false);
+      fetchData();
     } catch (error) {
-      console.error("Error submitting order:", error);
-      message.error(error.message || "Failed to submit order");
+      console.error('Error creating order:', error);
+      message.error(error.message || "Failed to create order");
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle delete
+  const handleDelete = async (id) => {
+    try {
+      await deleteOrder(id);
+      message.success("Order deleted successfully");
+      fetchData();
+    } catch (error) {
+      message.error("Failed to delete order");
+    }
+  };
+
+  // Add after handleDelete and before columns
+  const handleEdit = (record) => {
+    form.setFieldsValue({
+      customerId: record.CustomerID,
+      productId: record.ProductID,
+      fabricId: record.FabricTypeID,
+      assignedTo: record.AssignedTo,
+      quantity: record.Quantity,
+      orderDate: dayjs(record.OrderDate),
+      completionDate: dayjs(record.CompletionDate),
+      orderStatus: record.OrderStatus,
+      paymentStatus: record.PaymentStatus
+    });
+
+    setShowModal(true);
+  };
+
+  const handleOpenModal = () => {
+    form.resetFields();
+    form.setFieldsValue({
+      orderDate: dayjs(),
+      orderStatus: "Pending",
+      paymentStatus: "Pending"
+    });
+    setShowModal(true);
+  };
+
+  // Table columns
+  const columns = [
+    {
+      title: "Customer Name",
+      dataIndex: "CustomerName",
+      key: "customerName",
+      sorter: (a, b) => a.CustomerName.localeCompare(b.CustomerName)
+    },
+    {
+      title: "Product Name",
+      dataIndex: "ProductName",
+      key: "productName"
+    },
+    {
+      title: "Fabric Name",
+      dataIndex: "FabricName",
+      key: "fabricName"
+    },
+    {
+      title: "Fabric Length (m)",
+      dataIndex: "FabricLength",
+      key: "fabricLength"
+    },
+    {
+      title: "Quantity",
+      dataIndex: "Quantity",
+      key: "quantity"
+    },
+    {
+      title: "Total Price",
+      dataIndex: "TotalPrice",
+      key: "totalPrice",
+      render: (price) => `₹${price.toFixed(2)}`
+    },
+    {
+      title: "Order Date",
+      dataIndex: "OrderDate",
+      key: "orderDate",
+      render: (date) => dayjs(date).format("DD/MM/YYYY")
+    },
+    {
+      title: "Completion Date",
+      dataIndex: "CompletionDate",
+      key: "completionDate",
+      render: (date) => dayjs(date).format("DD/MM/YYYY")
+    },
+    {
+      title: "Assigned To",
+      dataIndex: "AssignedToName",
+      key: "assignedTo"
+    },
+    {
+      title: "Order Status",
+      dataIndex: "OrderStatus",
+      key: "orderStatus"
+    },
+    {
+      title: "Payment Status",
+      dataIndex: "PaymentStatus",
+      key: "paymentStatus"
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record)}
+          >
+            Edit
+          </Button>
+          <Popconfirm
+            title="Delete Order"
+            description="Are you sure you want to delete this order?"
+            onConfirm={() => handleDelete(record.OrderID)}
+            okText="Yes"
+            cancelText="No"
+            okButtonProps={{ danger: true }}
+          >
+            <Button danger icon={<DeleteOutlined />}>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      )
+    }
+  ];
+
   return (
-    <div className="orders-container" style={{ padding: "20px" }}>
+    <div style={{ padding: "20px" }}>
       <Card
-        title={<h2 style={{ margin: 0 }}>Order Records</h2>}
+        title={<h2 style={{ margin: 0 }}>Orders</h2>}
         extra={
           <Space>
             <Input
-              placeholder="Search by Customer or Product"
+              placeholder="Search by customer or product"
               prefix={<SearchOutlined />}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              allowClear
-              style={{ width: "250px" }}
+              style={{ width: 250 }}
             />
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => {
-                setOrderID("");
-                form.resetFields();
-                setShow(true);
-              }}
+              onClick={handleOpenModal}
             >
               Add Order
             </Button>
@@ -288,78 +292,19 @@ const Orders = () => {
         <Spin spinning={loading}>
           <Table
             dataSource={filteredOrders}
-            rowKey="orderId"
+            columns={columns}
+            rowKey="OrderID"
             bordered
-            pagination={{ pageSize: 5 }}
-            scroll={{ x: "max-content" }}
-          >
-            <Table.Column title="Customer Name" dataIndex="customerName" />
-            <Table.Column title="Product Name" dataIndex="productName" />
-            <Table.Column title="Fabric Name" dataIndex="fabricName" />
-            <Table.Column title="Fabric Length" dataIndex="fabricLength" />
-            <Table.Column title="Quantity" dataIndex="quantity" />
-            <Table.Column title="Total Price" dataIndex="totalPrice" />
-            <Table.Column
-              title="Order Date"
-              dataIndex="orderDate"
-              render={(date) => (date ? dayjs(date).format("DD/MM/YYYY") : "-")}
-            />
-            <Table.Column
-              title="Completion Date"
-              dataIndex="completionDate"
-              render={(date) => (date ? dayjs(date).format("DD/MM/YYYY") : "-")}
-            />
-            <Table.Column title="Assigned To" dataIndex="assignedToName" />
-            <Table.Column title="Order Status" dataIndex="orderStatus" />
-            <Table.Column title="Payment Status" dataIndex="paymentStatus" />
-            <Table.Column
-              title="Actions"
-              render={(order) => (
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<EditOutlined />}
-                    onClick={() => handleEditOrder(order.orderId)}
-                  >
-                    Edit
-                  </Button>
-                  <Popconfirm
-                    title="Delete Order"
-                    description="Are you sure you want to delete this order?"
-                    onConfirm={() => handleDeleteOrder(order.orderId)}
-                    okText="Yes"
-                    cancelText="No"
-                    okButtonProps={{ danger: true }}
-                  >
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                    >
-                      Delete
-                    </Button>
-                  </Popconfirm>
-                  <PDFDownloadLink
-                    document={<OrderInvoicePDF order={order} />}
-                    fileName={`invoice-${order.orderId}.pdf`}
-                    style={{ textDecoration: "none" }}
-                  >
-                    {({ loading }) => (
-                      <Button type="dashed">
-                        {loading ? "Generating..." : "Download Invoice"}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
-                </Space>
-              )}
-            />
-          </Table>
+            pagination={{ pageSize: 10 }}
+            scroll={{ x: 'max-content' }}
+          />
         </Spin>
       </Card>
 
       <Modal
-        title={orderId ? "Update Order Details" : "Add New Order"}
-        open={show}
-        onCancel={handleClose}
+        title={form.getFieldValue('orderId') ? "Edit Order" : "Add New Order"}
+        open={showModal}
+        onCancel={() => setShowModal(false)}
         footer={null}
         width={800}
       >
@@ -368,115 +313,102 @@ const Orders = () => {
           layout="vertical"
           onFinish={handleSubmit}
           initialValues={{
-            orderStatus: "Pending",
-            paymentStatus: "Pending",
             orderDate: dayjs(),
+            orderStatus: "Pending",
+            paymentStatus: "Pending"
           }}
         >
           <Form.Item
-            label="Customer"
             name="customerId"
-            rules={[{ required: true, message: "Please select a customer!" }]}
+            label="Customer"
+            rules={[{ required: true, message: "Please select a customer" }]}
           >
-            <Select 
-              placeholder="Select Customer"
-              onChange={handleCustomerSelect}
-            >
-              {customers.map((c) => (
-                <Option key={c.customerId} value={c.customerId}>
-                  {c.fullName}
+            <Select placeholder="Select customer">
+              {customers.map(c => (
+                <Option key={c.CustomerId} value={c.CustomerId}>
+                  {c.FullName}
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Product"
             name="productId"
-            rules={[{ required: true, message: "Please select a product!" }]}
+            label="Product"
+            rules={[{ required: true, message: "Please select a product" }]}
           >
-            <Select placeholder="Select Product">
-              {products.map((p) => (
-                <Option key={p.productId} value={p.productId}>
-                  {p.productName}
+            <Select placeholder="Select product">
+              {products.map(p => (
+                <Option key={p.ProductID} value={p.ProductID}>
+                  {p.ProductName}
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Fabric"
             name="fabricId"
-            rules={[{ required: true, message: "Please select a fabric!" }]}
+            label="Fabric"
+            rules={[{ required: true, message: "Please select a fabric" }]}
           >
-            <Select placeholder="Select Fabric">
-              {fabrics.map((f) => (
-                <Option key={f.fabricId} value={f.fabricId}>
-                  {f.fabricName}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item label="Assigned To" name="assignedToId">
-            <Select placeholder="Select Employee">
-              {employees.map((e) => (
-                <Option key={e.employeeId} value={e.employeeId}>
-                  {e.fullName}
+            <Select placeholder="Select fabric">
+              {fabrics.map(f => (
+                <Option key={f.FabricTypeID} value={f.FabricTypeID}>
+                  {f.FabricName}
                 </Option>
               ))}
             </Select>
           </Form.Item>
 
           <Form.Item
-            label="Fabric Length"
-            name="fabricLength"
-            rules={[{ required: true, message: "Please enter fabric length!" }]}
+            name="assignedTo"
+            label="Assign To"
+            rules={[{ required: true, message: "Please select a user to assign" }]}
+            validateTrigger={['onChange', 'onBlur']}
           >
-            <Input 
-              type="number" 
-              step="0.1"
-              addonAfter="meters"
-            />
+        <Select
+  placeholder="Select user to assign"
+  showSearch
+  allowClear
+  optionFilterProp="label"
+  filterOption={(input, option) =>
+    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+  }
+  options={employees}
+/>
+
           </Form.Item>
 
           <Form.Item
-            label="Quantity"
             name="quantity"
-            rules={[{ required: true, message: "Please enter quantity!" }]}
+            label="Quantity"
+            rules={[{ required: true, message: "Please enter quantity" }]}
           >
-            <Input type="number" />
+            <Input type="number" min={1} />
           </Form.Item>
 
           <Form.Item
-            label="Order Date"
             name="orderDate"
-            rules={[{ required: true, message: "Please select order date!" }]}
+            label="Order Date"
+            rules={[{ required: true, message: "Please select order date" }]}
           >
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
 
           <Form.Item
-            label="Completion Date"
             name="completionDate"
-            rules={[{ required: true, message: "Please select completion date!" }]}
+            label="Completion Date"
+            rules={[{ required: true, message: "Please select completion date" }]}
           >
             <DatePicker style={{ width: "100%" }} />
           </Form.Item>
 
-          <Form.Item label="Order Status" name="orderStatus" rules={[{ required: true }]}>
-            <Select disabled={!orderId}>
-              <Option value="Pending">Pending</Option>
-              <Option value="Completed">Completed</Option>
-            </Select>
-          </Form.Item>
-
           <Form.Item
-            label="Payment Status"
             name="paymentStatus"
-            rules={[{ required: true, message: "Please select payment status!" }]}
+            label="Payment Status"
+            rules={[{ required: true, message: "Please select payment status" }]}
           >
-            <Select placeholder="Select Payment Status">
+            <Select placeholder="Select payment status">
               <Option value="Pending">Pending</Option>
               <Option value="Completed">Completed</Option>
             </Select>
@@ -485,11 +417,9 @@ const Orders = () => {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" loading={loading}>
-                {orderId ? "Update" : "Submit"}
+                {form.getFieldValue('orderId') ? "Update Order" : "Create Order"}
               </Button>
-              <Button onClick={handleClose} disabled={loading}>
-                Cancel
-              </Button>
+              <Button onClick={() => setShowModal(false)}>Cancel</Button>
             </Space>
           </Form.Item>
         </Form>

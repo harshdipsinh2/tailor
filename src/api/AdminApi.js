@@ -248,12 +248,47 @@ export const getFabricStockById = async (id) => {
 };
 
 // Orders
+// AdminApi.js
 export const createOrder = async (orderData) => {
-  console.log('Sending order data:', orderData); // Debug log
-  const response = await api.post(`${API_BASE_URL}/orders`, orderData);
-  console.log('Create order response:', response.data); // Debug log
+  const {
+    CustomerId,
+    ProductId,
+    FabricTypeId,
+    AssignedTo,
+    Quantity,
+    OrderDate,
+    CompletionDate,
+    OrderStatus,
+    PaymentStatus
+  } = orderData;
+
+  const queryParams = new URLSearchParams({
+    customerId: CustomerId,
+    productId: ProductId,
+    fabricTypeId: FabricTypeId,
+    assignedTo: AssignedTo
+  });
+
+  const payload = {
+    Quantity,
+    OrderDate,
+    CompletionDate,
+    OrderStatus,
+    PaymentStatus
+  };
+
+  console.log("Sending request to:", `/api/Admin/Create-Order?${queryParams.toString()}`);
+  console.log("With body:", payload);
+
+  const response = await api.post(
+    `/api/Admin/Create-Order?${queryParams.toString()}`,
+    payload
+  );
+
   return response.data;
 };
+
+
 
 export const updateOrder = async (orderId, orderData) => {
     try {
