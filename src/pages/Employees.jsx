@@ -250,12 +250,7 @@ const Employees = () => {
   </Select>
 </Form.Item>
 
-          <Form.Item label="Status" name="userStatus" rules={[{ required: true }]}>
-            <Select>
-              <Select.Option value="Active">Active</Select.Option>
-              <Select.Option value="Inactive">Inactive</Select.Option>
-            </Select>
-          </Form.Item>
+
           <Space>
             <Button type="primary" htmlType="submit">
               Submit
