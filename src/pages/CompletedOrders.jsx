@@ -4,6 +4,8 @@ import { FilePdfOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
 import { getAllOrders } from "../api/AdminApi";
 import CompletedOrdersPDF from "../Components/Pdf/CompletedOrdersPDF";
+import InvoicePDF from "../Components/Pdf/InvoicePDF";
+
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 
@@ -179,6 +181,25 @@ const CompletedOrders = () => {
               dataIndex="assignedToName"
               key="assignedToName"
             />
+            <Table.Column
+  title="Action"
+  key="action"
+  render={(text, record) => (
+    <PDFDownloadLink
+      document={<InvoicePDF order={record} />}
+      fileName={`invoice_${record.orderId}.pdf`}
+    >
+      {({ loading }) =>
+        loading ? (
+          <Spin size="small" />
+        ) : (
+          <FilePdfOutlined style={{ fontSize: 18, color: "#52c41a", cursor: "pointer" }} />
+        )
+      }
+    </PDFDownloadLink>
+  )}
+/>
+
           </Table>
         </Spin>
       </Card>
