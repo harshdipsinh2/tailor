@@ -291,23 +291,24 @@ export const createOrder = async (orderData) => {
 
 
 export const updateOrder = async (orderId, orderData) => {
-    try {
-        const response = await api.put(`${API_BASE_URL}/Order/${orderId}`, orderData);
-        return response.data;
-    } catch (error) {
-        console.error('API Error:', error.response?.data);
-        throw new Error('Error updating order: ' + (error.response?.data?.message || error.message));
-    }
+  try {
+    const response = await api.put(`${API_BASE_URL}/orders/${orderId}`, orderData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating order:', error);
+    throw error.response?.data || error.message;
+  }
 };
 
 export const updateOrderStatus = async (orderId, statusData) => {
-    try {
-        await api.put(`${API_BASE_URL}/update-status/${orderId}`, statusData);
-    } catch (error) {
-        throw new Error('Error updating order status: ' + error.message);
-    }
+  try {
+    const response = await api.put(`${API_BASE_URL}/update-status/${orderId}`, statusData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    throw error.response?.data || error.message;
+  }
 };
-
 export const deleteOrder = async (id) => {
     try {
         await api.delete(`${API_BASE_URL}/Delete-Order/${id}`);

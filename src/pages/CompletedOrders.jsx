@@ -28,8 +28,7 @@ const CompletedOrders = () => {
           const paymentStatus = order.PaymentStatus || order.paymentStatus;
 
           return (
-            orderStatus?.toLowerCase() === "completed" &&
-            paymentStatus?.toLowerCase() === "completed"
+            orderStatus?.toLowerCase() === "completed" 
           );
         });
 

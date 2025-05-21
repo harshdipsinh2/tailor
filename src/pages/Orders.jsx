@@ -17,7 +17,9 @@ import {
   PlusOutlined,
   SearchOutlined,
   DeleteOutlined,
-  EditOutlined
+  EditOutlined,
+  DollarOutlined,
+  SyncOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {
@@ -29,6 +31,8 @@ import {
   deleteOrder
 } from "../api/AdminApi";
 import { getAllUsers } from "../api/UserApi";
+import { createCheckoutSession } from "../api/Payment";
+import { updateOrderStatus } from "../api/AdminApi"; // 👈 Make sure this is exported
 
 const { Option } = Select;
 
@@ -41,62 +45,53 @@ const Orders = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [form] = Form.useForm();
+  const [statusForm] = Form.useForm();
 
-  // Fetch all data
- const fetchData = async () => {
-  setLoading(true);
-  try {
-    const [
-      ordersData,
-      customersData,
-      productsData,
-      fabricsData,
-      usersData
-    ] = await Promise.all([
-      getAllOrders(),
-      getAllCustomers(),
-      getAllProducts(),
-      getAllFabricTypes(),
-      getAllUsers()
-    ]);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [
+        ordersData,
+        customersData,
+        productsData,
+        fabricsData,
+        usersData
+      ] = await Promise.all([
+        getAllOrders(),
+        getAllCustomers(),
+        getAllProducts(),
+        getAllFabricTypes(),
+        getAllUsers()
+      ]);
 
-    console.log('Raw users data:', usersData);
+      const formattedUsers = usersData.map(user => ({
+        value: user.UserID,
+        label: user.Name || user.name || user.FullName || user.fullName,
+        isVerified: user.IsVerified ?? false
+      }));
 
-    // Assume each user has an ID or fall back to Email if necessary
-    const formattedUsers = usersData.map(user => ({
-      value: user.UserID , // Prefer numeric ID
-      label: user.Name || user.name || user.FullName || user.fullName,
-      isVerified: user.IsVerified ?? false
-    }));
-
-    console.log('Formatted users:', formattedUsers);
-
-    setEmployees(formattedUsers);
-    setOrders(ordersData);
-    setFilteredOrders(ordersData);
-    setCustomers(customersData);
-    setProducts(productsData);
-    setFabrics(fabricsData);
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    message.error("Failed to load data");
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  fetchData();
-}, []);
-
+      setEmployees(formattedUsers);
+      setOrders(ordersData);
+      setFilteredOrders(ordersData);
+      setCustomers(customersData);
+      setProducts(productsData);
+      setFabrics(fabricsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      message.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  // Search functionality
   useEffect(() => {
     const filtered = orders.filter(order =>
       order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -105,18 +100,14 @@ useEffect(() => {
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
-  // Handle form submission
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // Log the form values
-      console.log('Form values:', values);
-
       const orderData = {
         CustomerId: values.customerId,
         ProductId: values.productId,
         FabricTypeId: values.fabricId,
-        AssignedTo: parseInt(values.assignedTo), // Ensure it's a number
+        AssignedTo: parseInt(values.assignedTo),
         Quantity: values.quantity,
         OrderDate: values.orderDate.format("YYYY-MM-DD"),
         CompletionDate: values.completionDate.format("YYYY-MM-DD"),
@@ -124,7 +115,6 @@ useEffect(() => {
         PaymentStatus: values.paymentStatus
       };
 
-      console.log('Submitting order data:', orderData);
       await createOrder(orderData);
       message.success("Order created successfully");
       setShowModal(false);
@@ -138,7 +128,6 @@ useEffect(() => {
     }
   };
 
-  // Handle delete
   const handleDelete = async (id) => {
     try {
       await deleteOrder(id);
@@ -147,23 +136,6 @@ useEffect(() => {
     } catch (error) {
       message.error("Failed to delete order");
     }
-  };
-
-  // Add after handleDelete and before columns
-  const handleEdit = (record) => {
-    form.setFieldsValue({
-      customerId: record.CustomerID,
-      productId: record.ProductID,
-      fabricId: record.FabricTypeID,
-      assignedTo: record.AssignedTo,
-      quantity: record.Quantity,
-      orderDate: dayjs(record.OrderDate),
-      completionDate: dayjs(record.CompletionDate),
-      orderStatus: record.OrderStatus,
-      paymentStatus: record.PaymentStatus
-    });
-
-    setShowModal(true);
   };
 
   const handleOpenModal = () => {
@@ -176,7 +148,49 @@ useEffect(() => {
     setShowModal(true);
   };
 
-  // Table columns
+  const handlePayment = async (orderId) => {
+    try {
+      setLoading(true);
+      const response = await createCheckoutSession(orderId);
+      if (response?.url) {
+        window.location.href = response.url;
+      } else {
+        message.error("Failed to get payment link");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      message.error(error.message || "Payment failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateStatus = (order) => {
+    setSelectedOrder(order);
+    statusForm.setFieldsValue({
+      OrderStatus: order.OrderStatus,
+      PaymentStatus: order.PaymentStatus
+    });
+    setShowStatusModal(true);
+  };
+
+  const handleStatusSubmit = async (values) => {
+    if (!selectedOrder) return;
+    setLoading(true);
+    try {
+      await updateOrderStatus(selectedOrder.OrderID, values);
+      message.success("Order status updated successfully");
+      setShowStatusModal(false);
+      setSelectedOrder(null);
+      fetchData();
+    } catch (error) {
+      console.error("Update status error:", error);
+      message.error(error.message || "Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns = [
     {
       title: "Customer Name",
@@ -242,13 +256,6 @@ useEffect(() => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            Edit
-          </Button>
           <Popconfirm
             title="Delete Order"
             description="Are you sure you want to delete this order?"
@@ -257,10 +264,26 @@ useEffect(() => {
             cancelText="No"
             okButtonProps={{ danger: true }}
           >
-            <Button danger icon={<DeleteOutlined />}>
-              Delete
-            </Button>
+            <Button danger icon={<DeleteOutlined />}>Delete</Button>
           </Popconfirm>
+
+          <Popconfirm
+            title="Make Payment"
+            description="Do you want to proceed to payment?"
+            onConfirm={() => handlePayment(record.OrderID)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="primary" icon={<DollarOutlined />}>Pay</Button>
+          </Popconfirm>
+
+          <Button
+            type="dashed"
+            icon={<SyncOutlined />}
+            onClick={() => handleUpdateStatus(record)}
+          >
+            Update Status
+          </Button>
         </Space>
       )
     }
@@ -296,13 +319,14 @@ useEffect(() => {
             rowKey="OrderID"
             bordered
             pagination={{ pageSize: 10 }}
-            scroll={{ x: 'max-content' }}
+            scroll={{ x: "max-content" }}
           />
         </Spin>
       </Card>
 
+      {/* Add Order Modal */}
       <Modal
-        title={form.getFieldValue('orderId') ? "Edit Order" : "Add New Order"}
+        title="Add New Order"
         open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
@@ -364,19 +388,17 @@ useEffect(() => {
             name="assignedTo"
             label="Assign To"
             rules={[{ required: true, message: "Please select a user to assign" }]}
-            validateTrigger={['onChange', 'onBlur']}
           >
-        <Select
-  placeholder="Select user to assign"
-  showSearch
-  allowClear
-  optionFilterProp="label"
-  filterOption={(input, option) =>
-    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-  }
-  options={employees}
-/>
-
+            <Select
+              placeholder="Select user to assign"
+              showSearch
+              allowClear
+              optionFilterProp="label"
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              options={employees}
+            />
           </Form.Item>
 
           <Form.Item
@@ -417,9 +439,50 @@ useEffect(() => {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" loading={loading}>
-                {form.getFieldValue('orderId') ? "Update Order" : "Create Order"}
+                Create Order
               </Button>
               <Button onClick={() => setShowModal(false)}>Cancel</Button>
+            </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Update Status Modal */}
+      <Modal
+        title="Update Order Status"
+        open={showStatusModal}
+        onCancel={() => setShowStatusModal(false)}
+        footer={null}
+      >
+        <Form form={statusForm} layout="vertical" onFinish={handleStatusSubmit}>
+          <Form.Item
+            name="OrderStatus"
+            label="Order Status"
+            rules={[{ required: true, message: "Select order status" }]}
+          >
+            <Select>
+              <Option value="Pending">Pending</Option>
+              <Option value="Completed">Completed</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="PaymentStatus"
+            label="Payment Status"
+            rules={[{ required: true, message: "Select payment status" }]}
+          >
+            <Select>
+              <Option value="Pending">Pending</Option>
+              <Option value="Completed">Completed</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item>
+            <Space>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Update Status
+              </Button>
+              <Button onClick={() => setShowStatusModal(false)}>Cancel</Button>
             </Space>
           </Form.Item>
         </Form>
