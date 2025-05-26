@@ -144,7 +144,7 @@ const InvoicePDF = ({ order }) => {
         </View>
 
         {/* Totals */}
-        <View style={styles.totals}>
+        {/* <View style={styles.totals}>
           <View style={styles.totalRow}>
             <Text>Subtotal</Text>
             <Text>${subtotal}</Text>
@@ -157,7 +157,7 @@ const InvoicePDF = ({ order }) => {
             <Text style={styles.grandTotal}>Total</Text>
             <Text style={styles.grandTotal}>${total}</Text>
           </View>
-        </View>
+        </View> */}
 
         {/* Extra Order Details */}
         <View style={styles.extraDetails}>

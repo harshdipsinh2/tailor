@@ -149,6 +149,14 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="payment-cancel"
+        element={
+          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        }
+      />
 
 
       {/* Catch all route - redirect to login */}

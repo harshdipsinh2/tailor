@@ -249,8 +249,6 @@ const Employees = () => {
     <Select.Option value="Tailor">Tailor</Select.Option>
   </Select>
 </Form.Item>
-
-
           <Space>
             <Button type="primary" htmlType="submit">
               Submit
