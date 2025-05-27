@@ -378,3 +378,37 @@ export const deleteRole = async (id) => {
         throw new Error('Error deleting role: ' + error.message);
     }
 };
+
+// Add new order endpoints
+export const updateOrderApproval = async (orderId, approvalData) => {
+  try {
+    const response = await api.put(`${API_BASE_URL}/${orderId}/approval`, approvalData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating order approval:', error);
+    throw error.response?.data || error.message;
+  }
+};
+
+export const getRejectedOrders = async () => {
+  try {
+    const response = await api.get(`${API_BASE_URL}/rejected`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching rejected orders:', error);
+    throw error.response?.data || error.message;
+  }
+};
+
+export const reassignOrder = async (orderId, reassignData) => {
+  try {
+    const response = await api.post(
+      `${API_BASE_URL}/orders/${orderId}/reassign`, 
+      reassignData
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error reassigning order:', error);
+    throw error.response?.data || error.message;
+  }
+};

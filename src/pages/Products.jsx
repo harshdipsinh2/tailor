@@ -35,6 +35,14 @@ const Products = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const showMessage = (type, content) => {
+    messageApi.open({
+      type,
+      content,
+    });
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -43,7 +51,7 @@ const Products = () => {
       setProducts(data);
       setFilteredProducts(data);
     } catch (error) {
-      message.error(error.message || "Failed to fetch products.");
+      showMessage('error', error.message || "Failed to fetch products.");
     } finally {
       setLoading(false);
     }
@@ -82,10 +90,10 @@ const Products = () => {
   const handleDeleteProduct = async (id) => {
     try {
       await deleteProduct(id);
-      message.success("Product deleted successfully.");
+      showMessage('success', "Product deleted successfully");
       fetchProducts();
     } catch (error) {
-      message.error(error.message);
+      showMessage('error', error.message);
     }
   };
 
@@ -100,16 +108,16 @@ const Products = () => {
 
       if (isEditing) {
         await updateProduct(productId, apiData);
-        message.success("Product updated successfully.");
+        showMessage('success', "Product updated successfully");
       } else {
         await addProduct(apiData);
-        message.success("Product added successfully.");
+        showMessage('success', "Product added successfully");
       }
       setShowModal(false);
       form.resetFields();
       fetchProducts();
     } catch (error) {
-      message.error(error.message || "Failed to submit product");
+      showMessage('error', error.message || "Failed to submit product");
     }
   };
 
@@ -160,6 +168,7 @@ const Products = () => {
 
   return (
     <div className="products-container" style={{ padding: "20px" }}>
+      {contextHolder}
       <Card
         title={<h2>Product List</h2>}
         extra={
