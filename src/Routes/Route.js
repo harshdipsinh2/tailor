@@ -19,6 +19,8 @@ import Unauthorized from "../pages/Unauthorized";
 import Calendar from "../pages/Calendar";
 import Otp from "../pages/Otp";
 import PaymentSuccess from "../Stripe/Payment-Success";
+import ManageOrders from "../pages/ManageOrders";
+import RejectedOrders from "../pages/RejectedOrders";
 
 
 const AppRoutes = () => {
@@ -139,8 +141,28 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="manage-orders"
+          element={
+            <ProtectedRoute allowedRoles={['tailor']}>
+              <ManageOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="rejected-orders"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+              <RejectedOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch all route - redirect to login */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Route>
 
+      {/* Payment routes */}
       <Route
         path="payment-success"
         element={
@@ -157,10 +179,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
-
-      {/* Catch all route - redirect to login */}
-      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 };

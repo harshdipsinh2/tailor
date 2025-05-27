@@ -8,8 +8,9 @@ import {
   DownOutlined,
   TeamOutlined,
   CalendarOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message } from "antd";
+import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message, Badge, Popover } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import image from "../asset/maschine.jpeg";
 import "../Css/Navbar.css";
@@ -38,9 +39,27 @@ const MainLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [messageCount, setMessageCount] = useState(3); // Example count
+  const [messageVisible, setMessageVisible] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // Sample message data
+  const messages = [
+    {
+      id: 1,
+      title: "New Order",
+      content: "You have received a new order",
+      time: "5 mins ago"
+    },
+    {
+      id: 2,
+      title: "Order Update",
+      content: "Order #123 has been completed",
+      time: "1 hour ago"
+    }
+  ];
 
   // Handle user logout
   const handleLogout = () => {
@@ -85,6 +104,7 @@ const MainLayout = () => {
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
         getItem(<Link to="/orders">Orders</Link>, "8"),
         getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
+        getItem(<Link to="/rejected-orders">Rejected Orders</Link>, "12"),
       ]),
       // Additional management options
       getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
@@ -103,9 +123,47 @@ const MainLayout = () => {
       ]),
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
         getItem(<Link to="/orders">Orders</Link>, "8"),
+        getItem(<Link to="/manage-orders">Manage Orders</Link>, "9"), // Verify this line
       ])
     );
   }
+
+  // Message content component
+  const MessageContent = () => (
+    <div style={{ width: 300 }}>
+      <div style={{ 
+        borderBottom: '1px solid #f0f0f0', 
+        padding: '8px 16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <span style={{ fontWeight: 'bold' }}>Messages</span>
+        <a href="#" style={{ fontSize: '12px' }}>Mark all as read</a>
+      </div>
+      <div style={{ maxHeight: 300, overflow: 'auto' }}>
+        {messages.map(msg => (
+          <div key={msg.id} style={{
+            padding: '12px 16px',
+            borderBottom: '1px solid #f0f0f0',
+            cursor: 'pointer',
+            ':hover': { backgroundColor: '#f5f5f5' }
+          }}>
+            <div style={{ fontWeight: 'bold' }}>{msg.title}</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{msg.content}</div>
+            <div style={{ fontSize: '11px', color: '#999', marginTop: 4 }}>{msg.time}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ 
+        padding: '8px 16px', 
+        borderTop: '1px solid #f0f0f0',
+        textAlign: 'center' 
+      }}>
+        <Link to="/messages">View All Messages</Link>
+      </div>
+    </div>
+  );
 
   // Main layout structure
   return (
@@ -159,8 +217,30 @@ const MainLayout = () => {
             Tailor Management System ✃
           </span>
 
-          {/* User Profile Dropdown */}
-          <div style={{ paddingRight: 20 }}>
+          {/* User Profile Section */}
+          <div style={{ paddingRight: 20, display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Message Icon */}
+            <Popover
+              content={<MessageContent />}
+              title={null}
+              trigger="click"
+              open={messageVisible}
+              onOpenChange={setMessageVisible}
+              placement="bottomRight"
+              arrow
+            >
+              <Badge count={messageCount} size="small">
+                <MessageOutlined 
+                  style={{ 
+                    fontSize: '20px', 
+                    color: '#fff',
+                    cursor: 'pointer'
+                  }} 
+                />
+              </Badge>
+            </Popover>
+
+            {/* Existing Dropdown */}
             <Dropdown
               menu={{
                 items: [

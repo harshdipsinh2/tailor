@@ -11,7 +11,8 @@ import {
   Select,
   DatePicker,
   message,
-  Popconfirm
+  Popconfirm,
+  Tag
 } from "antd";
 import {
   PlusOutlined,
@@ -117,6 +118,7 @@ const Orders = () => {
         CompletionDate: values.completionDate.format("YYYY-MM-DD"),
         OrderStatus: "Pending",
         PaymentStatus: values.paymentStatus
+        
       };
 
       await createOrder(orderData);
@@ -255,6 +257,20 @@ const Orders = () => {
       title: "Payment Status",
       dataIndex: "PaymentStatus",
       key: "paymentStatus"
+    },
+    {
+      title: "Approval Status",
+      dataIndex: "ApprovalStatus",
+      key: "approvalStatus",
+      render: (status) => (
+        <Tag color={
+          status === 'Approved' ? 'green' :
+          status === 'Rejected' ? 'red' :
+          'orange'
+        }>
+          {status || 'Pending'}
+        </Tag>
+      )
     },
     {
       title: "Actions",
