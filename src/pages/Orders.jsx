@@ -270,7 +270,7 @@ const Orders = () => {
       render: (status) => (
         <Tag color={
           status === 'Completed' ? 'green' :
-          status === 'Pending' ? 'gold' :
+          status === 'Pending' ? 'blue' :
           'gold'  // Default color
         }>
           {status || 'Pending'}

@@ -3,8 +3,10 @@ import { Table, Button, Modal, Form, Input, message, Card, Space, Spin, Select, 
 import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { getAllUsers, registerUser, updateUser, deleteUser } from "../api/UserApi";
 import Password from "antd/es/input/Password";
+import { useNavigate } from "react-router-dom";
 
 const Employees = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [employeeId, setEmployeeID] = useState("");
   const [show, setShow] = useState(false);
@@ -90,11 +92,18 @@ const Employees = () => {
 
   const handleAddSubmit = async (values) => {
     try {
-      await registerUser(values);
-      message.success("Employee added successfully!");
-      setIsAddModalVisible(false);
-      form.resetFields();
-      fetchEmployees(); // Refresh the list
+      const result = await registerUser(values);
+      if (result) {
+        // Store email temporarily
+        localStorage.setItem('newEmployeeEmail', values.email);
+        // Redirect to OTP verification
+        navigate('/verify-employee', { 
+          state: { 
+            email: values.email,
+            returnPath: '/employees'
+          } 
+        });
+      }
     } catch (error) {
       message.error("Failed to add employee: " + error.message);
     }
