@@ -1,35 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Button,
-  Modal,
-  Form,
-  Input,
-  Space,
-  Spin,
-  Card,
-  Select,
-  DatePicker,
-  message,
-  Popconfirm,
-  Tag
+import {Table, Button, Modal, Form, Input, Space, Spin,Card, Select, DatePicker, message, Popconfirm,Tag
 } from "antd";
-import {
-  PlusOutlined,
-  SearchOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  DollarOutlined,
-  SyncOutlined
+import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, DollarOutlined, SyncOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import {
-  getAllOrders,
-  getAllCustomers,
-  getAllProducts,
-  getAllFabricTypes,
-  createOrder,
-  deleteOrder
+import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOrder,deleteOrder
 } from "../api/AdminApi";
 import { getAllUsers } from "../api/UserApi";
 import { createCheckoutSession } from "../api/Payment";
@@ -38,44 +13,46 @@ import { updateOrderStatus } from "../api/AdminApi"; // 👈 Make sure this is e
 const { Option } = Select;
 
 const Orders = () => {
+  // Get user role from localStorage for permission checks
   const role = localStorage.getItem('role');
-  const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [fabrics, setFabrics] = useState([]);
-  const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [showStatusModal, setShowStatusModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [form] = Form.useForm();
-  const [statusForm] = Form.useForm();
 
+  // State declarations for managing orders and UI
+  const [orders, setOrders] = useState([]); // Store all orders
+  const [filteredOrders, setFilteredOrders] = useState([]); // Store filtered orders based on search
+  const [customers, setCustomers] = useState([]); // Store customer list for dropdowns
+  const [products, setProducts] = useState([]); // Store product list for dropdowns
+  const [fabrics, setFabrics] = useState([]); // Store fabric list for dropdowns
+  const [employees, setEmployees] = useState([]); // Store employee list for assignment
+  const [loading, setLoading] = useState(false); // Loading state for API calls
+  const [showModal, setShowModal] = useState(false); // Control add order modal visibility
+  const [showStatusModal, setShowStatusModal] = useState(false); // Control status update modal
+  const [selectedOrder, setSelectedOrder] = useState(null); // Store currently selected order
+  const [searchTerm, setSearchTerm] = useState(""); // Store search input value
+  const [form] = Form.useForm(); // Form instance for add order
+  const [statusForm] = Form.useForm(); // Form instance for status update 
+
+  // Fetch all necessary data when component mounts
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [
-        ordersData,
-        customersData,
-        productsData,
-        fabricsData,
-        usersData
-      ] = await Promise.all([
-        getAllOrders(),
-        getAllCustomers(),
-        getAllProducts(),
-        getAllFabricTypes(),
-        getAllUsers()
-      ]);
+      // Fetch all required data in parallel
+      const [ordersData, customersData, productsData, fabricsData, usersData] = 
+        await Promise.all([
+          getAllOrders(),
+          getAllCustomers(),
+          getAllProducts(),
+          getAllFabricTypes(),
+          getAllUsers()
+        ]);
 
+      // Format users data for the dropdown
       const formattedUsers = usersData.map(user => ({
         value: user.UserID,
         label: user.Name || user.name || user.FullName || user.fullName,
         isVerified: user.IsVerified ?? false
       }));
 
+      // Update all state variables with fetched data
       setEmployees(formattedUsers);
       setOrders(ordersData);
       setFilteredOrders(ordersData);
@@ -90,12 +67,15 @@ const Orders = () => {
     }
   };
 
+  // Load data when component mounts
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Filter orders based on search term
   useEffect(() => {
     const filtered = orders.filter(order => {
+      // Check if order is pending and matches search term
       const isPending = (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending";
       const matchesSearch = (
         order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -106,9 +86,11 @@ const Orders = () => {
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
+  // Handler for creating new order
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
+      // Format order data for API
       const orderData = {
         CustomerId: values.customerId,
         ProductId: values.productId,
@@ -119,14 +101,13 @@ const Orders = () => {
         CompletionDate: values.completionDate.format("YYYY-MM-DD"),
         OrderStatus: "Pending",
         PaymentStatus: values.paymentStatus
-        
       };
 
       await createOrder(orderData);
       message.success("Order created successfully");
       setShowModal(false);
       form.resetFields();
-      fetchData();
+      fetchData(); // Refresh data after creation
     } catch (error) {
       console.error('Error creating order:', error);
       message.error(error.message || "Failed to create order");
