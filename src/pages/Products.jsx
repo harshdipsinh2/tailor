@@ -27,6 +27,7 @@ import {
 } from "../api/AdminApi";
 
 const Products = () => {
+  const role = localStorage.getItem('role'); // Get user role
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [productId, setProductId] = useState('');
@@ -122,7 +123,6 @@ const Products = () => {
   };
 
   const columns = [
-    // { title: 'Product ID', dataIndex: 'ProductID', key: 'ProductID' },
     { title: 'Name', dataIndex: 'ProductName', key: 'ProductName' },
     {
       title: 'Making Price',
@@ -135,7 +135,8 @@ const Products = () => {
       dataIndex: 'ProductType',
       key: 'ProductType'
     },
-    {
+    // Only show actions column for admin and manager
+    ...(role === 'Admin' || role === 'Manager' ? [{
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
@@ -143,7 +144,7 @@ const Products = () => {
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEditProduct(record.ProductID)}
-            >
+          >
             Edit
           </Button>
           <Popconfirm
@@ -154,43 +155,42 @@ const Products = () => {
             cancelText="No"
             okButtonProps={{ danger: true }}
           >
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-            >
+            <Button danger icon={<DeleteOutlined />}>
               Delete
             </Button>
           </Popconfirm>
         </Space>
       )
-    }
+    }] : [])
   ];
 
   return (
-    <div className="products-container" style={{ padding: "20px" }}>
+    <div style={{ padding: "20px" }}>
       {contextHolder}
       <Card
-        title={<h2>Product List</h2>}
+        title={<h2>Product Records</h2>}
         extra={
           <Space>
             <Input
-              placeholder="Search by Product Name"
+              placeholder="Search by product name"
               prefix={<SearchOutlined />}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: 250 }}
             />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setShowModal(true);
-                setIsEditing(false);
-                form.resetFields();
-              }}
-            >
-              Add Product
-            </Button>
+            {/* Only show Add Product button for admin and manager */}
+            {(role === 'Admin' || role === 'Manager') && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setIsEditing(false);
+                  setShowModal(true);
+                }}
+              >
+                Add Product
+              </Button>
+            )}
           </Space>
         }
       >

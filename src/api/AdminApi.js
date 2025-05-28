@@ -403,12 +403,11 @@ export const getRejectedOrders = async () => {
 export const reassignOrder = async (orderId, reassignData) => {
   try {
     const response = await api.post(
-      `${API_BASE_URL}/orders/${orderId}/reassign`, 
+      `${API_BASE_URL}/orders/${orderId}/reassign`,
       reassignData
     );
     return response.data;
   } catch (error) {
-    console.error('Error reassigning order:', error);
-    throw error.response?.data || error.message;
+    throw new Error(error.response?.data || 'Failed to reassign order');
   }
 };

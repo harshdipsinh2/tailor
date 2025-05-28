@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   UserOutlined,
   PieChartOutlined,
@@ -8,13 +8,17 @@ import {
   DownOutlined,
   TeamOutlined,
   CalendarOutlined,
-  MessageOutlined,
+  // MessageOutlined, // Comment out
 } from "@ant-design/icons";
-import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message, Badge, Popover } from "antd";
+import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message, 
+  // Badge, Popover, Tag // Comment out
+} from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
 import image from "../asset/maschine.jpeg";
 import "../Css/Navbar.css";
 import { AuthContext } from "../Contexts/AuthContext";
+import { getRejectedOrders, getAllOrders } from '../api/AdminApi';
+import dayjs from 'dayjs';
 
 // Destructure Layout components
 const { Header, Sider, Content } = Layout;
@@ -35,12 +39,12 @@ const getItem = (label, key, icon, children, type) => ({
 });
 
 const MainLayout = () => {
-  // Hooks for navigation and state management
-  const location = useLocation();
+  // Add useNavigate hook at the top of component
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-  const [messageCount, setMessageCount] = useState(3); // Example count
-  const [messageVisible, setMessageVisible] = useState(false);
+  // const [notifications, setNotifications] = useState([]);
+  // const [messageCount, setMessageCount] = useState(0);
+  // const [messageVisible, setMessageVisible] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -98,7 +102,7 @@ const MainLayout = () => {
       getItem("Product Management", "sub2", <AppstoreOutlined />, [
         getItem(<Link to="/products">Products</Link>, "5"),
         getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
-        getItem(<Link to="/FabricStock">Fabric Stock</Link>, "7"),
+        getItem(<Link to="/FabricStock">Fabric Stock Management</Link>, "7"),
       ]),
       // Order Management section
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
@@ -128,7 +132,72 @@ const MainLayout = () => {
     );
   }
 
-  // Message content component
+  // Comment out the fetchNotifications function
+  /*
+  const fetchNotifications = async () => {
+    try {
+      let notificationsList = [];
+
+      // Get all orders for pending approvals (for tailors)
+      const allOrders = await getAllOrders();
+      const pendingOrders = allOrders.filter(order => 
+        order.ApprovalStatus === 'Pending' && 
+        order.AssignedToName === localStorage.getItem('userName')
+      );
+
+      // Add pending orders to notifications
+      pendingOrders.forEach(order => {
+        notificationsList.push({
+          id: `pending-${order.OrderID}`,
+          title: 'New Order Assignment',
+          content: `You have a new order for ${order.ProductName} from ${order.CustomerName}`,
+          time: dayjs(order.OrderDate).fromNow(),
+          type: 'pending'
+        });
+      });
+
+      // Get rejected orders (for managers)
+      if (role === 'Manager' || role === 'Admin') {
+        const rejectedOrders = await getRejectedOrders();
+        rejectedOrders.forEach(order => {
+          notificationsList.push({
+            id: `rejected-${order.OrderID}`,
+            title: 'Order Rejected',
+            content: `Order #${order.OrderID} was rejected by ${order.AssignedToName}. Reason: ${order.RejectionReason}`,
+            time: dayjs(order.OrderDate).fromNow(),
+            type: 'rejected'
+          });
+        });
+      }
+
+      setNotifications(notificationsList);
+      setMessageCount(notificationsList.length);
+
+      // Show popup for new notifications
+      if (notificationsList.length > 0) {
+        message.info({
+          content: 'You have new messages',
+          duration: 3
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+  */
+
+  // Comment out the useEffect for notifications
+  /*
+  useEffect(() => {
+    fetchNotifications();
+    // Fetch notifications every 5 minutes
+    const interval = setInterval(fetchNotifications, 300000);
+    return () => clearInterval(interval);
+  }, []);
+  */
+
+  // Comment out the MessageContent component
+  /*
   const MessageContent = () => (
     <div style={{ width: 300 }}>
       <div style={{ 
@@ -138,32 +207,50 @@ const MainLayout = () => {
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <span style={{ fontWeight: 'bold' }}>Messages</span>
-        <a href="#" style={{ fontSize: '12px' }}>Mark all as read</a>
+        <span style={{ fontWeight: 'bold' }}>Notifications</span>
+        <a onClick={fetchNotifications} style={{ fontSize: '12px', cursor: 'pointer' }}>
+          Refresh
+        </a>
       </div>
-      <div style={{ maxHeight: 300, overflow: 'auto' }}>
-        {messages.map(msg => (
-          <div key={msg.id} style={{
-            padding: '12px 16px',
-            borderBottom: '1px solid #f0f0f0',
-            cursor: 'pointer',
-            ':hover': { backgroundColor: '#f5f5f5' }
-          }}>
-            <div style={{ fontWeight: 'bold' }}>{msg.title}</div>
-            <div style={{ fontSize: '12px', color: '#666' }}>{msg.content}</div>
-            <div style={{ fontSize: '11px', color: '#999', marginTop: 4 }}>{msg.time}</div>
+      <div style={{ maxHeight: 400, overflow: 'auto' }}>
+        {notifications.length === 0 ? (
+          <div style={{ padding: '16px', textAlign: 'center', color: '#999' }}>
+            No new notifications
           </div>
-        ))}
-      </div>
-      <div style={{ 
-        padding: '8px 16px', 
-        borderTop: '1px solid #f0f0f0',
-        textAlign: 'center' 
-      }}>
-        <Link to="/messages">View All Messages</Link>
+        ) : (
+          notifications.map(notification => (
+            <div 
+              key={notification.id} 
+              style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid #f0f0f0',
+                cursor: 'pointer',
+                backgroundColor: notification.type === 'rejected' ? '#fff2f0' : 
+                                notification.type === 'pending' ? '#e6f7ff' : 'white'
+              }}
+            >
+              <div style={{ fontWeight: 'bold' }}>{notification.title}</div>
+              <div style={{ fontSize: '12px', color: '#666' }}>{notification.content}</div>
+              <div style={{ 
+                fontSize: '11px', 
+                color: '#999', 
+                marginTop: 4,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span>{notification.time}</span>
+                <Tag color={notification.type === 'rejected' ? 'red' : 'blue'}>
+                  {notification.type === 'rejected' ? 'Rejected' : 'Pending'}
+                </Tag>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
+  */
 
   // Main layout structure
   return (
@@ -219,7 +306,7 @@ const MainLayout = () => {
 
           {/* User Profile Section */}
           <div style={{ paddingRight: 20, display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* Message Icon */}
+            {/* Comment out Message Icon and Popover
             <Popover
               content={<MessageContent />}
               title={null}
@@ -239,8 +326,9 @@ const MainLayout = () => {
                 />
               </Badge>
             </Popover>
+            */}
 
-            {/* Existing Dropdown */}
+            {/* Existing Dropdown remains unchanged */}
             <Dropdown
               menu={{
                 items: [

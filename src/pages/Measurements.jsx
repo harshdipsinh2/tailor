@@ -60,6 +60,7 @@ const handleDownloadPDF = (record) => {
 };
 
 const Measurements = () => {
+  const role = localStorage.getItem('role'); // Get user role
   const [measurements, setMeasurements] = useState([]);
   const [filteredMeasurements, setFilteredMeasurements] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -194,8 +195,7 @@ const Measurements = () => {
   key: "actions",
   render: (record) => (
     <Space>
-
-            <Popconfirm
+      <Popconfirm
         title="Download Measurement"
         description="Are you sure you want to download the PDF?"
         okText="Yes"
@@ -206,19 +206,22 @@ const Measurements = () => {
           style={{ fontSize: 20, color: "#1890ff", cursor: "pointer" }}
         />
       </Popconfirm>
-      <Popconfirm
-        title="Delete Measurement"
-        description="Are you sure you want to delete this measurement?"
-        onConfirm={() => handleDeleteMeasurement(record.measurementID)}
-        okText="Yes"
-        cancelText="No"
-        okButtonProps={{ danger: true }}
-      >
-        <Button danger icon={<DeleteOutlined />}>
-          Delete
-        </Button>
-      </Popconfirm>
-
+      
+      {/* Only show delete button for admin and manager */}
+      {(role === 'Admin' || role === 'Manager') && (
+        <Popconfirm
+          title="Delete Measurement"
+          description="Are you sure you want to delete this measurement?"
+          onConfirm={() => handleDeleteMeasurement(record.measurementID)}
+          okText="Yes"
+          cancelText="No"
+          okButtonProps={{ danger: true }}
+        >
+          <Button danger icon={<DeleteOutlined />}>
+            Delete
+          </Button>
+        </Popconfirm>
+      )}
     </Space>
   ),
 }

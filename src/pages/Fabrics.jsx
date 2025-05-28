@@ -9,6 +9,7 @@ import {
 } from "../api/AdminApi";
 
 const Fabrics = () => {
+  const role = localStorage.getItem('role'); // Get user role
   const [fabrics, setFabrics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -111,13 +112,16 @@ const Fabrics = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{ width: 250 }}
             />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setShowModal(true)}
-            >
-              Add Fabric
-            </Button>
+            {/* Only show Add Fabric button for admin and manager */}
+            {(role === 'Admin' || role === 'Manager') && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setShowModal(true)}
+              >
+                Add Fabric
+              </Button>
+            )}
           </Space>
         }
       >
@@ -132,27 +136,30 @@ const Fabrics = () => {
             <Table.Column title="Fabric Name" dataIndex="fabricName" key="fabricName" />
             <Table.Column title="Price Per Meter" dataIndex="pricePerMeter" key="pricePerMeter" />
             <Table.Column title="Stock Quantity" dataIndex="stockQuantity" key="stockQuantity" />
-            <Table.Column
-              title="Actions"
-              key="actions"
-              render={(fabric) => (
-                <Space>
-                  <Button onClick={() => handleEditPrice(fabric)}>Edit Price</Button>
-                  <Popconfirm
-                    title="Delete Fabric"
-                    description="Are you sure you want to delete this fabric?"
-                    onConfirm={() => handleDeleteFabric(fabric.fabricId)}
-                    okText="Yes"
-                    cancelText="No"
-                    okButtonProps={{ danger: true }}
-                  >
-                    <Button danger icon={<DeleteOutlined />}>
-                      Delete
-                    </Button>
-                  </Popconfirm>
-                </Space>
-              )}
-            />
+            {/* Only show actions column for admin and manager */}
+            {(role === 'Admin' || role === 'Manager') && (
+              <Table.Column
+                title="Actions"
+                key="actions"
+                render={(fabric) => (
+                  <Space>
+                    <Button onClick={() => handleEditPrice(fabric)}>Edit Price</Button>
+                    <Popconfirm
+                      title="Delete Fabric"
+                      description="Are you sure you want to delete this fabric?"
+                      onConfirm={() => handleDeleteFabric(fabric.fabricId)}
+                      okText="Yes"
+                      cancelText="No"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <Button danger icon={<DeleteOutlined />}>
+                        Delete
+                      </Button>
+                    </Popconfirm>
+                  </Space>
+                )}
+              />
+            )}
           </Table>
         </Spin>
       </Card>

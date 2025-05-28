@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Modal, 
-  Form, 
-  Select, 
-  Space, 
-  Card, 
-  message, 
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Select,
+  Space,
+  Card,
+  message,
   Input,
-  Spin 
+  Spin
 } from 'antd';
-import { 
+import {
   SyncOutlined,
-  SearchOutlined 
+  SearchOutlined
 } from '@ant-design/icons';
 import { getAllOrders, updateOrderApproval } from '../api/AdminApi';
 import dayjs from 'dayjs';
@@ -31,16 +31,20 @@ const ManageOrders = () => {
 
   const rejectionReasons = [
     "Insufficient materials available",
-    "Time constraints - unable to meet deadline",
-    "Currently at maximum capacity"
+    "Insufficient time to complete the order",
+    "Health issues prevent taking new orders",
+    "Currently on personal leave"
   ];
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const data = await getAllOrders();
-      setOrders(data);
-      setFilteredOrders(data);
+
+      // Filter only orders with pending approval
+      const pendingOrders = data.filter(order => order.ApprovalStatus === 'Pending');
+      setOrders(pendingOrders);
+      setFilteredOrders(pendingOrders);
     } catch (error) {
       message.error('Failed to fetch orders');
     } finally {
@@ -54,7 +58,7 @@ const ManageOrders = () => {
 
   // Add search filter functionality
   useEffect(() => {
-    const filtered = orders.filter(order => 
+    const filtered = orders.filter(order =>
       order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.ProductName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -112,7 +116,7 @@ const ManageOrders = () => {
       title: 'Actions',
       key: 'actions',
       render: (_, record) => (
-        <Button 
+        <Button
           type="primary"
           icon={<SyncOutlined />}
           onClick={() => handleManageOrder(record)}
@@ -177,11 +181,11 @@ const ManageOrders = () => {
 
           <Form.Item
             noStyle
-            shouldUpdate={(prevValues, currentValues) => 
+            shouldUpdate={(prevValues, currentValues) =>
               prevValues.approvalStatus !== currentValues.approvalStatus
             }
           >
-            {({ getFieldValue }) => 
+            {({ getFieldValue }) =>
               getFieldValue('approvalStatus') === 'Rejected' && (
                 <Form.Item
                   name="rejectionReason"

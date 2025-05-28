@@ -43,21 +43,25 @@ const RejectedOrders = () => {
     }
   };
 
-  const fetchUsers = async () => {
-    try {
-      const data = await getAllUsers();
-      const formattedUsers = data.map(user => ({
-        value: user.UserID,
-        label: user.Name || user.name || user.FullName || user.fullName,
-        isVerified: user.IsVerified ?? false
+  // Update fetchUsers function
+const fetchUsers = async () => {
+  try {
+    const data = await getAllUsers();
+
+    const formattedUsers = data
+    
+      .map(user => ({
+        value: user.UserID || user.Id || user.userId,
+        label: user.Name || user.name || user.FullName || user.fullName || "Unnamed Tailor"
       }));
-      // Filter only verified tailors if needed
-      const tailors = formattedUsers.filter(user => user.isVerified);
-      setUsers(tailors);
-    } catch (error) {
-      message.error('Failed to fetch tailors');
-    }
-  };
+
+    setUsers(formattedUsers);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    message.error('Failed to fetch tailors');
+  }
+};
+
 
   useEffect(() => {
     fetchRejectedOrders();
@@ -86,12 +90,14 @@ const RejectedOrders = () => {
 
     setReassignLoading(true);
     try {
-      await reassignOrder(selectedOrder.OrderID, { AssignedTo: selectedUser });
+      await reassignOrder(selectedOrder.OrderID, {
+        UserID: selectedUser // Match the backend DTO property
+      });
       message.success('Order reassigned successfully');
       setReassignModalVisible(false);
       fetchRejectedOrders(); // Refresh the list
     } catch (error) {
-      message.error('Failed to reassign order');
+      message.error('Failed to reassign order: ' + error.message);
     } finally {
       setReassignLoading(false);
     }
@@ -190,26 +196,26 @@ const RejectedOrders = () => {
             <p>Customer: {selectedOrder?.CustomerName}</p>
             <p>Product: {selectedOrder?.ProductName}</p>
           </div>
-          <Form.Item
-            label="Assign To"
-            required
-            validateStatus={!selectedUser ? 'error' : ''}
-            help={!selectedUser ? 'Please select a tailor' : ''}
-          >
-            <Select
-              style={{ width: '100%' }}
-              placeholder="Select tailor to assign"
-              value={selectedUser}
-              onChange={setSelectedUser}
-              showSearch
-              allowClear
-              optionFilterProp="label"
-              filterOption={(input, option) =>
-                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-              }
-              options={users}
-            />
-          </Form.Item>
+   <Form.Item
+  label="Assign To"
+  required
+  validateStatus={!selectedUser ? 'error' : ''}
+  help={!selectedUser ? 'Please select a tailor' : ''}
+>
+<Select
+  placeholder="Select tailor to assign"
+  showSearch
+  allowClear
+  value={selectedUser}
+  onChange={setSelectedUser}
+  options={users}
+  filterOption={(input, option) =>
+    option.label.toLowerCase().includes(input.toLowerCase())
+  }
+/>
+
+</Form.Item>
+
         </Space>
       </Modal>
     </div>

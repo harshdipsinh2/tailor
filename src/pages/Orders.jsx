@@ -38,6 +38,7 @@ import { updateOrderStatus } from "../api/AdminApi"; // 👈 Make sure this is e
 const { Option } = Select;
 
 const Orders = () => {
+  const role = localStorage.getItem('role');
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -251,12 +252,30 @@ const Orders = () => {
     {
       title: "Order Status",
       dataIndex: "OrderStatus",
-      key: "orderStatus"
+      key: "orderStatus",
+      render: (status) => (
+        <Tag color={
+          status === 'Completed' ? 'green' :
+          status === 'Pending' ? 'blue' : 
+          'blue'  // Default color
+        }>
+          {status || 'Pending'}
+        </Tag>
+      )
     },
     {
       title: "Payment Status",
       dataIndex: "PaymentStatus",
-      key: "paymentStatus"
+      key: "paymentStatus",
+      render: (status) => (
+        <Tag color={
+          status === 'Completed' ? 'green' :
+          status === 'Pending' ? 'gold' :
+          'gold'  // Default color
+        }>
+          {status || 'Pending'}
+        </Tag>
+      )
     },
     {
       title: "Approval Status",
@@ -272,7 +291,8 @@ const Orders = () => {
         </Tag>
       )
     },
-    {
+    // Conditionally add actions column
+    ...(role !== 'Tailor' ? [{
       title: "Actions",
       key: "actions",
       render: (_, record) => (
@@ -307,13 +327,13 @@ const Orders = () => {
           </Button>
         </Space>
       )
-    }
+    }] : [])
   ];
 
   return (
     <div style={{ padding: "20px" }}>
       <Card
-        title={<h2 style={{ margin: 0 }}>Orders</h2>}
+        title={<h2>Orders</h2>}
         extra={
           <Space>
             <Input
@@ -323,13 +343,16 @@ const Orders = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: 250 }}
             />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleOpenModal}
-            >
-              Add Order
-            </Button>
+            {/* Only show Add Order button for admin and manager */}
+            {(role === 'Admin' || role === 'Manager') && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleOpenModal}
+              >
+                Add Order
+              </Button>
+            )}
           </Space>
         }
       >
@@ -340,7 +363,7 @@ const Orders = () => {
             rowKey="OrderID"
             bordered
             pagination={{ pageSize: 10 }}
-            scroll={{ x: "max-content" }}
+            scroll={{ x: 'max-content' }}
           />
         </Spin>
       </Card>
