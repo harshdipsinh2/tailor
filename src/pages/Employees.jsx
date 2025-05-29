@@ -82,7 +82,7 @@ const Employees = () => {
     
     try {
       // Add console.log to debug the ID being passed
-      console.log("Deleting employee with ID:", id);
+      // console.log("Deleting employee with ID:", id);
       
       const response = await deleteUser(id);
       if (response) {
@@ -204,7 +204,7 @@ const Employees = () => {
               key="actions"
               render={(employee) => {
                 // Add console.log to debug the employee object
-                console.log("Employee data in actions:", employee);
+                // console.log("Employee data in actions:", employee);
                 
                 return (
                   <Space>
