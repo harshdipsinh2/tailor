@@ -28,7 +28,7 @@ const Employees = () => {
       const data = await getAllUsers();
       // Transform the data to match the expected case
       const transformedData = data.map(employee => ({
-        id: employee.Id || employee.id,
+        id: employee.Id || employee.id || employee.UserID, // Add UserID as fallback
         name: employee.Name,
         email: employee.Email,
         mobileNo: employee.MobileNo,
@@ -38,8 +38,13 @@ const Employees = () => {
         userStatus: employee.UserStatus,
         isVerified: employee.IsVerified
       }));
+      
+      // Add console.log to debug transformed data
+      console.log("Transformed employee data:", transformedData);
+      
       setEmployees(transformedData);
     } catch (error) {
+      console.error("Fetch error:", error);
       message.error("Failed to fetch employees: " + error.message);
     } finally {
       setLoading(false);
@@ -68,13 +73,27 @@ const Employees = () => {
     }
   };
 
+  // Update the handleDeleteEmployee function
   const handleDeleteEmployee = async (id) => {
+    if (!id) {
+      message.error("Invalid employee ID");
+      return;
+    }
+    
     try {
-      await deleteUser(id);
-      message.success("Employee deleted successfully!");
-      fetchEmployees(); // Refresh the list
+      // Add console.log to debug the ID being passed
+      console.log("Deleting employee with ID:", id);
+      
+      const response = await deleteUser(id);
+      if (response) {
+        message.success("Employee deleted successfully!");
+        fetchEmployees(); // Refresh the list
+      } else {
+        message.error("Failed to delete employee - no response from server");
+      }
     } catch (error) {
-      message.error("Failed to delete employee: " + error.message);
+      console.error("Delete error:", error);
+      message.error(`Failed to delete employee: ${error.message || 'Unknown error'}`);
     }
   };
 
@@ -94,15 +113,10 @@ const Employees = () => {
     try {
       const result = await registerUser(values);
       if (result) {
-        // Store email temporarily
-        localStorage.setItem('newEmployeeEmail', values.email);
-        // Redirect to OTP verification
-        navigate('/verify-employee', { 
-          state: { 
-            email: values.email,
-            returnPath: '/employees'
-          } 
-        });
+        message.success('Employee added successfully!');
+        setIsAddModalVisible(false);
+        form.resetFields();
+        fetchEmployees(); // Refresh the employee list
       }
     } catch (error) {
       message.error("Failed to add employee: " + error.message);
@@ -188,32 +202,34 @@ const Employees = () => {
             <Table.Column
               title="Actions"
               key="actions"
-              render={(employee) => (
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<EditOutlined />}
-                    onClick={() => handleEditEmployee(employee.id)}  // Changed from employee.employeeId
-                  >
-                    Edit
-                  </Button>
-                  <Popconfirm
-                    title="Delete Employee"
-                    description="Are you sure you want to delete this employee?"
-                    onConfirm={() => handleDeleteEmployee(employee.id)}  // Changed from employee.employeeId
-                    okText="Yes"
-                    cancelText="No"
-                    okButtonProps={{ danger: true }}
-                  >
+              render={(employee) => {
+                // Add console.log to debug the employee object
+                console.log("Employee data in actions:", employee);
+                
+                return (
+                  <Space>
                     <Button
-                      danger
-                      icon={<DeleteOutlined />}
+                      type="primary"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditEmployee(employee.id)}
                     >
-                      Delete
+                      Edit
                     </Button>
-                  </Popconfirm>
-                </Space>
-              )}
+                    <Popconfirm
+                      title="Delete Employee"
+                      description="Are you sure you want to delete this employee?"
+                      onConfirm={() => handleDeleteEmployee(employee.id)}
+                      okText="Yes"
+                      cancelText="No"
+                      okButtonProps={{ danger: true }}
+                    >
+                      <Button danger icon={<DeleteOutlined />}>
+                        Delete
+                      </Button>
+                    </Popconfirm>
+                  </Space>
+                );
+              }}
             />
           </Table>
         </Spin>
