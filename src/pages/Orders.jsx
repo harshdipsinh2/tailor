@@ -295,8 +295,19 @@ const Orders = () => {
             onConfirm={() => handlePayment(record.OrderID)}
             okText="Yes"
             cancelText="No"
+            disabled={record.PaymentStatus === 'Completed'} // Add this line
           >
-            <Button type="primary" icon={<DollarOutlined />}>Pay</Button>
+            <Button 
+              type="primary" 
+              icon={<DollarOutlined />}
+              disabled={record.PaymentStatus === 'Completed'} // Add this line
+              style={{ 
+                opacity: record.PaymentStatus === 'Completed' ? 0.5 : 1,
+                cursor: record.PaymentStatus === 'Completed' ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {record.PaymentStatus === 'Completed' ? 'Paid' : 'Pay'}
+            </Button>
           </Popconfirm>
 
           <Button
@@ -520,18 +531,35 @@ const Orders = () => {
             label="Payment Status"
             rules={[{ required: true, message: "Select payment status" }]}
           >
-            <Select>
+            <Select 
+              disabled={selectedOrder?.PaymentStatus === 'Completed'}
+              style={{ 
+                opacity: selectedOrder?.PaymentStatus === 'Completed' ? 0.5 : 1
+              }}
+            >
               <Option value="Pending">Pending</Option>
               <Option value="Completed">Completed</Option>
             </Select>
           </Form.Item>
 
+          {selectedOrder?.PaymentStatus === 'Completed' && (
+            <div style={{ marginBottom: 16, color: '#ff4d4f' }}>
+              Payment status cannot be changed once completed
+            </div>
+          )}
+
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit" loading={loading}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                loading={loading}
+              >
                 Update Status
               </Button>
-              <Button onClick={() => setShowStatusModal(false)}>Cancel</Button>
+              <Button onClick={() => setShowStatusModal(false)}>
+                Cancel
+              </Button>
             </Space>
           </Form.Item>
         </Form>

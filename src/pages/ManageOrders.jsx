@@ -33,7 +33,9 @@ const ManageOrders = () => {
     "Insufficient materials available",
     "Insufficient time to complete the order",
     "Health issues prevent taking new orders",
-    "Currently on personal leave"
+    "Currently on personal leave",
+    "Pearsonal reasons",
+    "Other... "
   ];
 
   const fetchOrders = async () => {
