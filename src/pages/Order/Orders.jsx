@@ -5,10 +5,10 @@ import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, DollarOutli
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOrder,deleteOrder
-} from "../api/AdminApi";
-import { getAllUsers } from "../api/UserApi";
-import { createCheckoutSession } from "../api/Payment";
-import { updateOrderStatus } from "../api/AdminApi"; // 👈 Make sure this is exported
+} from "../../api/AdminApi";
+import { getAllUsers } from "../../api/UserApi";
+import { createCheckoutSession } from "../../api/Payment";
+import { updateOrderStatus } from "../../api/AdminApi"; // 👈 Make sure this is exported
 
 const { Option } = Select;
 
@@ -154,10 +154,17 @@ const Orders = () => {
   };
 
   const handleUpdateStatus = (order) => {
+    // Check if user is Tailor and order is not approved
+    if (role === 'Tailor' && order.ApprovalStatus !== 'Approved') {
+      message.error('You can only update approved orders');
+      return;
+    }
+
     setSelectedOrder(order);
     statusForm.setFieldsValue({
       OrderStatus: order.OrderStatus,
-      PaymentStatus: order.PaymentStatus
+      PaymentStatus: order.PaymentStatus,
+      CompletionDate: order.CompletionDate ? dayjs(order.CompletionDate) : null
     });
     setShowStatusModal(true);
   };
@@ -166,7 +173,12 @@ const Orders = () => {
     if (!selectedOrder) return;
     setLoading(true);
     try {
-      await updateOrderStatus(selectedOrder.OrderID, values);
+      // If Tailor role, only send OrderStatus
+      const updateData = role === 'Tailor' 
+        ? { OrderStatus: values.OrderStatus, PaymentStatus: selectedOrder.PaymentStatus }
+        : values;
+
+      await updateOrderStatus(selectedOrder.OrderID, updateData);
       message.success("Order status updated successfully");
       setShowStatusModal(false);
       setSelectedOrder(null);
@@ -272,54 +284,64 @@ const Orders = () => {
         </Tag>
       )
     },
-    // Conditionally add actions column
-    ...(role !== 'Tailor' ? [{
+    {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Popconfirm
-            title="Delete Order"
-            description="Are you sure you want to delete this order?"
-            onConfirm={() => handleDelete(record.OrderID)}
-            okText="Yes"
-            cancelText="No"
-            okButtonProps={{ danger: true }}
-          >
-            <Button danger icon={<DeleteOutlined />}>Delete</Button>
-          </Popconfirm>
+          {/* Show Delete and Payment buttons for Admin/Manager/SuperAdmin */}
+          {(role === 'Admin' || role === 'Manager' || role === 'SuperAdmin') && (
+            <>
+              <Popconfirm
+                title="Delete Order"
+                description="Are you sure you want to delete this order?"
+                onConfirm={() => handleDelete(record.OrderID)}
+                okText="Yes"
+                cancelText="No"
+                okButtonProps={{ danger: true }}
+              >
+                <Button danger icon={<DeleteOutlined />}>Delete</Button>
+              </Popconfirm>
 
-          <Popconfirm
-            title="Make Payment"
-            description="Do you want to proceed to payment?"
-            onConfirm={() => handlePayment(record.OrderID)}
-            okText="Yes"
-            cancelText="No"
-            disabled={record.PaymentStatus === 'Completed'} // Add this line
-          >
-            <Button 
-              type="primary" 
-              icon={<DollarOutlined />}
-              disabled={record.PaymentStatus === 'Completed'} // Add this line
-              style={{ 
-                opacity: record.PaymentStatus === 'Completed' ? 0.5 : 1,
-                cursor: record.PaymentStatus === 'Completed' ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {record.PaymentStatus === 'Completed' ? 'Paid' : 'Pay'}
-            </Button>
-          </Popconfirm>
-
+              <Popconfirm
+                title="Make Payment"
+                description="Do you want to proceed to payment?"
+                onConfirm={() => handlePayment(record.OrderID)}
+                okText="Yes"
+                cancelText="No"
+                disabled={record.PaymentStatus === 'Completed'}
+              >
+                <Button 
+                  type="primary" 
+                  icon={<DollarOutlined />}
+                  disabled={record.PaymentStatus === 'Completed'}
+                  style={{ 
+                    opacity: record.PaymentStatus === 'Completed' ? 0.5 : 1,
+                    cursor: record.PaymentStatus === 'Completed' ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {record.PaymentStatus === 'Completed' ? 'Paid' : 'Pay'}
+                </Button>
+              </Popconfirm>
+            </>
+          )}
+          
+          {/* Update Status button remains the same */}
           <Button
             type="dashed"
             icon={<SyncOutlined />}
             onClick={() => handleUpdateStatus(record)}
+            disabled={role === 'Tailor' && record.ApprovalStatus !== 'Approved'}
+            style={{
+              opacity: (role === 'Tailor' && record.ApprovalStatus !== 'Approved') ? 0.5 : 1,
+              cursor: (role === 'Tailor' && record.ApprovalStatus !== 'Approved') ? 'not-allowed' : 'pointer'
+            }}
           >
             Update Status
           </Button>
         </Space>
       )
-    }] : [])
+    }
   ];
 
   return (
@@ -336,7 +358,7 @@ const Orders = () => {
               style={{ width: 250 }}
             />
             {/* Only show Add Order button for admin and manager */}
-            {(role === 'Admin' || role === 'Manager') && (
+            {(role === 'Admin' || role === 'Manager' || role === 'SuperAdmin') && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -526,27 +548,42 @@ const Orders = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="PaymentStatus"
-            label="Payment Status"
-            rules={[{ required: true, message: "Select payment status" }]}
-          >
-            <Select 
-              disabled={selectedOrder?.PaymentStatus === 'Completed'}
-              style={{ 
-                opacity: selectedOrder?.PaymentStatus === 'Completed' ? 0.5 : 1
-              }}
-            >
-              <Option value="Pending">Pending</Option>
-              <Option value="Completed">Completed</Option>
-            </Select>
-          </Form.Item>
+          {/* Only show Payment Status field for non-Tailor roles */}
+          {role !== 'Tailor' && (
+            <>
+              <Form.Item
+                name="PaymentStatus"
+                label="Payment Status"
+                rules={[{ required: true, message: "Select payment status" }]}
+              >
+                <Select 
+                  disabled={selectedOrder?.PaymentStatus === 'Completed'}
+                  style={{ 
+                    opacity: selectedOrder?.PaymentStatus === 'Completed' ? 0.5 : 1
+                  }}
+                >
+                  <Option value="Pending">Pending</Option>
+                  <Option value="Completed">Completed</Option>
+                </Select>
+              </Form.Item>
 
-          {selectedOrder?.PaymentStatus === 'Completed' && (
-            <div style={{ marginBottom: 16, color: '#ff4d4f' }}>
-              Payment status cannot be changed once completed
-            </div>
+              {selectedOrder?.PaymentStatus === 'Completed' && (
+                <div style={{ marginBottom: 16, color: '#ff4d4f' }}>
+                  Payment status cannot be changed once completed
+                </div>
+              )}
+            </>
           )}
+
+          <Form.Item
+            name="CompletionDate"
+            label="Completion Date"
+          >
+            <DatePicker 
+              style={{ width: '100%' }}
+              format="YYYY-MM-DD"
+            />
+          </Form.Item>
 
           <Form.Item>
             <Space>

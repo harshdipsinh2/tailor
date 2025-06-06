@@ -302,7 +302,11 @@ export const updateOrder = async (orderId, orderData) => {
 
 export const updateOrderStatus = async (orderId, statusData) => {
   try {
-    const response = await api.put(`${API_BASE_URL}/update-status/${orderId}`, statusData);
+    const response = await api.put(`${API_BASE_URL}/UpdateOrderStatus/${orderId}`, {
+      OrderStatus: statusData.OrderStatus,
+      PaymentStatus: statusData.PaymentStatus,
+      CompletionDate: statusData.CompletionDate // Add completion date support
+    });
     return response.data;
   } catch (error) {
     console.error('Error updating order status:', error);

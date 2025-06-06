@@ -8,17 +8,19 @@ import {
   DownOutlined,
   TeamOutlined,
   CalendarOutlined,
-  // MessageOutlined, // Comment out
+  MessageOutlined, // Add this import
+  HomeOutlined 
 } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message, 
   // Badge, Popover, Tag // Comment out
 } from "antd";
 import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
-import image from "../asset/maschine.jpeg";
-import "../Css/Navbar.css";
-import { AuthContext } from "../Contexts/AuthContext";
-import { getRejectedOrders, getAllOrders } from '../api/AdminApi';
+import image from "../../asset/maschine.jpeg";
+import "../../Css/Navbar.css";
+import { AuthContext } from "../../Contexts/AuthContext";
+import { getRejectedOrders, getAllOrders } from '../../api/AdminApi';
 import dayjs from 'dayjs';
+import { Popconfirm } from 'antd';
 
 // Destructure Layout components
 const { Header, Sider, Content } = Layout;
@@ -89,7 +91,34 @@ const MainLayout = () => {
   let items = [getItem(<Link to="/dashboard">Dashboard</Link>, "1", <PieChartOutlined />)];
 
   // Add role-specific menu items
-  if (role === "Admin" || role === "Manager") {
+  if (role === "SuperAdmin") {
+    // SuperAdmin sees all menu items
+    items.push(
+      // Customer Management section
+      getItem("Customer Management", "sub1", <UserOutlined />, [
+        getItem(<Link to="/customer-registration">Registration</Link>, "2"),
+        getItem(<Link to="/customers">Customers</Link>, "3"),
+        getItem(<Link to="/measurements">Measurements</Link>, "4"),
+      ]),
+      // Product Management section
+      getItem("Product Management", "sub2", <AppstoreOutlined />, [
+        getItem(<Link to="/products">Products</Link>, "5"),
+        getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
+        getItem(<Link to="/FabricStock">Fabric Stock Management</Link>, "7"),
+      ]),
+      // Order Management section
+      getItem("Order Management", "sub3", <OrderedListOutlined />, [
+        getItem(<Link to="/orders">Orders</Link>, "8"),
+        getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
+        getItem(<Link to="/rejected-orders">Rejected Orders</Link>, "12"),
+        getItem(<Link to="/manage-orders">Manage Orders</Link>, "14"),
+      ]),
+      // Additional management options
+      getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
+      getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
+      getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
+    );
+  } else if (role === "Admin" || role === "Manager") {
     // Admin and Manager see all menu items
     items.push(
       // Customer Management section
@@ -113,6 +142,8 @@ const MainLayout = () => {
       // Additional management options
       getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
       getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
+      // Add this new item for SMS History
+      // getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
     );
   } else if (role === "Tailor") {
     // Tailor sees limited menu items
@@ -252,6 +283,23 @@ const MainLayout = () => {
   );
   */
 
+  // Add handle home navigation function
+  const handleHomeNavigation = () => {
+    try {
+      // Clear all authentication data
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("isVerified");
+      
+      message.success('Successfully logged out');
+      navigate('/home');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      message.error('Failed to navigate');
+    }
+  };
+
   // Main layout structure
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -299,34 +347,41 @@ const MainLayout = () => {
             color: "#fff",
           }}
         >
-          {/* Application Title */}
-          <span style={{ paddingLeft: 20, fontSize: 18, fontWeight: "bold" }}>
-            Tailor Management System ✃
-          </span>
+          {/* Application Title and Home Icon */}
+          <div style={{ 
+            paddingLeft: 20, 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '16px' 
+          }}>
+            <span style={{ fontSize: 18, fontWeight: "bold" }}>
+              Tailor Management System ✃
+            </span>
+          </div>
 
           {/* User Profile Section */}
           <div style={{ paddingRight: 20, display: 'flex', alignItems: 'center', gap: '16px' }}>
-            {/* Comment out Message Icon and Popover
-            <Popover
-              content={<MessageContent />}
-              title={null}
-              trigger="click"
-              open={messageVisible}
-              onOpenChange={setMessageVisible}
-              placement="bottomRight"
-              arrow
+            {/* Home Icon */}
+            <Popconfirm
+              title="Leave Dashboard"
+              description="Are you sure you want to leave? This will log you out."
+              onConfirm={handleHomeNavigation}
+              okText="Yes"
+              cancelText="No"
+              placement="bottomLeft"
             >
-              <Badge count={messageCount} size="small">
-                <MessageOutlined 
-                  style={{ 
-                    fontSize: '20px', 
-                    color: '#fff',
-                    cursor: 'pointer'
-                  }} 
-                />
-              </Badge>
-            </Popover>
-            */}
+              <HomeOutlined 
+                style={{ 
+                  fontSize: '20px', 
+                  cursor: 'pointer',
+                  color: '#fff',
+                  transition: 'color 0.3s',
+                  '&:hover': {
+                    color: '#1890ff'
+                  }
+                }} 
+              />
+            </Popconfirm>
 
             {/* Existing Dropdown remains unchanged */}
             <Dropdown

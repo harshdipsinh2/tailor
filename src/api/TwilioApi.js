@@ -25,3 +25,13 @@ export const sendWhatsApp = async (phoneNumber, messageData) => {
         throw new Error(error.response?.data?.message || 'Failed to send WhatsApp message');
     }
 };
+
+export const getAllSmsHistory = async () => {
+    try {
+        const response = await api.get(`${API_BASE_URL}/all`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching SMS history:', error);
+        throw new Error(error.response?.data?.message || 'Failed to fetch SMS history');
+    }
+};

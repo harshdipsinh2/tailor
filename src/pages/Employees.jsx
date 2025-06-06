@@ -139,8 +139,8 @@ const Employees = () => {
               allowClear
               style={{ width: "250px" }}
             />
-            {userRole === 'admin' && (
-              <Button
+          {(userRole === 'admin' || userRole === 'superadmin') && (            
+            <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => {

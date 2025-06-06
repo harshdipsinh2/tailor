@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Table, Input, message, Card, Space, Spin, Popconfirm } from "antd";
 import { FilePdfOutlined } from "@ant-design/icons";
 import { SearchOutlined } from "@ant-design/icons";
-import { getAllOrders } from "../api/AdminApi";
-import CompletedOrdersPDF from "../Components/Pdf/CompletedOrdersPDF";
-import InvoicePDF from "../Components/Pdf/InvoicePDF";
+import { getAllOrders } from "../../api/AdminApi";
+import CompletedOrdersPDF from "../../Components/Pdf/CompletedOrdersPDF";
+import InvoicePDF from "../../Components/Pdf/InvoicePDF";
 
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import dayjs from "dayjs";

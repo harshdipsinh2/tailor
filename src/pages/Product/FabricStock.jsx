@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, message, Card,Popconfirm, Space, Spin, Select, DatePicker } from "antd";
 import { PlusOutlined , FilePdfOutlined} from "@ant-design/icons";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import FabricStockPDF from "../Components/Pdf/FabricStockPDF";
+import FabricStockPDF from "../../Components/Pdf/FabricStockPDF";
 import {
   getAllFabricStocks,
   addFabricStock,
   getAllFabricTypes,
-} from "../api/AdminApi";
+} from "../../api/AdminApi";
 import dayjs from "dayjs";
 
 const { Option } = Select;

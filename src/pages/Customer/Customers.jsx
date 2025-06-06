@@ -8,13 +8,13 @@ import {
   EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined,FilePdfOutlined
 } from "@ant-design/icons";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import CustomerListPDF from "../Components/Pdf/CustomerListPDF";
+import CustomerListPDF from "../../Components/Pdf/CustomerListPDF";
 import {
   getAllCustomers,
   editCustomer,
   deleteCustomer,
   addMeasurement
-} from "../api/AdminApi";   
+} from "../../api/AdminApi";   
 
 const Customers = () => {
   // State management for customer data and UI controls

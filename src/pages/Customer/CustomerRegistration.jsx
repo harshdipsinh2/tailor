@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Radio, Button, Card, message } from "antd";
-import { addCustomer } from "../api/AdminApi";
+import { addCustomer } from "../../api/AdminApi";
 
 const CustomerRegistration = () => {
   const navigate = useNavigate();

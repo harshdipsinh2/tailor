@@ -1,0 +1,219 @@
+/* HomePage.css */
+
+/* Layout */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+.header.scrolled {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 24px;
+}
+
+.menu {
+  line-height: 64px;
+}
+
+/* Sections */
+.site-layout {
+  padding: 0 50px;
+  margin-top: 64px;
+  flex: 1;
+}
+
+.section {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.section-title {
+  margin-bottom: 16px !important;
+}
+
+.section-description {
+  max-width: 700px;
+  margin: 0 auto 40px !important;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  overflow: hidden;
+  /* Remove or comment out the gradient background */
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
+  text-align: center;
+}
+
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../asset/readdy\ bg.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4; /* Increased from 0.1 to 0.4 */
+  z-index: 1;
+}
+
+/* Optional: Add this if you want text to be more readable */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.8); /* Add semi-transparent white background */
+  padding: 2rem;
+  border-radius: 8px;
+}
+
+.hero-title {
+  font-size: 48px !important;
+  margin-bottom: 24px !important;
+}
+
+.hero-description {
+  font-size: 18px;
+  margin-bottom: 32px !important;
+  max-width: 700px;
+  margin: 0 auto 32px !important;
+}
+
+.trust-badge {
+  margin-top: 48px;
+}
+
+/* Cards */
+.feature-card, .highlight-card, .security-card {
+  height: 100%;
+  text-align: center;
+  border-radius: 8px !important;
+  transition: all 0.3s;
+}
+
+.feature-card {
+  padding: 24px;
+}
+
+.feature-icon {
+  margin-bottom: 16px;
+}
+
+.highlight-card {
+  background: #f0f9ff;
+  border-color: #d0ebff !important;
+}
+
+.security-card {
+  background: #f6ffed;
+  border-color: #d9f7be !important;
+}
+
+/* Highlight Section */
+.highlight-section {
+  background: #f9f9f9;
+}
+
+/* Security Section */
+.security-section {
+  background: #f0f5ff;
+}
+
+/* Benefits Section */
+.benefits-section {
+  background: #fff;
+}
+
+.benefit-item {
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 80px 0;
+  background: #1890ff;
+  color: #fff;
+  text-align: center;
+}
+
+.cta-section .ant-typography {
+  color: #fff !important;
+}
+
+/* Footer */
+.footer {
+  background: #001529;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.footer .ant-typography {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.footer .ant-divider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.copyright {
+  text-align: center;
+  margin-bottom: 0 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .site-layout {
+    padding: 0 16px;
+  }
+  
+  .header {
+    padding: 0 16px;
+  }
+  
+  .hero-title {
+    font-size: 32px !important;
+  }
+  
+  .hero-description {
+    font-size: 16px;
+  }
+  
+  .section {
+    padding: 60px 0;
+  }
+}

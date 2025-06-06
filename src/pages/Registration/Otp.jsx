@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button, Card, Form, Input, Layout, Typography, message, Space } from 'antd';
 import { MailOutlined, KeyOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { sendOTP, verifyOTP } from '../api/AuthApi';
-import Image from '../asset/20945597.jpg';
+import { sendOTP, verifyOTP } from '../../api/AuthApi';
+import Image from '../../asset/20945597.jpg';
 
 const { Title } = Typography;
 const { Content } = Layout;

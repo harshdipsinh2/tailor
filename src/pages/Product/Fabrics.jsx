@@ -6,7 +6,7 @@ import {
   addFabricType,
   softDeleteFabricType,
   updateFabricPrice, // make sure this is imported
-} from "../api/AdminApi";
+} from "../../api/AdminApi";
 
 const Fabrics = () => {
   const role = localStorage.getItem('role'); // Get user role
@@ -113,7 +113,7 @@ const Fabrics = () => {
               style={{ width: 250 }}
             />
             {/* Only show Add Fabric button for admin and manager */}
-            {(role === 'Admin' || role === 'Manager') && (
+            {(role === 'Admin' || role === 'Manager' || role === 'SuperAdmin') && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -137,7 +137,7 @@ const Fabrics = () => {
             <Table.Column title="Price Per Meter" dataIndex="pricePerMeter" key="pricePerMeter" />
             <Table.Column title="Stock Quantity" dataIndex="stockQuantity" key="stockQuantity" />
             {/* Only show actions column for admin and manager */}
-            {(role === 'Admin' || role === 'Manager') && (
+            {(role === 'Admin' || role === 'Manager' || role === 'SuperAdmin') && (
               <Table.Column
                 title="Actions"
                 key="actions"

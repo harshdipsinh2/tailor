@@ -15,7 +15,7 @@ import {
   SyncOutlined,
   SearchOutlined
 } from '@ant-design/icons';
-import { getAllOrders, updateOrderApproval } from '../api/AdminApi';
+import { getAllOrders, updateOrderApproval } from '../../api/AdminApi';
 import dayjs from 'dayjs';
 
 const { Option } = Select;

@@ -1,0 +1,19 @@
+.loading-screen {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+}
+
+.loading-icon {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 20px;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #666;  
+}

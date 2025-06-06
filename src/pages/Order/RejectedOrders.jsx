@@ -13,8 +13,8 @@ import {
   Form
 } from 'antd';
 import { SearchOutlined, SyncOutlined } from '@ant-design/icons';
-import { getRejectedOrders, reassignOrder } from '../api/AdminApi';
-import { getAllUsers } from '../api/UserApi';
+import { getRejectedOrders, reassignOrder } from '../../api/AdminApi';
+import { getAllUsers } from '../../api/UserApi';
 import dayjs from 'dayjs';
 
 const { Option } = Select;

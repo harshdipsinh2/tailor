@@ -2,25 +2,26 @@ import React, { useContext } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthContext } from "../Contexts/AuthContext";
 import ProtectedRoute from "./ProtectedRoute";
-import CustomerRegistration from "../pages/CustomerRegistration";
-import Customers from "../pages/Customers";
-import Orders from "../pages/Orders";
-import Products from "../pages/Products";
-import Measurements from "../pages/Measurements";
-import Dashboard from "../pages/Dashboard";
-import Fabrics from "../pages/Fabrics";
+import CustomerRegistration from "../pages/Customer/CustomerRegistration";
+import Customers from "../pages/Customer/Customers";
+import Orders from "../pages/Order/Orders";
+import Products from "../pages/Product/Products";
+import Measurements from "../pages/Customer/Measurements";
+import Dashboard from "../pages/UI/Dashboard";
+import Fabrics from "../pages/Product/Fabrics";
 import Employees from "../pages/Employees";
-import CompletedOrders from "../pages/CompletedOrders";
-import Login from "../pages/Login";
-import HomePage from "../pages/HomePage";
-import MainLayout from "../pages/MainLayot";
-import FabricStock from "../pages/FabricStock";
+import CompletedOrders from "../pages/Order/CompletedOrders";
+import Login from "../pages/Registration/Login";
+import HomePage from "../pages/UI/HomePage";
+import MainLayout from "../pages/UI/MainLayot";
+import FabricStock from "../pages/Product/FabricStock";
 import Unauthorized from "../pages/Unauthorized";
 import Calendar from "../pages/Calendar";
-import Otp from "../pages/Otp";
+import Otp from "../pages/Registration/Otp";
 import PaymentSuccess from "../Stripe/Payment-Success";
-import ManageOrders from "../pages/ManageOrders";
-import RejectedOrders from "../pages/RejectedOrders";
+import ManageOrders from "../pages/Order/ManageOrders";
+import RejectedOrders from "../pages/Order/RejectedOrders";
+import SmsHistory from "../pages/SmsHistory"; 
 
 
 const AppRoutes = () => {
@@ -29,20 +30,18 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={ <Login /> } />
+      <Route path="/login" element={<Login />} />
+      <Route path="/home" element={<HomePage />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Add OTP route before the protected routes */}
-      <Route 
-        path="/otp" 
-        element={ <Otp /> } 
-      />
+      <Route path="/otp" element={<Otp />} />
 
-      {/* Redirect root to login if not authenticated */}
+      {/* Change root route to show HomePage */}
       <Route
         path="/"
         element={
-          auth.token ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+          auth.token ? <Navigate to="/dashboard" /> : <HomePage />
         }
       />
 
@@ -55,7 +54,7 @@ const AppRoutes = () => {
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager', 'tailor']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager', 'tailor']}>
               <Dashboard />
             </ProtectedRoute>
           }
@@ -64,7 +63,7 @@ const AppRoutes = () => {
         <Route
           path="customers"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <Customers />
             </ProtectedRoute>
           }
@@ -72,7 +71,7 @@ const AppRoutes = () => {
         <Route
           path="customer-registration"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <CustomerRegistration />
             </ProtectedRoute>
           }
@@ -80,7 +79,7 @@ const AppRoutes = () => {
         <Route
           path="orders"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager', 'tailor']}>
+            <ProtectedRoute allowedRoles={['superadmin','admin', 'manager', 'tailor']}>
               <Orders />
             </ProtectedRoute>
           }
@@ -88,7 +87,7 @@ const AppRoutes = () => {
         <Route
           path="products"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager','tailor']}>
+            <ProtectedRoute allowedRoles={['superadmin','admin', 'manager','tailor']}>
               <Products />
             </ProtectedRoute>
           }
@@ -96,7 +95,7 @@ const AppRoutes = () => {
         <Route
           path="measurements"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager', 'tailor']}>
+            <ProtectedRoute allowedRoles={['superadmin','admin', 'manager', 'tailor']}>
               <Measurements />
             </ProtectedRoute>
           }
@@ -104,7 +103,7 @@ const AppRoutes = () => {
         <Route
           path="fabrics"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager','tailor']}>
+            <ProtectedRoute allowedRoles={['superadmin','admin', 'manager','tailor']}>
               <Fabrics />
             </ProtectedRoute>
           }
@@ -112,7 +111,7 @@ const AppRoutes = () => {
         <Route
           path="employees"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <Employees />
             </ProtectedRoute>
           }
@@ -120,7 +119,7 @@ const AppRoutes = () => {
         <Route
           path="completed-orders"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <CompletedOrders />
             </ProtectedRoute>
           }
@@ -128,7 +127,7 @@ const AppRoutes = () => {
         <Route
          path="FabricStock"
          element={
-           <ProtectedRoute allowedRoles={['admin', 'manager','tailor']}>
+           <ProtectedRoute allowedRoles={['superadmin','admin', 'manager','tailor']}>
              <FabricStock />
            </ProtectedRoute>
          }
@@ -136,7 +135,7 @@ const AppRoutes = () => {
         <Route
           path="Calendar"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <Calendar />
             </ProtectedRoute>
           }
@@ -144,7 +143,7 @@ const AppRoutes = () => {
         <Route
           path="manage-orders"
           element={
-            <ProtectedRoute allowedRoles={['tailor']}>
+            <ProtectedRoute allowedRoles={['superadmin','tailor']}>
               <ManageOrders />
             </ProtectedRoute>
           }
@@ -152,8 +151,16 @@ const AppRoutes = () => {
         <Route
           path="rejected-orders"
           element={
-            <ProtectedRoute allowedRoles={['admin', 'manager']}>
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <RejectedOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="sms-history"
+          element={
+            <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
+              <SmsHistory />
             </ProtectedRoute>
           }
         />
@@ -166,7 +173,7 @@ const AppRoutes = () => {
       <Route
         path="payment-success"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+          <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
             <PaymentSuccess />
           </ProtectedRoute>
         }
@@ -174,7 +181,7 @@ const AppRoutes = () => {
       <Route
         path="payment-cancel"
         element={
-          <ProtectedRoute allowedRoles={['admin', 'manager']}>
+          <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
             <PaymentSuccess />
           </ProtectedRoute>
         }

@@ -15,7 +15,7 @@ import {
   getAllMeasurements,
   deleteMeasurement,
   getAllCustomers,
-} from "../api/AdminApi";
+} from "../../api/AdminApi";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
