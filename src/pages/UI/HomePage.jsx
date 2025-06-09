@@ -25,7 +25,7 @@ const Homepage = () => {
     {
       icon: <UserOutlined style={{ fontSize: '32px', color: '#1890ff' }} />,
       title: 'Customer Management',
-      description: 'Store and manage customer profiles with detailed measurements, order history, and preferences.'
+      description: 'Store and manage customer profiles with detailed measurements, order history.'
     },
     {
       icon: <RocketOutlined style={{ fontSize: '32px', color: '#1890ff' }} />,
@@ -145,7 +145,7 @@ const Homepage = () => {
      
             </Space>
             <div className="trust-badge">
-              <Text type="secondary">500+ tailoring businesses trust us</Text>
+              {/* <Text type="secondary">500+ tailoring businesses trust us</Text> */}
             </div>
           </motion.div>
         </section>

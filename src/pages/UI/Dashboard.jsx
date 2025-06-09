@@ -25,45 +25,44 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-const fetchData = async () => {
-  try {
-    const [summaryResponse, ordersData, revenueData] = await Promise.all([
-      getSummary(),
-      getAllOrders(),
-      getRevenue(),
-    ]);
+    const fetchData = async () => {
+      try {
+        const [summaryResponse, ordersData, revenueData] = await Promise.all([
+          getSummary(),
+          getAllOrders(),
+          getRevenue(),
+        ]);
 
-    console.log("Summary Response:", summaryResponse);
-    
-    // Safely extract summary data
-    const summaryData = summaryResponse?.[0] || {};
-    console.log("Summary Data:", summaryData);
+        // Use the response directly without assuming it's an array
+        const summaryData = summaryResponse || {};
 
-    const pendingOrdersCount = ordersData.filter(
-      (order) =>
-        (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending"
-    ).length;
+        const pendingOrdersCount =
+          ordersData?.filter(
+            (order) =>
+              (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending"
+          ).length || 0;
 
-    const completedOrdersCount = ordersData.filter(
-      (order) =>
-        (order.OrderStatus || order.orderStatus)?.toLowerCase() === "completed" &&
-        (order.PaymentStatus || order.paymentStatus)?.toLowerCase() === "completed"
-    ).length;
+        const completedOrdersCount =
+          ordersData?.filter(
+            (order) =>
+              (order.OrderStatus || order.orderStatus)?.toLowerCase() === "completed" &&
+              (order.PaymentStatus || order.paymentStatus)?.toLowerCase() === "completed"
+          ).length || 0;
 
-    setSummary({
-      TotalCustomers: summaryData.TotalCustomers || 0,
-      TotalOrders: summaryData.TotalOrders || 0,
-      TotalEmployees: summaryData.TotalEmployees || 0,
-      TotalProducts: summaryData.TotalProducts || 0,
-      TotalFabrics: summaryData.TotalFabrics || 0,
-      PendingOrders: pendingOrdersCount,
-      CompletedOrders: completedOrdersCount,
-      TotalRevenue: revenueData || 0,
-    });
-  } catch (error) {
-    console.error("Failed to fetch data:", error);
-  }
-};
+        setSummary({
+          TotalCustomers: summaryData.TotalCustomers || 0,
+          TotalOrders: summaryData.TotalOrders || 0,
+          TotalEmployees: summaryData.TotalEmployees || 0,
+          TotalProducts: summaryData.TotalProducts || 0,
+          TotalFabrics: summaryData.TotalFabrics || 0,
+          PendingOrders: pendingOrdersCount,
+          CompletedOrders: completedOrdersCount,
+          TotalRevenue: revenueData || 0,
+        });
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    };
     fetchData();
   }, []);
 

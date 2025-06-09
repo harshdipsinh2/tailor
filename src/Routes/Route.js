@@ -30,8 +30,9 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route path="/login" element={<Login />} />
       <Route path="/home" element={<HomePage />} />
+
+      <Route path="/login" element={<Login />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Add OTP route before the protected routes */}
