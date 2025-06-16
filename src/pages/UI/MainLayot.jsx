@@ -316,7 +316,9 @@ const MainLayout = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            cursor: "pointer", // Add cursor pointer to indicate clickable
           }}
+          onClick={() => window.location.reload()} // Add onClick to refresh page
         >
           <img
             src={image}

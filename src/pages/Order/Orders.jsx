@@ -8,7 +8,8 @@ import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOr
 } from "../../api/AdminApi";
 import { getAllUsers } from "../../api/UserApi";
 import { createCheckoutSession } from "../../api/Payment";
-import { updateOrderStatus } from "../../api/AdminApi"; // 👈 Make sure this is exported
+import { updateOrderStatus } from "../../api/AdminApi"; 
+import orderactions from "./OrderActions"; // Import OrderActions component
 
 const { Option } = Select;
 

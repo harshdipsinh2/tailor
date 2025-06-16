@@ -116,10 +116,7 @@ The system uses RESTful APIs for:
 4. Push to the branch
 5. Create a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details
 
 ## 📞 Support
 
-For support, email support@tailormanagement.com or create an issue in the repository.
+For support, email harshdipsinhgohil730@gmail.com or create an issue in the repository.
