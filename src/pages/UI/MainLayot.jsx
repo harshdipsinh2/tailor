@@ -395,11 +395,11 @@ const MainLayout = () => {
                     label: (
                       <span style={{ color: '#1890ff' }}>
                         <TeamOutlined style={{ marginRight: 8 }} />
-                        Role: {role || 'N/A'}
+                        Role: {role || ''}
                       </span>
                     ),
                     disabled: true
-                  },
+                  },  
                   { type: 'divider' },
                   // Logout option
                   {

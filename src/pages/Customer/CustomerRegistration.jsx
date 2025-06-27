@@ -59,6 +59,8 @@ const CustomerRegistration = () => {
             <Input.TextArea placeholder="Address" rows={3} />
           </Form.Item>
 
+
+
           <Form.Item
             label="Gender"
             name="gender"

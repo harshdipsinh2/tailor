@@ -217,3 +217,17 @@
     padding: 60px 0;
   }
 }
+
+.plans-section {
+  padding: 60px 0;
+}
+
+.plan-card ul {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.plan-card li {
+  margin-bottom: 6px;
+  font-size: 15px;
+}

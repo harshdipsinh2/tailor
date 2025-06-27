@@ -415,3 +415,40 @@ export const reassignOrder = async (orderId, reassignData) => {
     throw new Error(error.response?.data || 'Failed to reassign order');
   }
 };
+
+
+//----------------------------------------------
+
+
+
+export const planBuy = async (planId)=> 
+{
+    try {
+        console.log("Plan ID:", planId);
+        const response = await api.post(
+            `https://localhost:7252/api/Plan/buy?planId=1`,
+            {
+                params: { planId: planId }
+            }
+
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error buying plan:', error);
+        throw new Error('Error buying plan: ' + error.message);
+    }
+}
+
+
+export const addBranch = async (branchData) => {
+    try {
+        const response = await api.post(`${API_BASE_URL}/AddBranch`, branchData);
+        return response.data;
+    } catch (error) {
+        throw new Error('Error adding branch: ' + error.message);
+    }
+}
+
+
+
+

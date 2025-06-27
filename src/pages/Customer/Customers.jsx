@@ -52,6 +52,8 @@ const Customers = () => {
           phoneNumber: customer.PhoneNumber || 'N/A',
           email: customer.Email || 'N/A',
           address: customer.Address || 'N/A',
+          branchName: customer.BranchName || 'N/A',
+          shopName: customer.ShopName || 'N/A',
           gender: customer.Gender ? customer.Gender.charAt(0).toUpperCase() + customer.Gender.slice(1) : 'N/A',
         }));
   

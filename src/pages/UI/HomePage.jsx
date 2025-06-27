@@ -20,6 +20,23 @@ const Homepage = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  const plans = [
+  {
+    name: 'Basic Plan',
+    branches: 'Up to 3 Branches',
+    orders: '250 Orders per Branch',
+    features: ['Product Management', 'Customer Management', 'Order Management', 'Fabric Inventory'],
+    color: '#faad14'
+  },
+  {
+    name: 'Premium Plan',
+    branches: 'Up to 7 Branches',
+    orders: '400 Orders per Branch',
+    features: ['Product Management', 'Customer Management', 'Order Management', 'Fabric Inventory'],
+    color: '#52c41a'
+  }
+];
+
 
   const features = [
     {
@@ -245,6 +262,49 @@ const Homepage = () => {
             </Row>
           </motion.div>
         </section>
+        {/* Subscription Plans Section */}
+<section id="plans" className="section plans-section">
+  <motion.div
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
+    viewport={{ once: true }}
+  >
+    <Title level={2} className="section-title">
+      Subscription Plans
+    </Title>
+    <Paragraph className="section-description">
+      Choose a plan that fits your business size and needs
+    </Paragraph>
+    <Row gutter={[24, 24]} justify="center">
+      {plans.map((plan, index) => (
+        <Col xs={24} sm={12} md={8} key={index}>
+          <motion.div
+            whileHover={{ scale: 1.03 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card
+              bordered
+              style={{ borderTop: `4px solid ${plan.color}`, borderRadius: '12px' }}
+              className="plan-card"
+            >
+              <Title level={3} style={{ color: plan.color }}>{plan.name}</Title>
+              <Divider />
+              <Paragraph><strong>Branches:</strong> {plan.branches}</Paragraph>
+              <Paragraph><strong>Orders:</strong> {plan.orders}</Paragraph>
+              <Paragraph><strong>Includes:</strong></Paragraph>
+              <ul style={{ paddingLeft: '20px' }}>
+                {plan.features.map((f, idx) => (
+                  <li key={idx}><Text>{f}</Text></li>
+                ))}
+              </ul>
+            </Card>
+          </motion.div>
+        </Col>
+      ))}
+    </Row>
+  </motion.div>
+</section>
+
       </Content>
     </Layout>
   );

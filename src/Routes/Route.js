@@ -36,7 +36,7 @@ const AppRoutes = () => {
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Add OTP route before the protected routes */}
-      <Route path="/otp" element={<Otp />} />
+      {/* <Route path="/otp" element={<Otp />} /> */}
 
       {/* Change root route to show HomePage */}
       <Route
