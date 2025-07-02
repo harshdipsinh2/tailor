@@ -207,15 +207,51 @@ export const getProduct = async (id) => {
         throw new Error('Error fetching product: ' + error.message);
     }
 };
+export const getAllCustomers1 = async (shopId = null, branchId = null) => {
+  try {
+    const role = localStorage.getItem("role");
 
-export const getAllProducts = async () => {
+    let endpoint = '';
+    let params = {};
+
+    if (role === "SuperAdmin") {
+      endpoint = '/api/Admin/GetAllCustomersForSuperAdmin';
+      params = { shopId, branchId };
+    } else if (role === "Admin") {
+      endpoint = '/api/Admin/GetAllCustomer-Admin';
+      params = { shopId, branchId };
+    } else {
+      endpoint = '/api/Admin/GetAllCustomer-Manager';
+      // For Manager, no params needed (ShopId/BranchId are read from token)
+    }
+
+    const response = await api.get(endpoint, { params });
+
+    return response.data;
+  } catch (error) {
+    throw new Error("Error fetching customers: " + error.message);
+  }
+};
+
+export const getAllProducts = async (shopId,branchId) => {
     try{
         const role = localStorage.getItem("role");
 
-        const endpoint = role === "SuperAdmin"
-            ? '/api/Admin/GetAllProductsForSuperAdmin'
-            : '/api/Admin/GetAllProducts';
-        const response = await api.get(endpoint);
+        let endpoint = '';
+        let params = {};
+
+        if (role === "SuperAdmin") {
+            endpoint = '/api/Admin/GetAllProductsForSuperAdmin';
+            params = { shopId,branchId};
+        }
+        else if (role === "Admin") {
+            endpoint = '/api/Admin/GetAllProductsForAdmin';
+            params = { shopId,branchId};
+        } else {
+            endpoint = '/api/Admin/GetAllProductsForSuperAdmin';
+        }
+
+        const response = await api.get(endpoint,{ params });
         return response.data;
         } catch (error) {
         throw new Error('Error fetching products: ' + error.message);
@@ -240,19 +276,29 @@ export const updateFabricPrice = async (id, newPrice) => {
     }
 };
 
-export const getAllFabricTypes = async () => {
-    try {
 
-        const role = localStorage.getItem("role");
-        const endpoint = role === "SuperAdmin"
-            ? '/api/Admin/GetAllFabricTypeForSuperAdmin'
-            : '/api/Admin/GetAllFabricTypes';
-            const response = await api.get(endpoint);
-            return response.data;
+export const getAllFabricTypes = async (shopId, branchId) => {
+  try {
+    const role = localStorage.getItem("role");
+    let endpoint = "";
+    let params = {};
 
-    } catch (error) {
-        throw new Error('Error fetching fabric types: ' + error.message);
+    if (role === "SuperAdmin") {
+      endpoint = "/api/Admin/GetAllFabricTypeForSuperAdmin";
+      params = { shopId, branchId };
+    } else if (role === "Admin") {
+      endpoint = "/api/Admin/GetAllFabricTypeForAdmin";
+      params = { shopId, branchId };
+    } else {
+      endpoint = "/api/Admin/GetAllFabricTypesForManager";
+      params = { shopId, branchId };
     }
+
+    const response = await api.get(endpoint, { params });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error fetching fabric types: " + error.message);
+  }
 };
 
 export const getFabricTypeById = async (id) => {
