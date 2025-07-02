@@ -1,0 +1,12 @@
+.plan-card {
+  transition: transform 0.2s;
+}
+
+.plan-card:hover {
+  transform: scale(1.05);
+}
+
+h2 {
+  color: #333;
+  font-family: 'Arial', sans-serif;
+}

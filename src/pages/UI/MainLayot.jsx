@@ -98,7 +98,30 @@ const MainLayout = () => {
       getItem("Customer Management", "sub1", <UserOutlined />, [
         getItem(<Link to="/customer-registration">Registration</Link>, "2"),
         getItem(<Link to="/customers">Customers</Link>, "3"),
-        getItem(<Link to="/measurements">Measurements</Link>, "4"),
+      ]),
+      // Product Management section
+      getItem("Product Management", "sub2", <AppstoreOutlined />, [
+        getItem(<Link to="/products">Products</Link>, "5"),
+        getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
+      ]),
+      // Order Management section
+      getItem("Order Management", "sub3", <OrderedListOutlined />, [
+        getItem(<Link to="/orders">Orders</Link>, "8"),
+        getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
+ 
+      ]),
+      // Additional management options
+      getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
+      getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
+      getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
+    );
+  } else if (role === "Admin" ) {
+    // Admin and Manager see all menu items
+    items.push(
+      // Customer Management section
+      getItem("Customer Management", "sub1", <UserOutlined />, [
+        getItem(<Link to="/customer-registration">Registration</Link>, "2"),
+        getItem(<Link to="/customers">Customers</Link>, "3"),
       ]),
       // Product Management section
       getItem("Product Management", "sub2", <AppstoreOutlined />, [
@@ -111,14 +134,21 @@ const MainLayout = () => {
         getItem(<Link to="/orders">Orders</Link>, "8"),
         getItem(<Link to="/completed-orders">Completed Orders</Link>, "9"),
         getItem(<Link to="/rejected-orders">Rejected Orders</Link>, "12"),
-        getItem(<Link to="/manage-orders">Manage Orders</Link>, "14"),
       ]),
+      //plan
+      getItem(<Link to="/Plan">Plan</Link>, "14", <PieChartOutlined />),  
+
+      //branch
+        getItem(<Link to="/branch">Branch</Link>, "15"),
+
+
       // Additional management options
       getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
       getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
-      getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
+      // Add this new item for SMS History
+      // getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
     );
-  } else if (role === "Admin" || role === "Manager") {
+  } else if (role === "Manager") {
     // Admin and Manager see all menu items
     items.push(
       // Customer Management section

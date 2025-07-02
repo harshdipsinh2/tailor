@@ -6,7 +6,7 @@ import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, DollarOutli
 import dayjs from "dayjs";
 import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOrder,deleteOrder
 } from "../../api/AdminApi";
-import { getAllUsers } from "../../api/UserApi";
+import { getAllUsers , getAllTailors } from "../../api/UserApi";
 import { createCheckoutSession } from "../../api/Payment";
 import { updateOrderStatus } from "../../api/AdminApi"; 
 import orderactions from "./OrderActions"; // Import OrderActions component
@@ -24,6 +24,7 @@ const Orders = () => {
   const [products, setProducts] = useState([]); // Store product list for dropdowns
   const [fabrics, setFabrics] = useState([]); // Store fabric list for dropdowns
   const [employees, setEmployees] = useState([]); // Store employee list for assignment
+  const [tailors, setTailors] = useState([]); // Store tailors for assignment
   const [loading, setLoading] = useState(false); // Loading state for API calls
   const [showModal, setShowModal] = useState(false); // Control add order modal visibility
   const [showStatusModal, setShowStatusModal] = useState(false); // Control status update modal
@@ -37,24 +38,34 @@ const Orders = () => {
     setLoading(true);
     try {
       // Fetch all required data in parallel
-      const [ordersData, customersData, productsData, fabricsData, usersData] = 
+      const [ordersData, customersData, productsData, fabricsData, tailorsData] = 
         await Promise.all([
           getAllOrders(),
           getAllCustomers(),
           getAllProducts(),
           getAllFabricTypes(),
-          getAllUsers()
+          
+          getAllTailors()
         ]);
 
-      // Format users data for the dropdown
-      const formattedUsers = usersData.map(user => ({
-        value: user.UserID,
-        label: user.Name || user.name || user.FullName || user.fullName,
-        isVerified: user.IsVerified ?? false
-      }));
+        const formattedTailors = tailorsData.map(user => ({
+  value: user.UserID,
+  label: user.Name || user.name || user.FullName || user.fullName,
+  isVerified: user.IsVerified ?? false
+}));
 
-      // Update all state variables with fetched data
-      setEmployees(formattedUsers);
+setEmployees(formattedTailors); // This feeds the Assign To <Select>
+
+
+      // Format users data for the dropdown
+      // const formattedUsers = usersData.map(user => ({
+      //   value: user.UserID,
+      //   label: user.Name || user.name || user.FullName || user.fullName,
+      //   isVerified: user.IsVerified ?? false
+      // }));
+
+      // // Update all state variables with fetched data
+      // setEmployees(formattedTailors);
       setOrders(ordersData);
       setFilteredOrders(ordersData);
       setCustomers(customersData);

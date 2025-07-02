@@ -22,6 +22,8 @@ import PaymentSuccess from "../Stripe/Payment-Success";
 import ManageOrders from "../pages/Order/ManageOrders";
 import RejectedOrders from "../pages/Order/RejectedOrders";
 import SmsHistory from "../pages/SmsHistory"; 
+import Branch from "../pages/Plan-Branch/Branch"; 
+import Plan from "../pages/Plan-Branch/Plan"; // Import Plan component
 
 
 const AppRoutes = () => {
@@ -162,6 +164,22 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles={['superadmin', 'admin', 'manager']}>
               <SmsHistory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="branch"
+          element={
+            <ProtectedRoute allowedRoles={['superadmin', 'admin']}>
+              <Branch />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="Plan"
+          element={
+            <ProtectedRoute allowedRoles={['superadmin', 'admin']}>
+              <Plan />
             </ProtectedRoute>
           }
         />

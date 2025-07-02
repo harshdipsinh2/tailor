@@ -1,6 +1,7 @@
 import api from './api';
 
 const API_BASE_URL = '/api/Admin';
+const API_BASE_URL_PAYMENT = '/api/Plan';
 
 // Summary
 export const getSummary = async () => {
@@ -12,17 +13,44 @@ export const getSummary = async () => {
     }
 };
 
-// Customers
-export const getAllCustomers = async () => {
-    try {
-        const response = await api.get(`${API_BASE_URL}/GetAllCustomers`);
-        // Ensure we're returning an array, even if empty
-        return Array.isArray(response.data) ? response.data : [];
-    } catch (error) {
-        console.error('Error fetching customers:', error);
-        return []; // Return empty array on error
+
+export const getAllCustomers = async (shopId = null, branchId = null) => {
+  try {
+    const role = localStorage.getItem("role");
+
+    let endpoint = '';
+    let params = {};
+
+    if (role === "SuperAdmin") {
+      endpoint = '/api/Admin/GetAllCustomersForSuperAdmin';
+      params = { shopId, branchId };
+    } else if (role === "Admin") {
+      endpoint = '/api/Admin/GetAllCustomer-Admin';
+      params = { shopId, branchId };
+    } else {
+      endpoint = '/api/Admin/GetAllCustomer-Manager';
+      // For Manager, no params needed (ShopId/BranchId are read from token)
     }
+
+    const response = await api.get(endpoint, { params });
+
+    return response.data;
+  } catch (error) {
+    throw new Error("Error fetching customers: " + error.message);
+  }
 };
+
+
+// export const getAllCustomers = async () => {
+//     try {
+//         const response = await api.get(`${API_BASE_URL}/GetAllCustomers`);
+//         return response.data;
+//     } catch (error) {
+//         throw new Error('Error fetching fabric stocks: ' + error.message);
+//     }
+// };
+
+
 
 export const getCustomer = async (customerId) => {
     try {
@@ -30,6 +58,16 @@ export const getCustomer = async (customerId) => {
         return response.data;
     } catch (error) {
         throw new Error('Error fetching customer: ' + error.message);
+    }
+};
+
+export const getCustomerByBranch = async (shopId, branchId) => {
+    try {
+        const params = { shopId, branchId };
+        const response = await api.get('/api/Admin/GetAllCustomersForSuperAdmin', { params });
+        return response.data;
+    } catch (error) {
+        throw new Error('Error fetching users by branch: ' + error.message);
     }
 };
 
@@ -119,19 +157,21 @@ export const deleteMeasurement = async (MeasurementID) => {
   };
   
 
+
 export const getAllMeasurements = async () => {
     try {
-        const response = await api.get(`${API_BASE_URL}/GetAllMeasurements`);
-        if (!response.data) {
-            throw new Error('No data received from the server');
-        }
-        // Log the response to check the data structure
-        console.log('Measurements API Response:', response.data);
+        const role = localStorage.getItem("role");
+
+        const endpoint = role === "SuperAdmin"
+            ? '/api/Admin/GetAllMeasurementForSuperAdmin'
+            : '/api/Admin/GetAllMeasurements';
+
+        const response = await api.get(endpoint);
         return response.data;
-    } catch (error) {
-        console.error('Error fetching measurements:', error);
-        throw new Error('Error fetching measurements: ' + error.message);
+        } catch (error) {
+        throw new Error("Error fetching measurements: " + error.message);
     }
+
 };
 
 // Products
@@ -169,13 +209,19 @@ export const getProduct = async (id) => {
 };
 
 export const getAllProducts = async () => {
-    try {
-        const response = await api.get(`${API_BASE_URL}/GetAllProducts`);
+    try{
+        const role = localStorage.getItem("role");
+
+        const endpoint = role === "SuperAdmin"
+            ? '/api/Admin/GetAllProductsForSuperAdmin'
+            : '/api/Admin/GetAllProducts';
+        const response = await api.get(endpoint);
         return response.data;
-    } catch (error) {
+        } catch (error) {
         throw new Error('Error fetching products: ' + error.message);
+        }
     }
-};
+
 
 // Fabric Types
 export const addFabricType = async (fabricTypeData) => {
@@ -196,8 +242,14 @@ export const updateFabricPrice = async (id, newPrice) => {
 
 export const getAllFabricTypes = async () => {
     try {
-        const response = await api.get(`${API_BASE_URL}/GetAllFabricTypes`);
-        return response.data;
+
+        const role = localStorage.getItem("role");
+        const endpoint = role === "SuperAdmin"
+            ? '/api/Admin/GetAllFabricTypeForSuperAdmin'
+            : '/api/Admin/GetAllFabricTypes';
+            const response = await api.get(endpoint);
+            return response.data;
+
     } catch (error) {
         throw new Error('Error fetching fabric types: ' + error.message);
     }
@@ -417,38 +469,125 @@ export const reassignOrder = async (orderId, reassignData) => {
 };
 
 
-//----------------------------------------------
+//---------------------------------------------
 
-
-
-export const planBuy = async (planId)=> 
-{
-    try {
-        console.log("Plan ID:", planId);
-        const response = await api.post(
-            `https://localhost:7252/api/Plan/buy?planId=1`,
-            {
-                params: { planId: planId }
-            }
-
-        );
-        return response.data;
-    } catch (error) {
-        console.error('Error buying plan:', error);
-        throw new Error('Error buying plan: ' + error.message);
-    }
-}
 
 
 export const addBranch = async (branchData) => {
     try {
-        const response = await api.post(`${API_BASE_URL}/AddBranch`, branchData);
+        const response = await api.post(`${API_BASE_URL}/create-Branch`, branchData);
         return response.data;
     } catch (error) {
         throw new Error('Error adding branch: ' + error.message);
     }
 }
 
+// export const getAllCustomers = async () => {
+//     try {
+//         const response = await api.get(`${API_BASE_URL}/GetAllCustomers`);
+//         return response.data;
+//     } catch (error) {
+//         throw new Error('Error fetching fabric stocks: ' + error.message);
+//     }
+// };
+
+
+//     export const getAllBranches = async () => {
+//         try {
+
+//         const response = await api.get(`${API_BASE_URL}/all-branches`);
+//         return response.data;
+                                            
+//     } catch (error) {
+//         throw new Error('Error fetching branches: ' + error.message);
+//     }
+// }
+
+
+    export const getAllBranches = async () => {
+        try {
+        const role = localStorage.getItem("role");
+
+        let endpoint = '';
+
+        if (role === "SuperAdmin") {
+            endpoint = '/api/Admin/All-BranchesForSuperAdmin';
+        } 
+        else 
+        {
+            endpoint = '/api/Admin/all-branches';
+        }
+        const response = await api.get(endpoint);
+        return response.data;
+                                            
+    } catch (error) {
+        throw new Error('Error fetching branches: ' + error.message);
+    }
+}
+
+// export const getUsersByShopAndBranch = async (shopId, branchId) => {                                                                      
+//   try {
+//     const response = await api.get(`/api/Admin/users-by-shop`, {
+//       params: { shopId, branchId }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     throw new Error('Error fetching users for SuperAdmin: ' + error.message);
+//   }
+// };
+
+// // For Admin - only uses branchId (shopId comes from JWT in backend)
+// export const getUsersByBranch = async (branchId) => {
+//   try {
+//     const response = await api.get(`/api/Admin/users-by-branch`, {
+//       params: { branchId }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     throw new Error('Error fetching users for Admin: ' + error.message);
+//   }
+// };
+
+
+//------------------------------------
+
+export const getAllPlans = async () => {
+  try {
+    const response = await api.get(`${API_BASE_URL_PAYMENT}/all`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch plans: ' + error.message);
+  }
+};
+
+export const buyPlan = async (planId) => {
+  try {
+    const response = await api.post(`https://localhost:7252/api/Plan/buy`, null, {
+      params: { planId }
+    });
+    return response.data.url; // ✅ Stripe session link
+  } catch (error) {
+    throw new Error('Failed to initiate payment: ' + error.message);
+  }
+};
+
+
+export const createPlan = async (planData) => {
+  try {
+    const response = await api.post(`${API_BASE_URL_PAYMENT}/create`, planData);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to create plan: ' + error.message);
+  }
+};
 
 
 
+export const registerUser = async (payload) => {
+  try {
+    const response = await api.post(`/admin/register/employee`, payload);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error registering employee: ' + error.message);
+  }
+};

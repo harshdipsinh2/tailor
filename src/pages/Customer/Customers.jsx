@@ -1,121 +1,126 @@
 import React, { useEffect, useState } from "react";
 import {
   Table, Button, Modal, Form, Row, Col, Input, Radio,
-  message, Card, Space, Spin, Popconfirm
+  message, Card, Space, Spin, Popconfirm, Select
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
-  EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined,FilePdfOutlined
+  EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined
 } from "@ant-design/icons";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import CustomerListPDF from "../../Components/Pdf/CustomerListPDF";
+
 import {
   getAllCustomers,
   editCustomer,
   deleteCustomer,
-  addMeasurement
-} from "../../api/AdminApi";   
+  addMeasurement,
+  getAllBranches
+} from "../../api/AdminApi";
 
 const Customers = () => {
-  // State management for customer data and UI controls
-  const [customers, setCustomers] = useState([]); // Stores all customers
-  const [filteredCustomers, setFilteredCustomers] = useState([]); // Stores searched/filtered customers
-  const [searchTerm, setSearchTerm] = useState(""); // Search input value
-  const [customerId, setCustomerID] = useState(""); // Selected customer ID for edit/measurement
-  const [show, setShow] = useState(false); // Controls modal visibility
-  const [showMeasurement, setShowMeasurement] = useState(false); // Toggle between edit and measurement forms
-  const [loading, setLoading] = useState(true); // Loading state for API calls
-  const [form] = Form.useForm(); // Antd form instance
-  const navigate = useNavigate(); // Router navigation
+  const [customers, setCustomers] = useState([]);
+  const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [customerId, setCustomerID] = useState("");
+  const [show, setShow] = useState(false);
+  const [showMeasurement, setShowMeasurement] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-  const upperBodyMeasurements = [
-    "chest", "shoulder", "sleeveLength", "neck", "sleeve",
-    "arms", "bicep", "forearm", "wrist"
-  ];
-  
-  const lowerBodyMeasurements = [
-    "waist", "hip", "trouserLength", "inseam", "thigh",
-    "ankle", "calf"
-  ];
+  const role = localStorage.getItem("role");
+  const [branches, setBranches] = useState([]);
+  const [shopOptions, setShopOptions] = useState([]);
+  const [selectedShopId, setSelectedShopId] = useState(null);
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
 
-  // Fetch customers data when component mounts
+  // Load branches and fetch customers
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllCustomers();
-  
-        // Transform API data to match our frontend format
-        const validCustomers = data.map(customer => ({
-          customerId: customer.CustomerId,
-          fullName: customer.FullName || 'N/A',
-          phoneNumber: customer.PhoneNumber || 'N/A',
-          email: customer.Email || 'N/A',
-          address: customer.Address || 'N/A',
-          branchName: customer.BranchName || 'N/A',
-          shopName: customer.ShopName || 'N/A',
-          gender: customer.Gender ? customer.Gender.charAt(0).toUpperCase() + customer.Gender.slice(1) : 'N/A',
-        }));
-  
-        setCustomers(validCustomers);
-        setFilteredCustomers(validCustomers);
-      } catch (err) {
-        console.error('Failed to load customers:', err);
-        message.error("Failed to load customers");
-        setCustomers([]);
-        setFilteredCustomers([]);
-      } finally {
-        setLoading(false);
+    const init = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const shopId = parseInt(payload.shopId);
+      const branchId = parseInt(payload.branchId);
+
+      // Admin only: load all branches
+      if (role === "Admin" || role === "SuperAdmin") {
+        try {
+          const data = await getAllBranches();
+          setBranches(data || []);
+          const uniqueShops = [
+            ...new Map(data.map((b) => [b.ShopId, { label: b.ShopName, value: b.ShopId }])).values()
+          ];
+          setShopOptions(uniqueShops);
+        } catch (err) {
+          message.error("Failed to load branches");
+        }
+      }
+
+      // Fetch customers based on token
+      if (shopId && branchId) {
+        setSelectedShopId(shopId);
+        setSelectedBranchId(branchId);
+        fetchCustomers(shopId, branchId);
       }
     };
-  
-    fetchCustomers();
+
+    init();
   }, []);
-  
-  // Filter customers based on search term
+
+  const fetchCustomers = async (shopId, branchId) => {
+    try {
+      setLoading(true);
+      const data = await getAllCustomers(shopId, branchId);
+      const validCustomers = data.map(customer => ({
+        customerId: customer.CustomerId,
+        fullName: customer.FullName || 'N/A',
+        phoneNumber: customer.PhoneNumber || 'N/A',
+        email: customer.Email || 'N/A',
+        address: customer.Address || 'N/A',
+        branchName: customer.BranchName || 'N/A',
+        shopName: customer.ShopName || 'N/A',
+        gender: customer.Gender ? customer.Gender.charAt(0).toUpperCase() + customer.Gender.slice(1) : 'N/A',
+      }));
+      setCustomers(validCustomers);
+      setFilteredCustomers(validCustomers);
+    } catch (err) {
+      console.error('Failed to load customers:', err);
+      message.error("Failed to load customers");
+      setCustomers([]);
+      setFilteredCustomers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const filteredData = customers.filter((customer) => {
-        const fullName = customer?.fullName || '';
-        const phoneNumber = customer?.phoneNumber || '';
-        
-        // Search by name or phone number
-        return fullName.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-               phoneNumber.toString().includes(searchTerm);
+      const fullName = customer?.fullName || '';
+      const phoneNumber = customer?.phoneNumber || '';
+      return fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        phoneNumber.includes(searchTerm);
     });
     setFilteredCustomers(filteredData);
   }, [searchTerm, customers]);
 
-  // Handler for editing customer details
   const handleEditCustomer = (id) => {
     const customer = customers.find((c) => c.customerId === id);
     if (customer) {
-      form.setFieldsValue(customer); // Pre-fill form with customer data
+      form.setFieldsValue(customer);
       setCustomerID(id);
-      setShowMeasurement(false); // Ensure we're in edit mode, not measurement mode
+      setShowMeasurement(false);
       setShow(true);
     } else {
       message.error("Customer not found.");
     }
   };
 
-  // Handler for adding customer measurements
-  const handleAddMeasurements = async (id) => {
-    try {
-      setLoading(true);
-      
-      if (!id) throw new Error('Customer ID is required');
-  
-      setCustomerID(id);
-      setShowMeasurement(true); // Switch to measurement form
-      form.resetFields(); // Clear form fields
-      setShow(true);
-    } catch (error) {
-      console.error("Failed to prepare measurement form:", error);
-      message.error("Failed to load measurement form");
-      setShow(false);
-    } finally {
-      setLoading(false);
-    }
+  const handleAddMeasurements = (id) => {
+    setCustomerID(id);
+    setShowMeasurement(true);
+    form.resetFields();
+    setShow(true);
   };
 
   const handleClose = () => setShow(false);
@@ -125,46 +130,25 @@ const Customers = () => {
       await deleteCustomer(id);
       message.success("Customer deleted successfully!");
       setCustomers((prev) => prev.filter((c) => c.customerId !== id));
-    } catch (err) {
+    } catch {
       message.error("Failed to delete customer");
     }
   };
 
-  // Add this function in your Customers component
   const calculateFabricRequirement = (values) => {
-    // Upper body fabric calculation
-    const upperBodyFabric = (
-      (Number(values.chest) || 0) * 0.5 +
+    const upper = (Number(values.chest) || 0) * 0.5 +
       (Number(values.shoulder) || 0) * 0.3 +
-      (Number(values.sleeveLength) || 0) * 2
-    );
-  
-    // Lower body fabric calculation
-    const lowerBodyFabric = (
-      (Number(values.waist) || 0) * 0.5 +
+      (Number(values.sleeveLength) || 0) * 2;
+    const lower = (Number(values.waist) || 0) * 0.5 +
       (Number(values.hip) || 0) * 0.5 +
-      (Number(values.trouserLength) || 0) * 2
-    );
-  
-    // Add some allowance for seams and adjustments
-    const totalFabric = (upperBodyFabric + lowerBodyFabric) * 1.1;
-    return Math.ceil(totalFabric * 100) / 100; // Round to 2 decimal places
+      (Number(values.trouserLength) || 0) * 2;
+    return Math.ceil((upper + lower) * 1.1 * 100) / 100;
   };
 
-  // Form submission handler for both edit and measurement forms
   const handleEditSubmit = async (values) => {
     try {
       setLoading(true);
-  
       if (showMeasurement) {
-        // Ensure we have a valid customerId
-        if (!customerId) {
-          throw new Error('Customer ID is required');
-        }
-  
-        console.log('Submitting measurement for customer:', customerId);
-  
-        // Format measurement data
         const measurementData = {
           Chest: parseFloat(values.chest) || 0,
           Waist: parseFloat(values.waist) || 0,
@@ -184,94 +168,98 @@ const Customers = () => {
           Calf: parseFloat(values.calf) || 0,
           EstimatedFabric: calculateFabricRequirement(values)
         };
-  
-        // Validate that at least one measurement is entered
-        const hasValues = Object.values(measurementData)
-          .some(val => val > 0);
-  
-        if (!hasValues) {
-          throw new Error('Please enter at least one measurement');
-        }
-  
-        // Call API with correct numeric CustomerId
-        const numericCustomerId = Number(customerId);
-        const response = await addMeasurement(numericCustomerId, measurementData);
 
-        console.log('Measurement added:', response);
+        if (!Object.values(measurementData).some(v => v > 0))
+          throw new Error("Please enter at least one measurement");
+
+        await addMeasurement(customerId, measurementData);
         message.success("Measurement added successfully!");
-        navigate('/measurements');
+        navigate("/measurements");
       } else {
-        // Handle customer edit
         await editCustomer(customerId, values);
         message.success("Customer updated successfully!");
         setCustomers(prev =>
           prev.map(c => c.customerId === customerId ? { ...c, ...values } : c)
         );
       }
-  
+
       setShow(false);
       form.resetFields();
     } catch (error) {
-      console.error('Submission error:', error);
       message.error(error.message || "Failed to submit");
     } finally {
       setLoading(false);
     }
   };
-  
-  // Array of measurement fields for dynamic form generation
-  const measurementFields = [
-    "chest", "waist", "hip", "shoulder", "sleeveLength",
-    "trouserLength", "inseam", "thigh", "neck", "sleeve",
-    "arms", "bicep", "forearm", "wrist", "ankle", "calf"
-  ];
+
+  const upperBodyMeasurements = ["chest", "shoulder", "sleeveLength", "neck", "sleeve", "arms", "bicep", "forearm", "wrist"];
+  const lowerBodyMeasurements = ["waist", "hip", "trouserLength", "inseam", "thigh", "ankle", "calf"];
 
   return (
-    <div className="customers-container" style={{ padding: "20px" }}>
+    <div style={{ padding: "20px" }}>
       <Card
-        title={<h2 style={{ margin: 0 }}>Customer Records</h2>}
-     extra={
-  <Space>
-       {/* PDF Download Icon with Popconfirm */}
-    <Popconfirm
-      title="Download customer list as PDF?"
-      onConfirm={() => document.getElementById("customer-pdf-download").click()}
-      okText="Yes"
-      cancelText="No"
-    >
-      <span style={{ cursor: "pointer", fontSize: 20, color: "#1890ff" }}>
-        <FilePdfOutlined />
-      </span>
-    </Popconfirm>
-    <PDFDownloadLink
-      id="customer-pdf-download"
-      document={<CustomerListPDF customers={filteredCustomers} />}
-      fileName="customers_list.pdf"
-      style={{ display: "none" }}
-    >
-      {({ loading }) => (loading ? "Loading..." : null)}
-    </PDFDownloadLink>
-    <Input
-      placeholder="Search by Name or Mobile"
-      prefix={<SearchOutlined />}
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      allowClear
-      style={{ width: "250px" }}
-    />
-    <Button
-      type="primary"
-      icon={<PlusOutlined />}
-      onClick={() => navigate("/customer-registration")}
-    >
-      Add Customer
-    </Button>
-
- 
-  </Space>
-}
-
+        title="Customer Records"
+        extra={
+          <Space>
+            <Input
+              placeholder="Search by Name or Mobile"
+              prefix={<SearchOutlined />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              allowClear
+              style={{ width: "250px" }}
+            />
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => navigate("/customer-registration")}
+            >
+              Add Customer
+            </Button>
+          </Space>
+        }
       >
+        {(role === "Admin" || role === "SuperAdmin")&& (
+          <Row gutter={16} style={{ marginBottom: 16 }}>
+            <Col span={6}>
+              <Select
+                placeholder="Filter by Shop"
+                options={shopOptions}
+                allowClear
+                value={selectedShopId}
+                onChange={(value) => {
+                  setSelectedShopId(value);
+                  setSelectedBranchId(null);
+                }}
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col span={6}>
+              <Select
+                placeholder="Select Branch"
+                allowClear
+                value={selectedBranchId}
+                onChange={setSelectedBranchId}
+                disabled={!selectedShopId}
+                style={{ width: "100%" }}
+              >
+                {branches
+                  .filter(branch => branch.ShopId === selectedShopId)
+                  .map(branch => (
+                    <Select.Option key={branch.BranchId} value={branch.BranchId}>
+                      {branch.BranchName}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Col>
+            <Col>
+              <Button type="primary" onClick={() => fetchCustomers(selectedShopId, selectedBranchId)}>
+                Apply Filters
+              </Button>
+            </Col>
+          </Row>
+        )}
+
         <Spin spinning={loading}>
           <Table
             dataSource={filteredCustomers}
@@ -280,61 +268,29 @@ const Customers = () => {
             pagination={{ pageSize: 5 }}
             scroll={{ x: "max-content" }}
           >
-            <Table.Column 
-              title="Name" 
-              dataIndex="fullName" 
-              render={(text) => text || 'N/A'} 
-            />
-            <Table.Column 
-              title="Phone" 
-              dataIndex="phoneNumber" 
-              render={(text) => text || 'N/A'} 
-            />
-            <Table.Column 
-              title="Email" 
-              dataIndex="email" 
-              render={(text) => text || 'N/A'} 
-            />
-            <Table.Column 
-              title="Address" 
-              dataIndex="address" 
-              render={(text) => text || 'N/A'} 
-            />
-            <Table.Column 
-              title="Gender" 
-              dataIndex="gender" 
-              render={(text) => text || 'N/A'} 
-            />
+            <Table.Column title="Name" dataIndex="fullName" />
+            <Table.Column title="Phone" dataIndex="phoneNumber" />
+            <Table.Column title="Email" dataIndex="email" />
+            <Table.Column title="Address" dataIndex="address" />
+            <Table.Column title="Gender" dataIndex="gender" />
             <Table.Column
               title="Actions"
               render={(customer) => (
                 <Space>
-                  <Button
-                    type="primary"
-                    icon={<EditOutlined />}
-                    onClick={() => handleEditCustomer(customer.customerId)}
-                  >
+                  <Button type="primary" icon={<EditOutlined />} onClick={() => handleEditCustomer(customer.customerId)}>
                     Edit
                   </Button>
                   <Popconfirm
-                    title="Delete Customer"
-                    description="Are you sure you want to delete this customer?"
+                    title="Delete Customer?"
                     onConfirm={() => handleDeleteCustomer(customer.customerId)}
                     okText="Yes"
                     cancelText="No"
-                    okButtonProps={{ danger: true }}
                   >
-                    <Button
-                      danger
-                      icon={<DeleteOutlined />}
-                    >
+                    <Button danger icon={<DeleteOutlined />}>
                       Delete
                     </Button>
                   </Popconfirm>
-                  <Button
-                    icon={<PlusOutlined />}
-                    onClick={() => handleAddMeasurements(customer.customerId)}
-                  >
+                  <Button icon={<PlusOutlined />} onClick={() => handleAddMeasurements(customer.customerId)}>
                     Add Measurement
                   </Button>
                 </Space>
@@ -354,27 +310,21 @@ const Customers = () => {
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
           {showMeasurement ? (
             <>
-              <h3>Upper Body Measurements</h3>
+              <h3>Upper Body</h3>
               <Row gutter={16}>
-                {upperBodyMeasurements.map((field) => (
+                {upperBodyMeasurements.map(field => (
                   <Col xs={24} sm={12} md={8} key={field}>
-                    <Form.Item
-                      label={field.charAt(0).toUpperCase() + field.slice(1)}
-                      name={field}
-                    >
+                    <Form.Item label={field.toUpperCase()} name={field}>
                       <Input type="number" min={0} step={0.5} />
                     </Form.Item>
                   </Col>
                 ))}
               </Row>
-              <h3>Lower Body Measurements</h3>
+              <h3>Lower Body</h3>
               <Row gutter={16}>
-                {lowerBodyMeasurements.map((field) => (
+                {lowerBodyMeasurements.map(field => (
                   <Col xs={24} sm={12} md={8} key={field}>
-                    <Form.Item
-                      label={field.charAt(0).toUpperCase() + field.slice(1)}
-                      name={field}
-                    >
+                    <Form.Item label={field.toUpperCase()} name={field}>
                       <Input type="number" min={0} step={0.5} />
                     </Form.Item>
                   </Col>
