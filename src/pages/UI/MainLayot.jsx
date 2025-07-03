@@ -99,6 +99,8 @@ const MainLayout = () => {
         getItem(<Link to="/customer-registration">Registration</Link>, "2"),
         getItem(<Link to="/customers">Customers</Link>, "3"),
       ]),
+        // getItem(<Link to="/branch">Branch</Link>, "15"),
+
       // Product Management section
       getItem("Product Management", "sub2", <AppstoreOutlined />, [
         getItem(<Link to="/products">Products</Link>, "5"),
@@ -113,7 +115,7 @@ const MainLayout = () => {
       // Additional management options
       getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
       getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
-      getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
+      // getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
     );
   } else if (role === "Admin" ) {
     // Admin and Manager see all menu items
@@ -182,10 +184,7 @@ const MainLayout = () => {
       getItem("Measurements", "sub1", <UserOutlined />, [
         getItem(<Link to="/measurements">Measurements</Link>, "4"),
       ]),
-      getItem("Product Management", "sub2", <AppstoreOutlined />, [
-        getItem(<Link to="/products">Products</Link>, "5"),
-        getItem(<Link to="/fabrics">Fabrics</Link>, "6"),
-      ]),
+
       getItem("Order Management", "sub3", <OrderedListOutlined />, [
         getItem(<Link to="/orders">Orders</Link>, "8"),
         getItem(<Link to="/manage-orders">Manage Orders</Link>, "9"), // Verify this line

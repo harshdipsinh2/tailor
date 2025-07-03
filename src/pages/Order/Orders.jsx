@@ -4,12 +4,13 @@ import {Table, Button, Modal, Form, Input, Space, Spin,Card, Select, DatePicker,
 import { PlusOutlined, SearchOutlined, DeleteOutlined, EditOutlined, DollarOutlined, SyncOutlined
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOrder,deleteOrder
+import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOrder,deleteOrder,getAllBranches
 } from "../../api/AdminApi";
 import { getAllUsers , getAllTailors } from "../../api/UserApi";
 import { createCheckoutSession } from "../../api/Payment";
 import { updateOrderStatus } from "../../api/AdminApi"; 
 import orderactions from "./OrderActions"; // Import OrderActions component
+import { Row, Col } from "antd";
 
 const { Option } = Select;
 
@@ -32,40 +33,46 @@ const Orders = () => {
   const [searchTerm, setSearchTerm] = useState(""); // Store search input value
   const [form] = Form.useForm(); // Form instance for add order
   const [statusForm] = Form.useForm(); // Form instance for status update 
+  const [branches, setBranches] = useState([]);
+  const [shopOptions, setShopOptions] = useState([]);
+  const [selectedShopId, setSelectedShopId] = useState(null);
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
 
-  // Fetch all necessary data when component mounts
-  const fetchData = async () => {
+  // Fetch branches and set shop options (for SuperAdmin/Admin)
+  const fetchBranches = async () => {
+    try {
+      const data = await getAllBranches();
+      setBranches(data || []);
+      const uniqueShops = [
+        ...new Map(data.map((b) => [b.ShopId, { label: b.ShopName, value: b.ShopId }])).values()
+      ];
+      setShopOptions(uniqueShops);
+    } catch {
+      message.error("Failed to load branches");
+    }
+  };
+
+  // Fetch all necessary data when component mounts or filters change
+  const fetchData = async (shopId, branchId) => {
     setLoading(true);
     try {
       // Fetch all required data in parallel
-      const [ordersData, customersData, productsData, fabricsData, tailorsData] = 
+      const [ordersData, customersData, productsData, fabricsData, tailorsData] =
         await Promise.all([
-          getAllOrders(),
-          getAllCustomers(),
-          getAllProducts(),
-          getAllFabricTypes(),
-          
+          getAllOrders(shopId, branchId),
+          getAllCustomers(shopId, branchId),
+          getAllProducts(shopId, branchId),
+          getAllFabricTypes(shopId, branchId),
           getAllTailors()
         ]);
 
-        const formattedTailors = tailorsData.map(user => ({
-  value: user.UserID,
-  label: user.Name || user.name || user.FullName || user.fullName,
-  isVerified: user.IsVerified ?? false
-}));
+      const formattedTailors = tailorsData.map(user => ({
+        value: user.UserID,
+        label: user.Name || user.name || user.FullName || user.fullName,
+        isVerified: user.IsVerified ?? false
+      }));
 
-setEmployees(formattedTailors); // This feeds the Assign To <Select>
-
-
-      // Format users data for the dropdown
-      // const formattedUsers = usersData.map(user => ({
-      //   value: user.UserID,
-      //   label: user.Name || user.name || user.FullName || user.fullName,
-      //   isVerified: user.IsVerified ?? false
-      // }));
-
-      // // Update all state variables with fetched data
-      // setEmployees(formattedTailors);
+      setEmployees(formattedTailors);
       setOrders(ordersData);
       setFilteredOrders(ordersData);
       setCustomers(customersData);
@@ -79,24 +86,48 @@ setEmployees(formattedTailors); // This feeds the Assign To <Select>
     }
   };
 
-  // Load data when component mounts
+  // On mount: fetch branches (if needed) and set default shop/branch from token
   useEffect(() => {
-    fetchData();
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const shopId = parseInt(payload.shopId);
+    const branchId = parseInt(payload.branchId);
+
+    if (role === "Admin" || role === "SuperAdmin") {
+      fetchBranches();
+    }
+
+    if (shopId && branchId) {
+      setSelectedShopId(shopId);
+      setSelectedBranchId(branchId);
+      fetchData(shopId, branchId);
+    }
   }, []);
 
-  // Filter orders based on search term
+  // When shop/branch filter changes, fetch data
+  useEffect(() => {
+    if (selectedShopId && selectedBranchId) {
+      fetchData(selectedShopId, selectedBranchId);
+    }
+  }, [selectedShopId, selectedBranchId]);
+
+  // Filter orders based on search term and only show pending orders
   useEffect(() => {
     const filtered = orders.filter(order => {
-      // Check if order is pending and matches search term
       const isPending = (order.OrderStatus || order.orderStatus)?.toLowerCase() === "pending";
       const matchesSearch = (
         order.CustomerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.ProductName?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      return isPending && matchesSearch;
+      // Always require pending status, search is optional
+      return isPending && (searchTerm ? matchesSearch : true);
     });
+
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
+
 
   // Handler for creating new order
   const handleSubmit = async (values) => {
@@ -369,7 +400,6 @@ setEmployees(formattedTailors); // This feeds the Assign To <Select>
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ width: 250 }}
             />
-            {/* Only show Add Order button for admin and manager */}
             {(role === 'Admin' || role === 'Manager' || role === 'SuperAdmin') && (
               <Button
                 type="primary"
@@ -382,6 +412,48 @@ setEmployees(formattedTailors); // This feeds the Assign To <Select>
           </Space>
         }
       >
+        {/* Shop/Branch Filter Row */}
+        {(role === "Admin" || role === "SuperAdmin") && (
+          <Row gutter={16} style={{ marginBottom: 16 }}>
+            <Col span={6}>
+              <Select
+                placeholder="Filter by Shop"
+                options={shopOptions}
+                allowClear
+                value={selectedShopId}
+                onChange={(value) => {
+                  setSelectedShopId(value);
+                  setSelectedBranchId(null);
+                }}
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col span={6}>
+              <Select
+                placeholder="Select Branch"
+                allowClear
+                value={selectedBranchId}
+                onChange={setSelectedBranchId}
+                disabled={!selectedShopId}
+                style={{ width: "100%" }}
+              >
+                {branches
+                  .filter(branch => branch.ShopId === selectedShopId)
+                  .map(branch => (
+                    <Select.Option key={branch.BranchId} value={branch.BranchId}>
+                      {branch.BranchName}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Col>
+            <Col>
+              <Button type="primary" onClick={() => fetchData(selectedShopId, selectedBranchId)}>
+                Apply Filters
+              </Button>
+            </Col>
+          </Row>
+        )}
+
         <Spin spinning={loading}>
           <Table
             dataSource={filteredOrders}

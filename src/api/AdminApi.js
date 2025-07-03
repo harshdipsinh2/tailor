@@ -248,7 +248,7 @@ export const getAllProducts = async (shopId,branchId) => {
             endpoint = '/api/Admin/GetAllProductsForAdmin';
             params = { shopId,branchId};
         } else {
-            endpoint = '/api/Admin/GetAllProductsForSuperAdmin';
+            endpoint = '/api/Admin/GetAllProductsForManager';
         }
 
         const response = await api.get(endpoint,{ params });
@@ -327,9 +327,20 @@ export const addFabricStock = async (fabricStockData) => {
     }
 };
 
-export const getAllFabricStocks = async () => {
+export const getAllFabricStocks = async (shopId,branchId) => {
     try {
-        const response = await api.get(`${API_BASE_URL}/GetAllFabricStocks`);
+        const role = localStorage.getItem("role");
+        let endpoint = '';
+        let params = {};
+        if (role === "Admin") {
+            endpoint = '/api/Admin/GetAllFabricStocksForAdmin';
+            params = { shopId, branchId };
+        } else {
+            endpoint = '/api/Admin/GetAllFabricStocksForManager';
+            params = { shopId, branchId };
+        }
+        const response = await api.get(endpoint, { params });
+
         return response.data;
     } catch (error) {
         throw new Error('Error fetching fabric stocks: ' + error.message);
@@ -428,9 +439,27 @@ export const getOrder = async (id) => {
     }
 };
 
-export const getAllOrders = async () => {
+export const getAllOrders = async (shopId,branchId) => {
     try {
-        const response = await api.get(`${API_BASE_URL}/GetAll-Order`);
+        const role = localStorage.getItem("role");
+        let endpoint = '';
+        let params = {};
+        if(role === "SuperAdmin") {
+          endpoint = '/api/Admin/GetAll-OrderForSuperAdmin';
+          params = { shopId, branchId };
+          }
+          else if(role === "Admin") {
+            endpoint = '/api/Admin/GetAll-OrderForAdmin';
+            params = { shopId, branchId };
+            }
+            else if(role === "Manager") {
+              endpoint = '/api/Admin/GetAll-OrderForManager';
+            }
+        else {
+            endpoint = 'api/Admin/GetAllOrderFor-Tailor';
+        }
+        const response = await api.get(endpoint, { params });
+
         return response.data;
     } catch (error) {
         throw new Error('Error fetching orders: ' + error.message);
@@ -550,20 +579,23 @@ export const addBranch = async (branchData) => {
 // }
 
 
-    export const getAllBranches = async () => {
+    export const getAllBranches = async (shopId,branchId) => {
         try {
-        const role = localStorage.getItem("role");
-
+      const role = localStorage.getItem("role");
         let endpoint = '';
+        let params = {};
+    if (role === "SuperAdmin") {
+      endpoint = "/api/Admin/All-BranchesForSuperAdmin";
+      params = { shopId, branchId };
+    } else if (role === "Admin") {
+      endpoint = "/api/Admin/all-branches";
+      params = { shopId, branchId };
+    } else {
+      endpoint = "/api/Admin/all-branchesForManager";
+      params = { shopId, branchId };
+    }
 
-        if (role === "SuperAdmin") {
-            endpoint = '/api/Admin/All-BranchesForSuperAdmin';
-        } 
-        else 
-        {
-            endpoint = '/api/Admin/all-branches';
-        }
-        const response = await api.get(endpoint);
+        const response = await api.get(endpoint, { params });
         return response.data;
                                             
     } catch (error) {

@@ -14,7 +14,8 @@ import {
 } from 'antd';
 import { SearchOutlined, SyncOutlined } from '@ant-design/icons';
 import { getRejectedOrders, reassignOrder } from '../../api/AdminApi';
-import { getAllUsers } from '../../api/UserApi';
+
+import { getAllTailors } from '../../api/UserApi';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -46,7 +47,7 @@ const RejectedOrders = () => {
   // Update fetchUsers function
 const fetchUsers = async () => {
   try {
-    const data = await getAllUsers();
+    const data = await getAllTailors();
 
     const formattedUsers = data
     

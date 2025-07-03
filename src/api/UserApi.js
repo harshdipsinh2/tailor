@@ -11,9 +11,24 @@ export const registerUser = async (userData) => {
     }
 };
 
-export const getAllUsers = async () => {
+
+export const getAllUsers = async (shopId, branchId) => {
     try {
-        const response = await api.get(`${API_BASE_URL}/GetAll-User`);
+        const role = localStorage.getItem("role");
+        let endpoint = '';
+        let params = {};
+
+        if (role === "SuperAdmin") {
+            endpoint = '/api/Admin/GetAllUserForAdmin';
+            params = { shopId, branchId };
+        } else if (role === "Admin") {
+            endpoint = '/api/Admin/GetAllUserForAdmin';
+            params = { shopId, branchId };
+        } else if (role === "Manager") {
+            endpoint = '/api/Admin/GetAllUserForManager';
+        }
+
+        const response = await api.get(endpoint, { params });
         return response.data;
     } catch (error) {
         throw new Error('Error fetching users: ' + error.message);

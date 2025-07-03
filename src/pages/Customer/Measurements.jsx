@@ -83,7 +83,7 @@ const Measurements = () => {
 
       const normalized = measurementsData.map((m) => ({
         measurementID: m.MeasurementID,
-        customerName: customersMap[m.CustomerId] || "Unknown Customer",
+        customerName: customersMap[m.CustomerId] || "Unknown ",
         chest: m.Chest,
         waist: m.Waist,
         hip: m.Hip,

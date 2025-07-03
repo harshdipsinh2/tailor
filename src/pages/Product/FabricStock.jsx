@@ -7,6 +7,7 @@ import {
   getAllFabricStocks,
   addFabricStock,
   getAllFabricTypes,
+  getAllBranches
 } from "../../api/AdminApi";
 import dayjs from "dayjs";
 
@@ -18,17 +19,28 @@ const FabricStock = () => {
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [form] = Form.useForm();
+  const role = localStorage.getItem('role');
+  const [branches, setBranches] = useState([]);
+  const [shopOptions, setShopOptions] = useState([]);
+  const [selectedShopId, setSelectedShopId] = useState(null);
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
 
   useEffect(() => {
     fetchData();
+    fetchBranches();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line
+  }, [selectedShopId, selectedBranchId]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const [stocksData, fabricsData] = await Promise.all([
-        getAllFabricStocks(),
-        getAllFabricTypes()
+        getAllFabricStocks(selectedShopId, selectedBranchId),
+        getAllFabricTypes(selectedShopId, selectedBranchId)
       ]);
 
       // Create a map of fabric IDs to names
@@ -53,6 +65,19 @@ const FabricStock = () => {
       message.error("Failed to load stock data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const data = await getAllBranches();
+      setBranches(data || []);
+      const uniqueShops = [
+        ...new Map(data.map((b) => [b.ShopId, { label: b.ShopName, value: b.ShopId }])).values()
+      ];
+      setShopOptions(uniqueShops);
+    } catch {
+      message.error("Failed to load branches");
     }
   };
 
@@ -116,6 +141,41 @@ const FabricStock = () => {
           </Space>
         }
       >
+        {(role === "Admin" ) && (
+          <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>
+            <Select
+              placeholder="Filter by Shop"
+              options={shopOptions}
+              allowClear
+              value={selectedShopId}
+              onChange={(value) => {
+                setSelectedShopId(value);
+                setSelectedBranchId(null);
+              }}
+              style={{ width: 200 }}
+            />
+            <Select
+              placeholder="Select Branch"
+              allowClear
+              value={selectedBranchId}
+              onChange={setSelectedBranchId}
+              disabled={!selectedShopId}
+              style={{ width: 200 }}
+            >
+              {branches
+                .filter(branch => branch.ShopId === selectedShopId)
+                .map(branch => (
+                  <Select.Option key={branch.BranchId} value={branch.BranchId}>
+                    {branch.BranchName}
+                  </Select.Option>
+                ))}
+            </Select>
+            <Button type="primary" onClick={fetchData}>
+              Apply Filters
+            </Button>
+          </div>
+        )}
+
         <Spin spinning={loading}>
           <Table
             dataSource={stocks}
