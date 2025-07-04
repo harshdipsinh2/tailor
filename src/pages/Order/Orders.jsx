@@ -9,7 +9,7 @@ import {getAllOrders,getAllCustomers,getAllProducts , getAllFabricTypes,createOr
 import { getAllUsers , getAllTailors } from "../../api/UserApi";
 import { createCheckoutSession } from "../../api/Payment";
 import { updateOrderStatus } from "../../api/AdminApi"; 
-import orderactions from "./OrderActions"; // Import OrderActions component
+// import orderactions from "./OrderActions"; // Import OrderActions component
 import { Row, Col } from "antd";
 
 const { Option } = Select;
@@ -390,7 +390,7 @@ const Orders = () => {
   return (
     <div style={{ padding: "20px" }}>
       <Card
-        title={<h2>Orders</h2>}
+        title={<h2 style={{ margin: 0 }}>Orders</h2>}
         extra={
           <Space>
             <Input

@@ -189,7 +189,7 @@ const Products = () => {
   return (
     <div style={{ padding: "20px" }}>
       <Card
-        title="Product Records"
+        title={<h2 style={{ margin: 0 }}>Product Records</h2>}
         extra={
           <Space>
             <Input

@@ -207,31 +207,6 @@ export const getProduct = async (id) => {
         throw new Error('Error fetching product: ' + error.message);
     }
 };
-export const getAllCustomers1 = async (shopId = null, branchId = null) => {
-  try {
-    const role = localStorage.getItem("role");
-
-    let endpoint = '';
-    let params = {};
-
-    if (role === "SuperAdmin") {
-      endpoint = '/api/Admin/GetAllCustomersForSuperAdmin';
-      params = { shopId, branchId };
-    } else if (role === "Admin") {
-      endpoint = '/api/Admin/GetAllCustomer-Admin';
-      params = { shopId, branchId };
-    } else {
-      endpoint = '/api/Admin/GetAllCustomer-Manager';
-      // For Manager, no params needed (ShopId/BranchId are read from token)
-    }
-
-    const response = await api.get(endpoint, { params });
-
-    return response.data;
-  } catch (error) {
-    throw new Error("Error fetching customers: " + error.message);
-  }
-};
 
 export const getAllProducts = async (shopId,branchId) => {
     try{

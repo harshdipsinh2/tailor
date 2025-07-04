@@ -104,7 +104,7 @@ const FabricStock = () => {
   return (
     <div className="fabric-stock-container" style={{ padding: "20px" }}>
       <Card
-        title={<h2>Fabric Stock Records</h2>}
+        title={<h2 style={{ margin: 0 }}>Fabric Stock Records</h2>}
         extra={
           <Space>
             <Popconfirm

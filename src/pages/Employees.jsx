@@ -38,7 +38,7 @@ const Employees = () => {
     const branchId = parseInt(payload.branchId);
 
     // Only fetch branches for admin/superadmin
-    if (userRole === "admin" || userRole === "superadmin") {
+    if (userRole === "admin" || userRole === "superadmin" || userRole === "manager") {
       getAllBranches().then(data => {
         setBranches(data || []);
         const uniqueShops = [
@@ -216,7 +216,7 @@ const Employees = () => {
               allowClear
               style={{ width: "250px" }}
             />
-            {(userRole === 'admin' || userRole === 'superadmin') && (
+            {(userRole === 'admin' || userRole === 'superadmin' || userRole === 'manager' ) && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -415,8 +415,10 @@ const Employees = () => {
           </Form.Item>
           <Form.Item label="Role" name="roleName" rules={[{ required: true }]}>
             <Select>
-              <Select.Option value="Manager">Manager</Select.Option>
-              <Select.Option value="Tailor">Tailor</Select.Option>
+    {/* Only show "Manager" if NOT logged in as manager */}
+    {userRole !== "manager" && (
+      <Select.Option value="Manager">Manager</Select.Option>
+    )}              <Select.Option value="Tailor">Tailor</Select.Option>
             </Select>
           </Form.Item>
           <Space>

@@ -137,7 +137,7 @@ const Fabrics = () => {
   return (
     <div className="fabrics-container" style={{ padding: "20px" }}>
       <Card
-        title={<h2>Fabric Records</h2>}
+        title={<h2 style={{ margin: 0 }}>Fabric Records</h2>}
         extra={
           <Space>
             <Input

@@ -8,6 +8,7 @@ import {
   DownOutlined,
   TeamOutlined,
   CalendarOutlined,
+  BranchesOutlined,
   MessageOutlined, // Add this import
   HomeOutlined 
 } from "@ant-design/icons";
@@ -141,7 +142,7 @@ const MainLayout = () => {
       getItem(<Link to="/Plan">Plan</Link>, "14", <PieChartOutlined />),  
 
       //branch
-        getItem(<Link to="/branch">Branch</Link>, "15"),
+        getItem(<Link to="/branch">Branch</Link>, "15",<BranchesOutlined />),
 
 
       // Additional management options

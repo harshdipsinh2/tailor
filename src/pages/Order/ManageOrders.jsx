@@ -132,7 +132,7 @@ const ManageOrders = () => {
   return (
     <div>
       <Card
-        title={<h2>Manage Orders</h2>}
+        title={<h2 style={{ margin: 0 }}>Manage Orders</h2>}
         extra={
           <Space>
             <Input

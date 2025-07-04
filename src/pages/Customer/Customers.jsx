@@ -198,7 +198,7 @@ const Customers = () => {
   return (
     <div style={{ padding: "20px" }}>
       <Card
-        title="Customer Records"
+        title={<h2 style={{ margin: 0 }}>Customer Records</h2>}
         extra={
           <Space>
             <Input
