@@ -115,7 +115,7 @@ export const addMeasurement = async (customerId, measurementData) => {
       console.log('Adding measurement for customer:', customerId, measurementData);
   
       const response = await api.post(
-        `https://localhost:7252/api/Admin/AddMeasurement`, // ✅ Your endpoint
+        `${API_BASE_URL}/AddMeasurement`, // ✅ Your endpoint
         measurementData,
         {
           params: { CustomerId: customerId }, // ✅ Pass as query param
@@ -144,7 +144,7 @@ export const getMeasurement = async (customerId) => {
 export const deleteMeasurement = async (MeasurementID) => {
     try {
       const response = await api.delete(
-        `https://localhost:7252/api/Admin/DeleteMeasurement`,
+        `/api/Admin/DeleteMeasurement`,
         {
           params: { MeasurementID } // 👈 Pass as query param
         }

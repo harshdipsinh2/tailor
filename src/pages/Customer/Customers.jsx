@@ -166,7 +166,6 @@ const Customers = () => {
           Wrist: parseFloat(values.wrist) || 0,
           Ankle: parseFloat(values.ankle) || 0,
           Calf: parseFloat(values.calf) || 0,
-          EstimatedFabric: calculateFabricRequirement(values)
         };
 
         if (!Object.values(measurementData).some(v => v > 0))
