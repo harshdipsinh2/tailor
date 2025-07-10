@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://localhost:7252",
+  baseURL: "https://tailorapi-xp7m.onrender.com",
   headers: { "Content-Type": "application/json" },
 });
 
