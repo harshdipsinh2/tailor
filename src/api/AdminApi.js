@@ -614,8 +614,9 @@ export const getAllPlans = async () => {
 };
 
 export const buyPlan = async (planId) => {
+
   try {
-    const response = await api.post(`https://localhost:7252/api/Plan/buy`, null, {
+    const response = await api.post(`${API_BASE_URL_PAYMENT}/buy`, null, {
       params: { planId }
     });
     return response.data.url; // ✅ Stripe session link
