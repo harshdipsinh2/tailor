@@ -1,6 +1,6 @@
 import api from './api';
 
-const API_BASE_URL = '/api/Auth';
+const API_BASE_URL = 'https://tailorapi-xp7m.onrender.com';
 
 // Login API
 export const login = async (email, password) => {

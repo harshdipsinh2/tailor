@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import {
   UserOutlined,
   PieChartOutlined,
@@ -9,26 +9,23 @@ import {
   TeamOutlined,
   CalendarOutlined,
   BranchesOutlined,
-  MessageOutlined, // Add this import
   HomeOutlined 
 } from "@ant-design/icons";
-import { Layout, Menu, Breadcrumb, theme, Avatar, Dropdown, Space, message, 
+import { Layout, Menu, theme, Avatar, Dropdown, Space, message, 
   // Badge, Popover, Tag // Comment out
 } from "antd";
-import { Link, useLocation, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import image from "../../asset/maschine.jpeg";
 import "../../Css/Navbar.css";
-import { AuthContext } from "../../Contexts/AuthContext";
-import { getRejectedOrders, getAllOrders } from '../../api/AdminApi';
-import dayjs from 'dayjs';
+// import { AuthContext } from "../../Contexts/AuthContext";
 import { Popconfirm } from 'antd';
 
 // Destructure Layout components
 const { Header, Sider, Content } = Layout;
 
 // Get authentication data from context
-const token = AuthContext.token;
-const role = AuthContext.role;
+// const token = AuthContext.token;
+// const role = AuthContext.role;
 
 // Helper function to create menu items with consistent structure
 const getItem = (label, key, icon, children, type) => ({
@@ -53,20 +50,20 @@ const MainLayout = () => {
   } = theme.useToken();
 
   // Sample message data
-  const messages = [
-    {
-      id: 1,
-      title: "New Order",
-      content: "You have received a new order",
-      time: "5 mins ago"
-    },
-    {
-      id: 2,
-      title: "Order Update",
-      content: "Order #123 has been completed",
-      time: "1 hour ago"
-    }
-  ];
+  // const messages = [
+  //   {
+  //     id: 1,
+  //     title: "New Order",
+  //     content: "You have received a new order",
+  //     time: "5 mins ago"
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Order Update",
+  //     content: "Order #123 has been completed",
+  //     time: "1 hour ago"
+  //   }
+  // ];
 
   // Handle user logout
   const handleLogout = () => {
