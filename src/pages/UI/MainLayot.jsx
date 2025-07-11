@@ -112,7 +112,7 @@ const MainLayout = () => {
       ]),
       // Additional management options
       getItem(<Link to="/employees">Employees</Link>, "10", <TeamOutlined />),
-      getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
+      // getItem(<Link to="/Calendar">Calendar</Link>, "11", <CalendarOutlined />),
       // getItem(<Link to="/sms-history">SMS History</Link>, "13", <MessageOutlined />),
     );
   } else if (role === "Admin" ) {
